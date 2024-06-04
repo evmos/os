@@ -1,2 +1,1 @@
-# sdk
-Evmos SDK
+# evmOS
