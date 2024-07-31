@@ -1,0 +1,50 @@
+{
+  "categories": [
+    "all",
+    "ante",
+    "bank-precompile",
+    "ci",
+    "cli",
+    "contracts",
+    "deps",
+    "dist-precompile",
+    "eip-712",
+    "erc20",
+    "erc20-precompile",
+    "evm",
+    "feemarket",
+    "ibc",
+    "ics20-precompile",
+    "precompiles",
+    "proto",
+    "rpc",
+    "staking-precompile",
+    "tests"
+  ],
+  "change_types": {
+    "Bug Fixes": "bug\\s*fixes",
+    "Improvements": "improvements",
+    "API Breaking": "api\\s*breaking",
+    "State Machine Breaking": "state\\s*machine\\s*breaking"
+  },
+  "expected_spellings": {
+    "ABI": "abi",
+    "API": "api",
+    "CI": "ci",
+    "Cosmos SDK": "cosmos[\\s-]*sdk",
+    "CLI": "cli",
+    "EIP-712": "eip[\\s-]*712",
+    "ERC-20": "erc[\\s-]*20",
+    "EVM": "evm",
+    "evmOS": "evmos",
+    "IBC": "ibc",
+    "ICS": "ics",
+    "ICS-20": "ics[\\s-]*20",
+    "OS": "os",
+    "PR": "pr",
+    "RPC": "rpc",
+    "SDK": "sdk"
+  },
+  "legacy_version": null,
+  "target_repo": "https://github.com/evmos/os"
+}
