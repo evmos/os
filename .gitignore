@@ -1,15 +1,30 @@
-# Binaries for programs and plugins
+# OS
+.DS_Store
+*.swp
+*.swo
+*.swl
+*.swm
+*.swn
+*.pyc
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+.dccache
 
-# Test binary, built with `go test -c`
-*.test
+# Testing
+coverage.txt
+yarn.lock
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
+# IDE
+.idea/
+.vscode/
+*.iml
+*.code-workspace
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
+# Node.js
+**/node_modules
+
+# OpenZeppelin contracts
+contracts/@openzeppelin/*
