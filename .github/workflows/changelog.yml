@@ -8,7 +8,15 @@ on:
 permissions: read-all
 
 jobs:
-  lint-changelog:
+  check_diff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Changelog for changes
+        uses: tarides/changelog-check-action@v3
+        with:
+          changelog: CHANGELOG.md
+
+  lint_changelog:
     runs-on: ubuntu-latest
 
     steps:
