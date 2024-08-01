@@ -9,9 +9,9 @@ require (
 	github.com/cometbft/cometbft v0.37.9
 	github.com/cosmos/cosmos-sdk v0.47.12
 	github.com/ethereum/go-ethereum v1.11.5
-	github.com/evmos/evmos/v19 v19.0.0
+	github.com/evmos/evmos/v19 v19.0.0-20240731212153-b36241652b57
 	github.com/stretchr/testify v1.9.0
-	github.com/tidwall/gjson v1.17.2
+	github.com/tidwall/gjson v1.17.3
 	github.com/tidwall/sjson v1.2.5
 	golang.org/x/text v0.16.0
 )
@@ -147,7 +147,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
-	github.com/onsi/gomega v1.34.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.0 // indirect
 	github.com/petermattis/goid v0.0.0-20230518223814-80aa455d8761 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
