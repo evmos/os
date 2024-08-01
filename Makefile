@@ -215,10 +215,15 @@ check-licenses:
 	@python3 check_licenses.py .
 	@rm check_licenses.py
 
+# Use changelog linter and auto-fix from https://github.com/MalteHerrmann/changelog-utils
+cluVersion=v1.1.2
+cluImage=ghcr.io/malteherrmann/changelog-utils
+clu=$(DOCKER) run --rm -v "$(CURDIR):/workspace" --workdir /workspace --user 0 $(cluImage):$(cluVersion)
+
 changelog-check:
 	@echo "Checking changelog..."
-	@clu lint
+	@$(clu) lint
 
 changelog-fix:
 	@echo "Fixing changelog..."
-	@clu fix
+	@$(clu) fix
