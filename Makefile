@@ -2,17 +2,9 @@
 
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
-COMMIT := $(shell git log -1 --format='%H')
 BUILDDIR ?= $(CURDIR)/build
 HTTPS_GIT := https://github.com/evmos/os.git
 DOCKER := $(shell which docker)
-DOCKER_TAG := $(COMMIT_HASH)
-# Deps for Proto and Swagger generation
-DEPS_COSMOS_SDK_VERSION := $(shell cat go.sum | grep 'github.com/evmos/cosmos-sdk' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_IBC_GO_VERSION := $(shell cat go.sum | grep 'github.com/cosmos/ibc-go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_COSMOS_PROTO := $(shell cat go.sum | grep 'github.com/cosmos/cosmos-proto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_COSMOS_GOGOPROTO := $(shell cat go.sum | grep 'github.com/cosmos/gogoproto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_COSMOS_ICS23 := go/$(shell cat go.sum | grep 'github.com/cosmos/ics23/go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
 
 export GO111MODULE = on
 
@@ -156,7 +148,7 @@ proto-check-breaking:
 ###                                Releasing                                ###
 ###############################################################################
 
-PACKAGE_NAME:=github.com/evmos/evmos
+PACKAGE_NAME:=github.com/evmos/os
 GOLANG_CROSS_VERSION  = v1.22
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
@@ -223,10 +215,10 @@ check-licenses:
 	@python3 check_licenses.py .
 	@rm check_licenses.py
 
-check-changelog:
+changelog-check:
 	@echo "Checking changelog..."
-	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md
+	@clu lint
 
-fix-changelog:
+changelog-fix:
 	@echo "Fixing changelog..."
-	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md --fix
+	@clu fix
