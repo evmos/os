@@ -433,7 +433,7 @@ github.com/envoyproxy/go-control-plane v0.10.2-0.20220325020618-49ff273808a1/go.
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/evmos/cosmos-sdk v0.47.12-evmos.2 h1:NODyhYKCqu8JNLeR6b6ff0+TS3KYdcBiMZ4sVzXXD8I=
 github.com/evmos/cosmos-sdk v0.47.12-evmos.2/go.mod h1:ADjORYzUQqQv/FxDi0H0K5gW/rAk1CiDR3ZKsExfJV0=
-github.com/evmos/evmos/v19 v19.0.0 h1:ZhW3/vz2xDi4V6Y/a7IzXjo3A69XX7XGhUqdTGUSuGE=
+github.com/evmos/evmos/v19 v19.0.0 h1:oEwLercrZ7rD+Vk8rBZtzIw2FrojVnJw1tKIcksoQIc=
 github.com/evmos/evmos/v19 v19.0.0/go.mod h1:0BtH6AsIRvAaNmSIfIYGH3AaXgWtq8ZBTdmYV08VZjE=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc4 h1:vwDVMScuB2KSu8ze5oWUuxm6v3bMUp6dL3PWvJNJY+I=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc4/go.mod h1:/6CsT5Ceen2WPLI/oCA3xMcZ5sWMF/D46SjM/ayY0Oo=
