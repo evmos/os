@@ -269,9 +269,12 @@ contracts-add:
 ###                           Miscellaneous Checks                          ###
 ###############################################################################
 
+# TODO: turn into CI action
 check-licenses:
 	@echo "Checking licenses..."
-	@python3 scripts/license_checker/check_licenses.py .
+	@curl -sSfL https://raw.githubusercontent.com/evmos/evmos/v19.0.0/scripts/license_checker/check_licenses.py -o check_licenses.py
+	@python3 check_licenses.py .
+	@rm check_licenses.py
 
 check-changelog:
 	@echo "Checking changelog..."
