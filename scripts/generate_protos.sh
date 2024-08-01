@@ -2,7 +2,7 @@
 
 # --------------
 # Commands to run locally
-# docker run --network host --rm -v $(CURDIR):/workspace --workdir /workspace ghcr.io/cosmos/proto-builder:v0.11.6 sh ./protocgen.sh
+# docker run --network host --rm -v $(CURDIR):/workspace --workdir /workspace ghcr.io/cosmos/proto-builder:v0.11.6 sh ./generate_protos.sh
 #
 set -eo pipefail
 
