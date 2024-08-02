@@ -27,8 +27,8 @@ import (
 	"github.com/evmos/evmos/v19/cmd/config"
 	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
 	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/os/ethereum/eip712"
+	"github.com/evmos/os/testutil"
 	"github.com/stretchr/testify/suite"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -70,7 +70,7 @@ func TestEIP712TestSuite(t *testing.T) {
 func (suite *EIP712TestSuite) SetupTest() {
 	suite.config = encoding.MakeConfig(app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = utils.BaseDenom
+	suite.denom = testutil.ExampleAttoDenom
 
 	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
 	eip712.SetEncodingConfig(suite.config)
@@ -350,7 +350,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 				err = txBuilder.SetSignatures([]signing.SignatureV2{txSig}...)
 				suite.Require().NoError(err)
 
-				chainID := utils.TestnetChainID + "-1"
+				chainID := testutil.ExampleChainID
 				if tc.chainID != "" {
 					chainID = tc.chainID
 				}
