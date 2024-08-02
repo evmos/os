@@ -9,7 +9,7 @@ require (
 	github.com/cometbft/cometbft v0.37.9
 	github.com/cosmos/cosmos-sdk v0.47.12
 	github.com/ethereum/go-ethereum v1.11.5
-	github.com/evmos/evmos/v19 v19.0.0-20240731212153-b36241652b57
+	github.com/evmos/evmos/v19 v19.0.0
 	github.com/stretchr/testify v1.9.0
 	github.com/tidwall/gjson v1.17.3
 	github.com/tidwall/sjson v1.2.5
