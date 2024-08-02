@@ -18,9 +18,9 @@ import (
 	"github.com/evmos/evmos/v19/cmd/config"
 	"github.com/evmos/evmos/v19/encoding"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/types"
 	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/os/ethereum/eip712"
+	"github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
 
