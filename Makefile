@@ -2,16 +2,9 @@
 
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
-COMMIT := $(shell git log -1 --format='%H')
 BUILDDIR ?= $(CURDIR)/build
 HTTPS_GIT := https://github.com/evmos/os.git
-DOCKER_TAG := $(COMMIT_HASH)
-# Deps for Proto and Swagger generation
-DEPS_COSMOS_SDK_VERSION := $(shell cat go.sum | grep 'github.com/evmos/cosmos-sdk' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_IBC_GO_VERSION := $(shell cat go.sum | grep 'github.com/cosmos/ibc-go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_COSMOS_PROTO := $(shell cat go.sum | grep 'github.com/cosmos/cosmos-proto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_COSMOS_GOGOPROTO := $(shell cat go.sum | grep 'github.com/cosmos/gogoproto' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
-DEPS_COSMOS_ICS23 := go/$(shell cat go.sum | grep 'github.com/cosmos/ics23/go' | grep -v -e 'go.mod' | tail -n 1 | awk '{ print $$2; }')
+DOCKER := $(shell which docker)
 
 export GO111MODULE = on
 
@@ -130,86 +123,32 @@ protoLinter=$(DOCKER) run --rm -v "$(CURDIR):/workspace" --workdir /workspace --
 # NOTE: If you are experiencing problems running these commands, try deleting
 #       the docker images and execute the desired command again.
 #
-proto-all: proto-format proto-lint proto-gen proto-swagger-gen
+proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
-	@echo "Generating Protobuf files"
-	$(protoImage) sh ./scripts/protocgen.sh
-
-proto-swagger-gen:
-	@echo "Downloading Protobuf dependencies"
-	@make proto-download-deps
-	@echo "Generating Protobuf Swagger"
-	$(protoImage) sh ./scripts/protoc-swagger-gen.sh
+	@echo "generating implementations from Protobuf files"
+	@$(protoImage) sh ./scripts/generate_protos.sh
 
 proto-format:
-	@echo "Formatting Protobuf files"
-	$(protoImage) find ./ -name *.proto -exec clang-format -i {} \;
+	@echo "formatting Protobuf files"
+	@$(protoImage) find ./ -name *.proto -exec clang-format -i {} \;
 
 proto-lint:
-	@echo "Linting Protobuf files"
+	@echo "linting Protobuf files"
 	@$(protoImage) buf lint --error-format=json
 	@$(protoLinter) lint ./proto
 
 proto-check-breaking:
-	@echo "Checking Protobuf files for breaking changes"
-	$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
+	@echo "checking Protobuf files for breaking changes"
+	@$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
-SWAGGER_DIR=./swagger-proto
-THIRD_PARTY_DIR=$(SWAGGER_DIR)/third_party
-
-proto-download-deps:
-	mkdir -p "$(THIRD_PARTY_DIR)/cosmos_tmp" && \
-	cd "$(THIRD_PARTY_DIR)/cosmos_tmp" && \
-	git init && \
-	git remote add origin "https://github.com/evmos/cosmos-sdk.git" && \
-	git config core.sparseCheckout true && \
-	printf "proto\nthird_party\n" > .git/info/sparse-checkout && \
-	git pull origin "$(DEPS_COSMOS_SDK_VERSION)" && \
-	rm -f ./proto/buf.* && \
-	mv ./proto/* ..
-	rm -rf "$(THIRD_PARTY_DIR)/cosmos_tmp"
-
-	mkdir -p "$(THIRD_PARTY_DIR)/ibc_tmp" && \
-	cd "$(THIRD_PARTY_DIR)/ibc_tmp" && \
-	git init && \
-	git remote add origin "https://github.com/cosmos/ibc-go.git" && \
-	git config core.sparseCheckout true && \
-	printf "proto\n" > .git/info/sparse-checkout && \
-	git pull origin "$(DEPS_IBC_GO_VERSION)" && \
-	rm -f ./proto/buf.* && \
-	mv ./proto/* ..
-	rm -rf "$(THIRD_PARTY_DIR)/ibc_tmp"
-
-	mkdir -p "$(THIRD_PARTY_DIR)/cosmos_proto_tmp" && \
-	cd "$(THIRD_PARTY_DIR)/cosmos_proto_tmp" && \
-	git init && \
-	git remote add origin "https://github.com/cosmos/cosmos-proto.git" && \
-	git config core.sparseCheckout true && \
-	printf "proto\n" > .git/info/sparse-checkout && \
-	git pull origin "$(DEPS_COSMOS_PROTO_VERSION)" && \
-	rm -f ./proto/buf.* && \
-	mv ./proto/* ..
-	rm -rf "$(THIRD_PARTY_DIR)/cosmos_proto_tmp"
-
-	mkdir -p "$(THIRD_PARTY_DIR)/gogoproto" && \
-	curl -SSL "https://raw.githubusercontent.com/cosmos/gogoproto/$(DEPS_COSMOS_GOGOPROTO)/gogoproto/gogo.proto" > "$(THIRD_PARTY_DIR)/gogoproto/gogo.proto"
-
-	mkdir -p "$(THIRD_PARTY_DIR)/google/api" && \
-	curl -sSL https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto > "$(THIRD_PARTY_DIR)/google/api/annotations.proto"
-	curl -sSL https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/http.proto > "$(THIRD_PARTY_DIR)/google/api/http.proto"
-
-	mkdir -p "$(THIRD_PARTY_DIR)/cosmos/ics23/v1" && \
-	curl -sSL "https://raw.githubusercontent.com/cosmos/ics23/$(DEPS_COSMOS_ICS23)/proto/cosmos/ics23/v1/proofs.proto" > "$(THIRD_PARTY_DIR)/cosmos/ics23/v1/proofs.proto"
-
-
-.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-swagger-gen
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking
 
 ###############################################################################
 ###                                Releasing                                ###
 ###############################################################################
 
-PACKAGE_NAME:=github.com/evmos/evmos
+PACKAGE_NAME:=github.com/evmos/os
 GOLANG_CROSS_VERSION  = v1.22
 GOPATH ?= '$(HOME)/go'
 release-dry-run:
@@ -276,10 +215,15 @@ check-licenses:
 	@python3 check_licenses.py .
 	@rm check_licenses.py
 
-check-changelog:
-	@echo "Checking changelog..."
-	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md
+# Use changelog linter and auto-fix from https://github.com/MalteHerrmann/changelog-utils
+cluVersion=v1.1.2
+cluImage=ghcr.io/malteherrmann/changelog-utils
+clu=$(DOCKER) run --rm -v "$(CURDIR):/workspace" --workdir /workspace --user 0 $(cluImage):$(cluVersion)
 
-fix-changelog:
+changelog-check:
+	@echo "Checking changelog..."
+	@$(clu) lint
+
+changelog-fix:
 	@echo "Fixing changelog..."
-	@python3 scripts/changelog_checker/check_changelog.py ./CHANGELOG.md --fix
+	@$(clu) fix
