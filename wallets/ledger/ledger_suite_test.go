@@ -5,6 +5,7 @@ package ledger_test
 
 import (
 	"encoding/hex"
+	"fmt"
 	"regexp"
 	"testing"
 
@@ -21,6 +22,7 @@ import (
 	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/wallets/ledger"
 	"github.com/evmos/os/wallets/ledger/mocks"
 	"github.com/evmos/os/wallets/usbwallet"
@@ -64,10 +66,10 @@ func (suite *LedgerTestSuite) newPubKey(pk string) (res cryptoTypes.PubKey) {
 
 func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 	whitespaceRegex := regexp.MustCompile(`\s+`)
-	tmp := whitespaceRegex.ReplaceAllString(
+	tmp := whitespaceRegex.ReplaceAllString(fmt.Sprintf(
 		`{
 			"account_number": "0",
-			"chain_id":"evmos_9000-1",
+			"chain_id":"%s",
 			"fee":{
 				"amount":[{"amount":"150","denom":"atom"}],
 				"gas":"20000"
@@ -82,7 +84,7 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 				}
 			}],
 			"sequence":"6"
-		}`,
+		}`, testutil.ExampleChainID),
 		"",
 	)
 
@@ -146,7 +148,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 	signBytes, err := auxTx.DirectSignBytes(
 		bodyBytes,
 		authInfoBytes,
-		"evmos_9000-1",
+		testutil.ExampleChainID,
 		0,
 	)
 	suite.Require().NoError(err)
