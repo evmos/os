@@ -16,8 +16,8 @@ import (
 
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/cmd/config"
-	"github.com/evmos/evmos/v19/encoding"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
+	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/types"

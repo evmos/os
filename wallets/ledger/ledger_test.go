@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/encoding"
+	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/wallets/accounts"
 	"github.com/evmos/os/wallets/ledger"

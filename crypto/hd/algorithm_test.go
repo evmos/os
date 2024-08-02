@@ -13,8 +13,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
-	enccodec "github.com/evmos/evmos/v19/encoding/codec"
 	cryptocodec "github.com/evmos/os/crypto/codec"
+	enccodec "github.com/evmos/os/encoding/codec"
 	evmostypes "github.com/evmos/os/types"
 )
 
