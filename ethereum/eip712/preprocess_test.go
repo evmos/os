@@ -18,15 +18,15 @@ import (
 	"github.com/evmos/evmos/v19/cmd/config"
 	"github.com/evmos/evmos/v19/encoding"
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
 	"github.com/evmos/os/ethereum/eip712"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
 
 // Testing Constants
 var (
-	chainID = utils.TestnetChainID + "-1"
+	chainID = testutil.ExampleChainID
 	ctx     = client.Context{}.WithTxConfig(
 		encoding.MakeConfig(app.ModuleBasics).TxConfig,
 	)
@@ -95,7 +95,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, tx.FeePayer().String(), tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(utils.BaseDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(testutil.ExampleAttoDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -189,12 +189,11 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	gasLimit := uint64(200000)
 	memo := ""
-	denom := utils.BaseDenom
 	feeAmount := math.NewInt(2000)
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
 		sdk.NewCoin(
-			denom,
+			testutil.ExampleAttoDenom,
 			feeAmount,
 		)))
 
@@ -206,7 +205,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				utils.BaseDenom,
+				testutil.ExampleAttoDenom,
 				math.NewInt(10000000),
 			),
 		),
