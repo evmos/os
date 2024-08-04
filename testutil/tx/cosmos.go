@@ -4,8 +4,6 @@
 package tx
 
 import (
-	"math"
-
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -17,10 +15,7 @@ import (
 	"github.com/evmos/os/testutil"
 )
 
-var (
-	feeAmt     = math.Pow10(16)
-	DefaultFee = sdk.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewIntFromUint64(uint64(feeAmt))) // 0.01 EVMOS
-)
+var DefaultFee = sdk.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AEVMOS
 
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
