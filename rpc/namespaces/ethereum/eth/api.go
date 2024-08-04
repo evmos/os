@@ -5,21 +5,18 @@ package eth
 import (
 	"context"
 
-	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-
-	"github.com/ethereum/go-ethereum/rpc"
-
 	"github.com/cometbft/cometbft/libs/log"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	"github.com/evmos/os/rpc/backend"
-
-	"github.com/evmos/evmos/v19/types"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/rpc/backend"
 	rpctypes "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/types"
 )
 
 // The Ethereum API allows applications to connect to an node of any evmOS based blockchain.

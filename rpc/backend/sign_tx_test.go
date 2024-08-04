@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-
 	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -12,12 +11,11 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	goethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"google.golang.org/grpc/metadata"
-
 	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/rpc/backend/mocks"
+	"google.golang.org/grpc/metadata"
 )
 
 func (suite *BackendTestSuite) TestSendTransaction() {
@@ -145,6 +143,15 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 }
 
 func (suite *BackendTestSuite) TestSign() {
+	//from := common.BytesToAddress([]byte{
+	//	252, 128, 132, 57, 126, 198, 142, 4, 175, 37, 135, 113, 18, 38, 187, 194, 114, 188, 97, 56,
+	//})
+	//priv := &ethsecp256k1.PrivKey{
+	//	Key: []byte{
+	//		3, 152, 164, 216, 237, 38, 19, 239, 82, 80, 217, 79, 145, 50, 150, 4, 115, 196, 172, 7, 92, 33, 227, 187, 215, 155, 72, 224, 244, 241, 223, 82,
+	//	},
+	//}
+
 	from, priv := utiltx.NewAddrKey()
 	testCases := []struct {
 		name         string
