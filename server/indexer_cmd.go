@@ -6,14 +6,13 @@ package server
 import (
 	"fmt"
 
-	"github.com/spf13/cobra"
-
 	tmnode "github.com/cometbft/cometbft/node"
 	sm "github.com/cometbft/cometbft/state"
 	tmstore "github.com/cometbft/cometbft/store"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/evmos/os/indexer"
+	"github.com/spf13/cobra"
 )
 
 func NewIndexTxCmd() *cobra.Command {

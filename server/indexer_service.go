@@ -10,7 +10,6 @@ import (
 	"github.com/cometbft/cometbft/libs/service"
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cometbft/cometbft/types"
-
 	evmostypes "github.com/evmos/os/types"
 )
 

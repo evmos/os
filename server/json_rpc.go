@@ -7,18 +7,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	ethlog "github.com/ethereum/go-ethereum/log"
 	ethrpc "github.com/ethereum/go-ethereum/rpc"
 	"github.com/evmos/os/rpc"
-
 	"github.com/evmos/os/server/config"
 	evmostypes "github.com/evmos/os/types"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 // StartJSONRPC starts the JSON-RPC server
