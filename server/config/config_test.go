@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil"
 	"reflect"
 	"testing"
+
+	"github.com/evmos/os/testutil"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
