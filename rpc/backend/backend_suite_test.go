@@ -19,7 +19,6 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/evmos/evmos/v19/app"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/hd"
 	"github.com/evmos/os/encoding"
@@ -27,6 +26,7 @@ import (
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/testutil"
+	utiltx "github.com/evmos/os/testutil/tx"
 )
 
 type BackendTestSuite struct {

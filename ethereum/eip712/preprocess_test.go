@@ -16,10 +16,10 @@ import (
 
 	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/evmos/v19/cmd/config"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/testutil"
+	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )

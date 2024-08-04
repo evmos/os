@@ -10,10 +10,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
+	utiltx "github.com/evmos/os/testutil/tx"
 	"google.golang.org/grpc/metadata"
 )
 
