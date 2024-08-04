@@ -19,8 +19,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/server/config"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil"
 )
 
