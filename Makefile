@@ -186,7 +186,7 @@ release:
 ###############################################################################
 
 # Install the necessary dependencies, compile the solidity contracts found in the
-# Evmos repository and then clean up the contracts data.
+# evmOS repository and then clean up the contracts data.
 contracts-all: contracts-compile contracts-clean
 
 # Clean smart contract compilation artifacts, dependencies and cache files
@@ -194,7 +194,7 @@ contracts-clean:
 	@echo "Cleaning up the contracts directory..."
 	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --clean
 
-# Compile the solidity contracts found in the Evmos repository.
+# Compile the solidity contracts found in the evmOS repository.
 contracts-compile:
 	@echo "Compiling smart contracts..."
 	@python3 ./scripts/compile_smart_contracts/compile_smart_contracts.py --compile
