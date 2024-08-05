@@ -435,7 +435,6 @@ github.com/evmos/cosmos-sdk v0.47.12-evmos.2 h1:NODyhYKCqu8JNLeR6b6ff0+TS3KYdcBi
 github.com/evmos/cosmos-sdk v0.47.12-evmos.2/go.mod h1:ADjORYzUQqQv/FxDi0H0K5gW/rAk1CiDR3ZKsExfJV0=
 github.com/evmos/evmos/v19 v19.0.0-20240731212153-b36241652b57 h1:C+JOScyVYgoASWrdIBmCYPBRbOpQgvGMCc8URWdq+xQ=
 github.com/evmos/evmos/v19 v19.0.0-20240731212153-b36241652b57/go.mod h1:HEPvi70nAyQyzYaDqtB2x33lwQ80wKVIyTRNnufjTg8=
-github.com/evmos/evmos/v19 v19.0.0/go.mod h1:0BtH6AsIRvAaNmSIfIYGH3AaXgWtq8ZBTdmYV08VZjE=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc4 h1:vwDVMScuB2KSu8ze5oWUuxm6v3bMUp6dL3PWvJNJY+I=
 github.com/evmos/go-ethereum v1.10.26-evmos-rc4/go.mod h1:/6CsT5Ceen2WPLI/oCA3xMcZ5sWMF/D46SjM/ayY0Oo=
 github.com/fatih/color v1.7.0/go.mod h1:Zm6kSWBoL9eyXnKyktHP6abPY2pDugNf5KwzbycvMj4=

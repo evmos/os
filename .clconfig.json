@@ -19,7 +19,8 @@
     "proto",
     "rpc",
     "staking-precompile",
-    "tests"
+    "tests",
+    "types"
   ],
   "change_types": {
     "API Breaking": "api\\s*breaking",
