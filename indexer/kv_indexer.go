@@ -204,7 +204,7 @@ func isEthTx(tx sdk.Tx) bool {
 		return false
 	}
 	opts := extTx.GetExtensionOptions()
-	if len(opts) != 1 || opts[0].GetTypeUrl() != "/ethermint.evm.v1.ExtensionOptionsEthereumTx" {
+	if len(opts) != 1 || opts[0].GetTypeUrl() != "/os.evm.v1.ExtensionOptionsEthereumTx" {
 		return false
 	}
 	return true
