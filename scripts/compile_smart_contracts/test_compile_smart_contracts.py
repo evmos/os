@@ -9,8 +9,8 @@ from compile_smart_contracts import (
     compile_contracts_in_dir,
     copy_to_contracts_directory,
     find_solidity_contracts,
-    is_os_repo,
     is_ignored_folder,
+    is_os_repo,
 )
 
 
