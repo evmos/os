@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"time"
 
-	// TODO update import to local pkg when rpc pkg is migrated
 	"github.com/evmos/os/server/config"
 	"github.com/gorilla/mux"
 	"github.com/improbable-eng/grpc-web/go/grpcweb"

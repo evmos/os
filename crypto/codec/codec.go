@@ -9,7 +9,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 )
 
-// RegisterInterfaces register the Evmos key concrete types.
+// RegisterInterfaces register the evmOS key concrete types.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations((*cryptotypes.PubKey)(nil), &ethsecp256k1.PubKey{})
 	registry.RegisterImplementations((*cryptotypes.PrivKey)(nil), &ethsecp256k1.PrivKey{})

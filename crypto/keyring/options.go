@@ -20,7 +20,7 @@ var (
 	// SupportedAlgorithms defines the list of signing algorithms used on evmOS:
 	//  - eth_secp256k1 (Ethereum)
 	SupportedAlgorithms = keyring.SigningAlgoList{hd.EthSecp256k1}
-	// SupportedAlgorithmsLedger defines the list of signing algorithms used on Evmos for the Ledger device:
+	// SupportedAlgorithmsLedger defines the list of signing algorithms used by evmOS for the Ledger device:
 	//  - secp256k1 (in order to comply with Cosmos SDK)
 	// The Ledger derivation function is responsible for all signing and address generation.
 	SupportedAlgorithmsLedger = keyring.SigningAlgoList{hd.EthSecp256k1}

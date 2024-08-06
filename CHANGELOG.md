@@ -9,7 +9,7 @@ This changelog was created using the `clu` binary
 ### Improvements
 
 - (cli) [#23](https://github.com/evmos/os/pull/23) Add client, cmd and version packages.
-- (rpc) [#22](https://github.com/evmos/os/pull/22) Add server implementation.
+- (server) [#22](https://github.com/evmos/os/pull/22) Add server implementation.
 - (rpc) [#21](https://github.com/evmos/os/pull/21) Add RPC and indexer types.
 - (types) [#20](https://github.com/evmos/os/pull/20) Add crypto and encoding packages.
 - (types) [#19](https://github.com/evmos/os/pull/19) Add required wallet types for integration.

@@ -18,6 +18,7 @@
     "precompiles",
     "proto",
     "rpc",
+    "server",
     "staking-precompile",
     "tests",
     "types"
