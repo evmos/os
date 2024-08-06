@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	// TODO: this import is required for the tests to pass, remove after porting the crypto package
-	evmoseip712 "github.com/evmos/evmos/v19/ethereum/eip712"
-
 	"cosmossdk.io/math"
 	chainparams "cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -74,11 +71,6 @@ func (suite *EIP712TestSuite) SetupTest() {
 
 	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
 	eip712.SetEncodingConfig(suite.config)
-
-	// TODO: this is required for the tests to pass because the encoding is called from the original
-	// Evmos repo during one function from the crypto/... package.
-	// TODO: remove once it's ported to the new repo
-	evmoseip712.SetEncodingConfig(suite.config)
 }
 
 // createTestAddress creates random test addresses for messages

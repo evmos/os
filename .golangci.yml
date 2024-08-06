@@ -21,7 +21,6 @@ linters:
     - gosimple
     - govet
     - ineffassign
-    # - lll TODO: enable
     - misspell
     - nakedret
     - prealloc

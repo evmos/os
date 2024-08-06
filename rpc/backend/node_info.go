@@ -22,10 +22,10 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	"github.com/evmos/evmos/v19/server/config"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil"
 )
 

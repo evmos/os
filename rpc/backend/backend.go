@@ -20,9 +20,9 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-	"github.com/evmos/evmos/v19/server/config"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	rpctypes "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/server/config"
 	evmostypes "github.com/evmos/os/types"
 )
 
