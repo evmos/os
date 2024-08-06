@@ -21,7 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/cmd/config"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
@@ -69,7 +68,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
 	suite.denom = testutil.ExampleAttoDenom
 
-	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
+	sdk.GetConfig().SetBech32PrefixForAccount(testutil.ExampleBech32Prefix, "")
 	eip712.SetEncodingConfig(suite.config)
 }
 
@@ -356,7 +355,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					AccountNumber: params.accountNumber,
 					Sequence:      params.sequence,
 					PubKey:        pubKey,
-					Address:       sdk.MustBech32ifyAddressBytes(config.Bech32Prefix, pubKey.Bytes()),
+					Address:       sdk.MustBech32ifyAddressBytes(testutil.ExampleBech32Prefix, pubKey.Bytes()),
 				}
 
 				bz, err := suite.clientCtx.TxConfig.SignModeHandler().GetSignBytes(

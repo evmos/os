@@ -14,10 +14,6 @@ import (
 	"runtime/pprof"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/telemetry"
-
 	"github.com/spf13/cobra"
 
 	"google.golang.org/grpc"
@@ -34,26 +30,29 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/client"
 	"github.com/cometbft/cometbft/rpc/client/local"
 
-	"cosmossdk.io/tools/rosetta"
-	crgserver "cosmossdk.io/tools/rosetta/lib/server"
-
 	ethmetricsexp "github.com/ethereum/go-ethereum/metrics/exp"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/tools/rosetta"
+	crgserver "cosmossdk.io/tools/rosetta/lib/server"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/api"
 	serverconfig "github.com/cosmos/cosmos-sdk/server/config"
 	servergrpc "github.com/cosmos/cosmos-sdk/server/grpc"
 	"github.com/cosmos/cosmos-sdk/server/types"
 	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
+	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/evmos/evmos/v19/cmd/evmosd/opendb"
+	"github.com/evmos/os/cmd/config"
 	"github.com/evmos/os/indexer"
 	ethdebug "github.com/evmos/os/rpc/namespaces/ethereum/debug"
-	"github.com/evmos/os/server/config"
+	evmosserverconfig "github.com/evmos/os/server/config"
 	srvflags "github.com/evmos/os/server/flags"
 	evmostypes "github.com/evmos/os/types"
 )
@@ -73,7 +72,7 @@ func NewDefaultStartOptions(appCreator types.AppCreator, defaultNodeHome string)
 	return StartOptions{
 		AppCreator:      appCreator,
 		DefaultNodeHome: defaultNodeHome,
-		DBOpener:        opendb.OpenDB,
+		DBOpener:        config.OpenDB,
 	}
 }
 
@@ -176,34 +175,34 @@ which accepts a path for the resulting pprof file.
 	cmd.Flags().String(srvflags.AppDBBackend, "", "The type of database for application and snapshots databases")
 
 	cmd.Flags().Bool(srvflags.GRPCOnly, false, "Start the node in gRPC query only mode without Tendermint process")
-	cmd.Flags().Bool(srvflags.GRPCEnable, config.DefaultGRPCEnable, "Define if the gRPC server should be enabled")
+	cmd.Flags().Bool(srvflags.GRPCEnable, evmosserverconfig.DefaultGRPCEnable, "Define if the gRPC server should be enabled")
 	cmd.Flags().String(srvflags.GRPCAddress, serverconfig.DefaultGRPCAddress, "the gRPC server address to listen on")
-	cmd.Flags().Bool(srvflags.GRPCWebEnable, config.DefaultGRPCWebEnable, "Define if the gRPC-Web server should be enabled. (Note: gRPC must also be enabled.)")
+	cmd.Flags().Bool(srvflags.GRPCWebEnable, evmosserverconfig.DefaultGRPCWebEnable, "Define if the gRPC-Web server should be enabled. (Note: gRPC must also be enabled.)")
 	cmd.Flags().String(srvflags.GRPCWebAddress, serverconfig.DefaultGRPCWebAddress, "The gRPC-Web server address to listen on")
 
-	cmd.Flags().Bool(srvflags.RPCEnable, config.DefaultAPIEnable, "Defines if Cosmos-sdk REST server should be enabled")
+	cmd.Flags().Bool(srvflags.RPCEnable, evmosserverconfig.DefaultAPIEnable, "Defines if Cosmos-sdk REST server should be enabled")
 	cmd.Flags().Bool(srvflags.EnabledUnsafeCors, false, "Defines if CORS should be enabled (unsafe - use it at your own risk)")
 
-	cmd.Flags().Bool(srvflags.JSONRPCEnable, config.DefaultJSONRPCEnable, "Define if the JSON-RPC server should be enabled")
-	cmd.Flags().StringSlice(srvflags.JSONRPCAPI, config.GetDefaultAPINamespaces(), "Defines a list of JSON-RPC namespaces that should be enabled")
-	cmd.Flags().String(srvflags.JSONRPCAddress, config.DefaultJSONRPCAddress, "the JSON-RPC server address to listen on")
-	cmd.Flags().String(srvflags.JSONWsAddress, config.DefaultJSONRPCWsAddress, "the JSON-RPC WS server address to listen on")
-	cmd.Flags().Uint64(srvflags.JSONRPCGasCap, config.DefaultGasCap, "Sets a cap on gas that can be used in eth_call/estimateGas unit is aevmos (0=infinite)")                        //nolint:lll
-	cmd.Flags().Bool(srvflags.JSONRPCAllowInsecureUnlock, config.DefaultJSONRPCAllowInsecureUnlock, "Allow insecure account unlocking when account-related RPCs are exposed by http") //nolint:lll
-	cmd.Flags().Float64(srvflags.JSONRPCTxFeeCap, config.DefaultTxFeeCap, "Sets a cap on transaction fee that can be sent via the RPC APIs (1 = default 1 evmos)")                    //nolint:lll
-	cmd.Flags().Int32(srvflags.JSONRPCFilterCap, config.DefaultFilterCap, "Sets the global cap for total number of filters that can be created")
-	cmd.Flags().Duration(srvflags.JSONRPCEVMTimeout, config.DefaultEVMTimeout, "Sets a timeout used for eth_call (0=infinite)")
-	cmd.Flags().Duration(srvflags.JSONRPCHTTPTimeout, config.DefaultHTTPTimeout, "Sets a read/write timeout for json-rpc http server (0=infinite)")
-	cmd.Flags().Duration(srvflags.JSONRPCHTTPIdleTimeout, config.DefaultHTTPIdleTimeout, "Sets a idle timeout for json-rpc http server (0=infinite)")
-	cmd.Flags().Bool(srvflags.JSONRPCAllowUnprotectedTxs, config.DefaultAllowUnprotectedTxs, "Allow for unprotected (non EIP155 signed) transactions to be submitted via the node's RPC when the global parameter is disabled") //nolint:lll
-	cmd.Flags().Int32(srvflags.JSONRPCLogsCap, config.DefaultLogsCap, "Sets the max number of results can be returned from single `eth_getLogs` query")
-	cmd.Flags().Int32(srvflags.JSONRPCBlockRangeCap, config.DefaultBlockRangeCap, "Sets the max block range allowed for `eth_getLogs` query")
-	cmd.Flags().Int(srvflags.JSONRPCMaxOpenConnections, config.DefaultMaxOpenConnections, "Sets the maximum number of simultaneous connections for the server listener") //nolint:lll
+	cmd.Flags().Bool(srvflags.JSONRPCEnable, evmosserverconfig.DefaultJSONRPCEnable, "Define if the JSON-RPC server should be enabled")
+	cmd.Flags().StringSlice(srvflags.JSONRPCAPI, evmosserverconfig.GetDefaultAPINamespaces(), "Defines a list of JSON-RPC namespaces that should be enabled")
+	cmd.Flags().String(srvflags.JSONRPCAddress, evmosserverconfig.DefaultJSONRPCAddress, "the JSON-RPC server address to listen on")
+	cmd.Flags().String(srvflags.JSONWsAddress, evmosserverconfig.DefaultJSONRPCWsAddress, "the JSON-RPC WS server address to listen on")
+	cmd.Flags().Uint64(srvflags.JSONRPCGasCap, evmosserverconfig.DefaultGasCap, "Sets a cap on gas that can be used in eth_call/estimateGas unit is aevmos (0=infinite)")                        //nolint:lll
+	cmd.Flags().Bool(srvflags.JSONRPCAllowInsecureUnlock, evmosserverconfig.DefaultJSONRPCAllowInsecureUnlock, "Allow insecure account unlocking when account-related RPCs are exposed by http") //nolint:lll
+	cmd.Flags().Float64(srvflags.JSONRPCTxFeeCap, evmosserverconfig.DefaultTxFeeCap, "Sets a cap on transaction fee that can be sent via the RPC APIs (1 = default 1 evmos)")                    //nolint:lll
+	cmd.Flags().Int32(srvflags.JSONRPCFilterCap, evmosserverconfig.DefaultFilterCap, "Sets the global cap for total number of filters that can be created")
+	cmd.Flags().Duration(srvflags.JSONRPCEVMTimeout, evmosserverconfig.DefaultEVMTimeout, "Sets a timeout used for eth_call (0=infinite)")
+	cmd.Flags().Duration(srvflags.JSONRPCHTTPTimeout, evmosserverconfig.DefaultHTTPTimeout, "Sets a read/write timeout for json-rpc http server (0=infinite)")
+	cmd.Flags().Duration(srvflags.JSONRPCHTTPIdleTimeout, evmosserverconfig.DefaultHTTPIdleTimeout, "Sets a idle timeout for json-rpc http server (0=infinite)")
+	cmd.Flags().Bool(srvflags.JSONRPCAllowUnprotectedTxs, evmosserverconfig.DefaultAllowUnprotectedTxs, "Allow for unprotected (non EIP155 signed) transactions to be submitted via the node's RPC when the global parameter is disabled") //nolint:lll
+	cmd.Flags().Int32(srvflags.JSONRPCLogsCap, evmosserverconfig.DefaultLogsCap, "Sets the max number of results can be returned from single `eth_getLogs` query")
+	cmd.Flags().Int32(srvflags.JSONRPCBlockRangeCap, evmosserverconfig.DefaultBlockRangeCap, "Sets the max block range allowed for `eth_getLogs` query")
+	cmd.Flags().Int(srvflags.JSONRPCMaxOpenConnections, evmosserverconfig.DefaultMaxOpenConnections, "Sets the maximum number of simultaneous connections for the server listener") //nolint:lll
 	cmd.Flags().Bool(srvflags.JSONRPCEnableIndexer, false, "Enable the custom tx indexer for json-rpc")
 	cmd.Flags().Bool(srvflags.JSONRPCEnableMetrics, false, "Define if EVM rpc metrics server should be enabled")
 
-	cmd.Flags().String(srvflags.EVMTracer, config.DefaultEVMTracer, "the EVM tracer type to collect execution traces from the EVM transaction execution (json|struct|access_list|markdown)") //nolint:lll
-	cmd.Flags().Uint64(srvflags.EVMMaxTxGasWanted, config.DefaultMaxTxGasWanted, "the gas wanted for each eth tx returned in ante handler in check tx mode")                                 //nolint:lll
+	cmd.Flags().String(srvflags.EVMTracer, evmosserverconfig.DefaultEVMTracer, "the EVM tracer type to collect execution traces from the EVM transaction execution (json|struct|access_list|markdown)") //nolint:lll
+	cmd.Flags().Uint64(srvflags.EVMMaxTxGasWanted, evmosserverconfig.DefaultMaxTxGasWanted, "the gas wanted for each eth tx returned in ante handler in check tx mode")                                 //nolint:lll
 
 	cmd.Flags().String(srvflags.TLSCertPath, "", "the cert.pem file path for the server TLS configuration")
 	cmd.Flags().String(srvflags.TLSKeyPath, "", "the key.pem file path for the server TLS configuration")
@@ -240,7 +239,7 @@ func startStandAlone(ctx *server.Context, opts StartOptions) error {
 
 	app := opts.AppCreator(ctx.Logger, db, traceWriter, ctx.Viper)
 
-	config, err := config.GetConfig(ctx.Viper)
+	config, err := evmosserverconfig.GetConfig(ctx.Viper)
 	if err != nil {
 		ctx.Logger.Error("failed to get server config", "error", err.Error())
 		return err
@@ -329,7 +328,7 @@ func startInProcess(ctx *server.Context, clientCtx client.Context, opts StartOpt
 		return err
 	}
 
-	config, err := config.GetConfig(ctx.Viper)
+	config, err := evmosserverconfig.GetConfig(ctx.Viper)
 	if err != nil {
 		logger.Error("failed to get server config", "error", err.Error())
 		return err
@@ -651,7 +650,7 @@ func openTraceWriter(traceWriterFile string) (w io.Writer, err error) {
 	)
 }
 
-func startTelemetry(cfg config.Config) (*telemetry.Metrics, error) {
+func startTelemetry(cfg evmosserverconfig.Config) (*telemetry.Metrics, error) {
 	if !cfg.Telemetry.Enabled {
 		return nil, nil
 	}

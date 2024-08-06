@@ -2,6 +2,7 @@ package eip712_test
 
 import (
 	"encoding/hex"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -15,7 +16,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/cmd/config"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/testutil"
@@ -26,12 +26,20 @@ import (
 
 // Testing Constants
 var (
+	// chainID is used in EIP-712 tests.
 	chainID = testutil.ExampleChainID
-	ctx     = client.Context{}.WithTxConfig(
+
+	// ctx is the default context used in EIP-712 tests.
+	ctx = client.Context{}.WithTxConfig(
 		encoding.MakeConfig(app.ModuleBasics).TxConfig,
 	)
+
+	// feePayerAddress is the address of the fee payer used in EIP-712 tests.
+	feePayerAddress = fmt.Sprintf(
+		"%s17xpfvakm2amg962yls6f84z3kell8c5ljcjw34",
+		testutil.ExampleBech32Prefix,
+	)
 )
-var feePayerAddress = "evmos17xpfvakm2amg962yls6f84z3kell8c5ljcjw34"
 
 type TestCaseStruct struct {
 	txBuilder              client.TxBuilder
@@ -45,7 +53,7 @@ type TestCaseStruct struct {
 
 func TestLedgerPreprocessing(t *testing.T) {
 	// Update bech32 prefix
-	sdk.GetConfig().SetBech32PrefixForAccount(config.Bech32Prefix, "")
+	sdk.GetConfig().SetBech32PrefixForAccount(testutil.ExampleBech32Prefix, "")
 
 	testCases := []TestCaseStruct{
 		createBasicTestCase(t),
