@@ -12,7 +12,7 @@ import (
 	enccodec "github.com/evmos/os/encoding/codec"
 )
 
-// MakeConfig creates an EncodingConfig for testing
+// MakeConfig creates an EncodingConfig for the given basic module manager.
 func MakeConfig(mb module.BasicManager) params.EncodingConfig {
 	cdc := amino.NewLegacyAmino()
 	interfaceRegistry := types.NewInterfaceRegistry()
