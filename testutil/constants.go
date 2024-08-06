@@ -9,4 +9,7 @@ const (
 
 	// ExampleDenom provides an example denom for use in tests
 	ExampleAttoDenom = "aevmos"
+
+	// DefaultGasPrice is used in testing as the default to use for transactions
+	DefaultGasPrice = 20
 )
