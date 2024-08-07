@@ -96,6 +96,7 @@ import (
 	"github.com/evmos/evmos/v19/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/evmos/os/ethereum/eip712"
 	srvflags "github.com/evmos/os/server/flags"
 	evmosutils "github.com/evmos/os/utils"
 )
@@ -162,6 +163,7 @@ var (
 // capabilities aren't needed for testing.
 type ExampleChain struct {
 	*baseapp.BaseApp
+
 	legacyAmino       *codec.LegacyAmino
 	appCodec          codec.Codec
 	txConfig          client.TxConfig
@@ -208,11 +210,11 @@ func init() {
 		panic(err)
 	}
 
-	DefaultNodeHome = filepath.Join(userHomeDir, ".simapp")
+	DefaultNodeHome = filepath.Join(userHomeDir, ".osd")
 }
 
-// NewSimApp returns a reference to an initialized ExampleChain.
-func NewSimApp(
+// NewExampleApp returns a reference to an initialized ExampleChain.
+func NewExampleApp(
 	logger log.Logger,
 	db dbm.DB,
 	traceStore io.Writer,
@@ -221,6 +223,7 @@ func NewSimApp(
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ExampleChain {
 	encodingConfig := makeEncodingConfig()
+	eip712.SetEncodingConfig(encodingConfig)
 
 	appCodec := encodingConfig.Codec
 	legacyAmino := encodingConfig.Amino
