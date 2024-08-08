@@ -11,9 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	"github.com/cosmos/cosmos-sdk/x/authz"
-	"github.com/evmos/evmos/os/encoding"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	"github.com/evmos/os/encoding"
+	app "github.com/evmos/os/example_chain"
 )
 
 func (suite *AnteTestSuite) CreateTestCosmosTxBuilder(gasPrice sdkmath.Int, denom string, msgs ...sdk.Msg) client.TxBuilder {

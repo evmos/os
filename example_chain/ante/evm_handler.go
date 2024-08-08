@@ -16,7 +16,6 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	anteutils "github.com/evmos/os/ante/cosmos"
 	evmante "github.com/evmos/os/ante/evm"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
 )
@@ -43,8 +42,8 @@ type MonoDecorator struct {
 	bankKeeper         evmtypes.BankKeeper
 	feeMarketKeeper    anteinterfaces.FeeMarketKeeper
 	evmKeeper          anteinterfaces.EVMKeeper
-	distributionKeeper anteutils.DistributionKeeper
-	stakingKeeper      anteutils.StakingKeeper
+	distributionKeeper anteinterfaces.DistributionKeeper
+	stakingKeeper      anteinterfaces.StakingKeeper
 	maxGasWanted       uint64
 }
 
@@ -71,8 +70,8 @@ func NewEVMMonoDecorator(
 	bankKeeper evmtypes.BankKeeper,
 	feeMarketKeeper anteinterfaces.FeeMarketKeeper,
 	evmKeeper anteinterfaces.EVMKeeper,
-	distributionKeeper anteutils.DistributionKeeper,
-	stakingKeeper anteutils.StakingKeeper,
+	distributionKeeper anteinterfaces.DistributionKeeper,
+	stakingKeeper anteinterfaces.StakingKeeper,
 	maxGasWanted uint64,
 ) MonoDecorator {
 	return MonoDecorator{

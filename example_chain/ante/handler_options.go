@@ -12,9 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	evmoscosmosante "github.com/evmos/os/ante/cosmos"
+	anteinterfaces "github.com/evmos/os/ante/interfaces"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
@@ -23,8 +22,8 @@ type HandlerOptions struct {
 	Cdc                    codec.BinaryCodec
 	AccountKeeper          evmtypes.AccountKeeper
 	BankKeeper             evmtypes.BankKeeper
-	DistributionKeeper     evmoscosmosante.DistributionKeeper
-	StakingKeeper          evmoscosmosante.StakingKeeper
+	DistributionKeeper     anteinterfaces.DistributionKeeper
+	StakingKeeper          anteinterfaces.StakingKeeper
 	FeeMarketKeeper        anteinterfaces.FeeMarketKeeper
 	EvmKeeper              anteinterfaces.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper

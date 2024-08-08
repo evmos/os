@@ -19,7 +19,7 @@ import (
 )
 
 // EVMKeeper exposes the required EVM keeper interface required for ante handlers
-type EVMKeeper interface { //nolint: revive
+type EVMKeeper interface {
 	statedb.Keeper
 	DynamicFeeEVMKeeper
 
