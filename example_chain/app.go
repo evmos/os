@@ -34,7 +34,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	"github.com/cosmos/cosmos-sdk/x/auth/posthandler"
 	authsims "github.com/cosmos/cosmos-sdk/x/auth/simulation"
@@ -93,9 +92,13 @@ import (
 	"github.com/evmos/evmos/v19/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	evmosante "github.com/evmos/os/ante"
+	evmosevmante "github.com/evmos/os/ante/evm"
 	evmosencoding "github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
+	chainante "github.com/evmos/os/example_chain/ante"
 	srvflags "github.com/evmos/os/server/flags"
+	evmostypes "github.com/evmos/os/types"
 	evmosutils "github.com/evmos/os/utils"
 	"github.com/spf13/cast"
 )
@@ -521,11 +524,13 @@ func NewExampleApp(
 	app.MountTransientStores(tkeys)
 	app.MountMemoryStores(memKeys)
 
+	maxGasWanted := cast.ToUint64(appOpts.Get(srvflags.EVMMaxTxGasWanted))
+
 	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
-	app.setAnteHandler(encodingConfig.TxConfig)
+	app.setAnteHandler(encodingConfig.TxConfig, maxGasWanted)
 
 	// In v0.46, the SDK introduces _postHandlers_. PostHandlers are like
 	// antehandlers, but are run _after_ the `runMsgs` execution. They are also
@@ -557,21 +562,27 @@ func NewExampleApp(
 	return app
 }
 
-func (app *ExampleChain) setAnteHandler(txConfig client.TxConfig) {
-	anteHandler, err := ante.NewAnteHandler(
-		ante.HandlerOptions{
-			AccountKeeper:   app.AccountKeeper,
-			BankKeeper:      app.BankKeeper,
-			SignModeHandler: txConfig.SignModeHandler(),
-			FeegrantKeeper:  app.FeeGrantKeeper,
-			SigGasConsumer:  ante.DefaultSigVerificationGasConsumer,
-		},
-	)
-	if err != nil {
+func (app *ExampleChain) setAnteHandler(txConfig client.TxConfig, maxGasWanted uint64) {
+	options := chainante.HandlerOptions{
+		Cdc:                    app.appCodec,
+		AccountKeeper:          app.AccountKeeper,
+		BankKeeper:             app.BankKeeper,
+		ExtensionOptionChecker: evmostypes.HasDynamicFeeExtensionOption,
+		EvmKeeper:              app.EVMKeeper,
+		StakingKeeper:          app.StakingKeeper,
+		FeegrantKeeper:         app.FeeGrantKeeper,
+		DistributionKeeper:     app.DistrKeeper,
+		FeeMarketKeeper:        app.FeeMarketKeeper,
+		SignModeHandler:        txConfig.SignModeHandler(),
+		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
+		MaxTxGasWanted:         maxGasWanted,
+		TxFeeChecker:           evmosevmante.NewDynamicFeeChecker(app.EVMKeeper),
+	}
+	if err := options.Validate(); err != nil {
 		panic(err)
 	}
 
-	app.SetAnteHandler(anteHandler)
+	app.SetAnteHandler(chainante.NewAnteHandler(options))
 }
 
 func (app *ExampleChain) setPostHandler() {
