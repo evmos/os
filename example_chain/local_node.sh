@@ -11,10 +11,7 @@ KEYALGO="secp256k1"
 
 LOGLEVEL="info"
 # Set dedicated home directory for the osd instance
-HOMEDIR="$HOME/.tmp-osd"
-# to trace evm
-#TRACE="--trace"
-TRACE=""
+HOMEDIR="$HOME/.osd"
 
 BASEFEE=10000000
 

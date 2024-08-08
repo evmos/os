@@ -9,13 +9,10 @@ import (
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
+	simappparams "cosmossdk.io/simapp/params"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/spf13/cast"
-
-	simappparams "cosmossdk.io/simapp/params"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -96,9 +93,11 @@ import (
 	"github.com/evmos/evmos/v19/x/feemarket"
 	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	evmosencoding "github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	srvflags "github.com/evmos/os/server/flags"
 	evmosutils "github.com/evmos/os/utils"
+	"github.com/spf13/cast"
 )
 
 const appName = "os"
@@ -222,7 +221,8 @@ func NewExampleApp(
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ExampleChain {
-	encodingConfig := makeEncodingConfig()
+	encodingConfig := evmosencoding.MakeConfig(ModuleBasics)
+
 	eip712.SetEncodingConfig(encodingConfig)
 
 	appCodec := encodingConfig.Codec

@@ -16,7 +16,7 @@ func main() {
 	chainconfig.RegisterDenoms()
 
 	rootCmd := cmd.NewRootCmd()
-	if err := svrcmd.Execute(rootCmd, "", examplechain.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(rootCmd, "osd", examplechain.DefaultNodeHome); err != nil {
 		switch e := err.(type) {
 		case server.ErrorCode:
 			os.Exit(e.Code)

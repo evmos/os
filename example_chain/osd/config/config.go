@@ -3,12 +3,11 @@ package config
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/types"
 )
 
 const (
 	// Bech32Prefix defines the Bech32 prefix used for accounts on the exemplary evmOS blockchain.
-	Bech32Prefix = "os"
+	Bech32Prefix = "evmos"
 
 	// Bech32PrefixAccAddr defines the Bech32 prefix of an account's address.
 	Bech32PrefixAccAddr = Bech32Prefix
@@ -26,9 +25,11 @@ const (
 
 const (
 	// DisplayDenom defines the denomination displayed to users in client applications.
-	DisplayDenom = "os"
+	DisplayDenom = "evmos"
 	// BaseDenom defines to the default denomination used in the evmOS example chain.
-	BaseDenom = "aos"
+	BaseDenom = "aevmos"
+	// BaseDenomUnit defines the precision of the base denomination.
+	BaseDenomUnit = 18
 )
 
 // SetBech32Prefixes sets the global prefixes to be used when serializing addresses and public keys to Bech32 strings.
@@ -44,7 +45,7 @@ func RegisterDenoms() {
 		panic(err)
 	}
 
-	if err := sdk.RegisterDenom(BaseDenom, math.LegacyNewDecWithPrec(1, types.BaseDenomUnit)); err != nil {
+	if err := sdk.RegisterDenom(BaseDenom, math.LegacyNewDecWithPrec(1, BaseDenomUnit)); err != nil {
 		panic(err)
 	}
 }
