@@ -3,23 +3,15 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	evmosencoding "github.com/evmos/os/encoding"
-	"github.com/evmos/os/example_chain"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"io"
 	"os"
 
+	"cosmossdk.io/simapp"
+	"cosmossdk.io/simapp/params"
 	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
-
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	"github.com/cometbft/cometbft/libs/log"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
-	"cosmossdk.io/simapp"
-	"cosmossdk.io/simapp/params"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
@@ -36,6 +28,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	evmosencoding "github.com/evmos/os/encoding"
+	"github.com/evmos/os/example_chain"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
+	evmosserver "github.com/evmos/os/server"
+	evmosserverconfig "github.com/evmos/os/server/config"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // NewRootCmd creates a new root command for osd. It is called once in the
@@ -104,6 +103,10 @@ func initTendermintConfig() *tmcfg.Config {
 func initAppConfig() (string, interface{}) {
 	type CustomAppConfig struct {
 		serverconfig.Config
+
+		EVM     evmosserverconfig.EVMConfig
+		JSONRPC evmosserverconfig.JSONRPCConfig
+		TLS     evmosserverconfig.TLSConfig
 	}
 
 	// Optionally allow the chain developer to overwrite the SDK's default
@@ -120,14 +123,18 @@ func initAppConfig() (string, interface{}) {
 	// - if you set srvCfg.MinGasPrices non-empty, validators CAN tweak their
 	//   own app.toml to override, or use this default value.
 	//
-	// In simapp, we set the min gas prices to 0.
+	// In this example application, we set the min gas prices to 0.
 	srvCfg.MinGasPrices = fmt.Sprintf("0%s", chainconfig.BaseDenom)
 
 	customAppConfig := CustomAppConfig{
-		Config: *srvCfg,
+		Config:  *srvCfg,
+		EVM:     *evmosserverconfig.DefaultEVMConfig(),
+		JSONRPC: *evmosserverconfig.DefaultJSONRPCConfig(),
+		TLS:     *evmosserverconfig.DefaultTLSConfig(),
 	}
 
-	customAppTemplate := serverconfig.DefaultConfigTemplate
+	customAppTemplate := serverconfig.DefaultConfigTemplate +
+		evmosserverconfig.DefaultEVMConfigTemplate
 
 	return customAppTemplate, customAppConfig
 }
@@ -145,7 +152,7 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		snapshot.Cmd(newApp),
 	)
 
-	server.AddCommands(rootCmd, simapp.DefaultNodeHome, newApp, appExport, addModuleInitFlags)
+	evmosserver.AddCommands(rootCmd, newApp, appExport, addModuleInitFlags)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
