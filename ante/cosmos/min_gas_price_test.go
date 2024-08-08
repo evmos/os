@@ -6,7 +6,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	cosmosante "github.com/evmos/evmos/v19/app/ante/cosmos"
+	cosmosante "github.com/evmos/os/ante/cosmos"
 	"github.com/evmos/os/testutil"
 	testutiltx "github.com/evmos/os/testutil/tx"
 )

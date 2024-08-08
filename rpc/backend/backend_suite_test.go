@@ -16,17 +16,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/stretchr/testify/suite"
-
-	"github.com/evmos/evmos/v19/app"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/hd"
 	"github.com/evmos/os/encoding"
+	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/stretchr/testify/suite"
 )
 
 type BackendTestSuite struct {

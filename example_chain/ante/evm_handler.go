@@ -13,7 +13,6 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	evmante "github.com/evmos/os/ante/evm"
@@ -47,24 +46,10 @@ type MonoDecorator struct {
 	maxGasWanted       uint64
 }
 
-type DecoratorUtils struct {
-	EvmParams          evmtypes.Params
-	EthConfig          *params.ChainConfig
-	Rules              params.Rules
-	Signer             ethtypes.Signer
-	BaseFee            *big.Int
-	EvmDenom           string
-	MempoolMinGasPrice sdkmath.LegacyDec
-	GlobalMinGasPrice  sdkmath.LegacyDec
-	BlockTxIndex       uint64
-	TxGasLimit         uint64
-	GasWanted          uint64
-	MinPriority        int64
-	TxFee              sdk.Coins
-}
-
-// MonoDecorator creates the 'mono' decorator, that is used to run the ante handle logic
+// NewEVMMonoDecorator creates the 'mono' decorator, that is used to run the ante handle logic
 // for EVM transactions on the chain.
+//
+// TODO: make partners not have to duplicate this in their repo
 func NewEVMMonoDecorator(
 	accountKeeper evmtypes.AccountKeeper,
 	bankKeeper evmtypes.BankKeeper,

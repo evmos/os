@@ -16,12 +16,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/core/types"
-	ante "github.com/evmos/evmos/v19/app/ante"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	evmosante "github.com/evmos/os/ante"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	app "github.com/evmos/os/example_chain"
+	chainante "github.com/evmos/os/example_chain/ante"
 	"github.com/evmos/os/testutil"
 )
 
@@ -96,7 +97,7 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.Require().NotNil(suite.app.AppCodec())
 
-	anteHandler := ante.NewAnteHandler(ante.HandlerOptions{
+	anteHandler := chainante.NewAnteHandler(chainante.HandlerOptions{
 		Cdc:                suite.app.AppCodec(),
 		AccountKeeper:      suite.app.AccountKeeper,
 		BankKeeper:         suite.app.BankKeeper,
@@ -106,7 +107,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		StakingKeeper:      suite.app.StakingKeeper,
 		FeeMarketKeeper:    suite.app.FeeMarketKeeper,
 		SignModeHandler:    encodingConfig.TxConfig.SignModeHandler(),
-		SigGasConsumer:     ante.SigVerificationGasConsumer,
+		SigGasConsumer:     evmosante.SigVerificationGasConsumer,
 	})
 
 	suite.anteHandler = anteHandler
