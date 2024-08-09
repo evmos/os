@@ -8,9 +8,9 @@ import (
 	gethaccounts "github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
+	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/wallets/accounts"
 	"github.com/evmos/os/wallets/ledger"
 )
