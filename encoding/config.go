@@ -10,10 +10,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 
-	enccodec "github.com/evmos/os/encoding/codec"
+	evmoscodec "github.com/evmos/os/encoding/codec"
 )
 
 // MakeConfig creates an EncodingConfig for the given basic module manager.
+//
+// It registers the evmOS codec for Ethereum compatibility as well as
+// the module's interfaces.
 func MakeConfig(mb module.BasicManager) params.EncodingConfig {
 	cdc := amino.NewLegacyAmino()
 	interfaceRegistry := types.NewInterfaceRegistry()
@@ -26,9 +29,10 @@ func MakeConfig(mb module.BasicManager) params.EncodingConfig {
 		Amino:             cdc,
 	}
 
-	enccodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
+	evmoscodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
 	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	enccodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+	evmoscodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
+
 	return encodingConfig
 }

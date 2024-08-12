@@ -41,6 +41,7 @@ import (
 // NewRootCmd creates a new root command for osd. It is called once in the
 // main function.
 func NewRootCmd() *cobra.Command {
+	// Register SDK encodings as well as eth_secp256k1 and Amino
 	encodingConfig := evmosencoding.MakeConfig(example_chain.ModuleBasics)
 
 	initClientCtx := client.Context{}.
