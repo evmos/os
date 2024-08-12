@@ -85,6 +85,10 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	"github.com/evmos/evmos/v19/x/erc20"
+	erc20client "github.com/evmos/evmos/v19/x/erc20/client"
+	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
+	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
 	"github.com/evmos/evmos/v19/x/evm"
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
@@ -125,6 +129,9 @@ var (
 				paramsclient.ProposalHandler,
 				upgradeclient.LegacyProposalHandler,
 				upgradeclient.LegacyCancelProposalHandler,
+				// evmOS proposals
+				erc20client.RegisterERC20ProposalHandler,
+				erc20client.ToggleTokenConversionProposalHandler,
 			},
 		),
 		params.AppModuleBasic{},
@@ -138,6 +145,7 @@ var (
 		// evmOS modules
 		evm.AppModuleBasic{},
 		feemarket.AppModuleBasic{},
+		erc20.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -152,6 +160,7 @@ var (
 		// evmOS modules
 		evmtypes.ModuleName:       {authtypes.Minter, authtypes.Burner},
 		feemarkettypes.ModuleName: nil,
+		erc20types.ModuleName:     {authtypes.Minter, authtypes.Burner},
 	}
 )
 
@@ -195,6 +204,7 @@ type ExampleChain struct {
 	// evmOS keepers
 	FeeMarketKeeper feemarketkeeper.Keeper
 	EVMKeeper       *evmkeeper.Keeper
+	Erc20Keeper     erc20keeper.Keeper
 
 	// the module manager
 	ModuleManager *module.Manager
@@ -279,7 +289,7 @@ func NewExampleApp(
 		evidencetypes.StoreKey, capabilitytypes.StoreKey,
 		authzkeeper.StoreKey,
 		// evmOS store keys
-		evmtypes.StoreKey, feemarkettypes.StoreKey,
+		evmtypes.StoreKey, feemarkettypes.StoreKey, erc20types.StoreKey,
 	)
 
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey, evmtypes.TransientKey, feemarkettypes.TransientKey)
@@ -360,7 +370,9 @@ func NewExampleApp(
 	govRouter := govv1beta1.NewRouter()
 	govRouter.AddRoute(govtypes.RouterKey, govv1beta1.ProposalHandler).
 		AddRoute(paramproposal.RouterKey, params.NewParamChangeProposalHandler(app.ParamsKeeper)).
-		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper))
+		AddRoute(upgradetypes.RouterKey, upgrade.NewSoftwareUpgradeProposalHandler(app.UpgradeKeeper)).
+		// ERC-20 route
+		AddRoute(erc20types.RouterKey, erc20.NewErc20ProposalHandler(&app.Erc20Keeper))
 	govConfig := govtypes.DefaultConfig()
 	/*
 		Example of setting gov params:
@@ -395,13 +407,25 @@ func NewExampleApp(
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
+	app.Erc20Keeper = erc20keeper.NewKeeper(
+		keys[erc20types.StoreKey],
+		appCodec,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper,
+		app.EVMKeeper,
+		app.StakingKeeper,
+		app.AuthzKeeper,
+		nil, // NOTE: we're passing nil as the transfer keeper because IBC is not implemented (yet)
+	)
+
 	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
 
 	app.EVMKeeper = evmkeeper.NewKeeper(
 		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
 		authtypes.NewModuleAddress(govtypes.ModuleName),
 		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
-		nil, // NOTE: we're passing nil for the ERC-20 keeper until integrating the module.
+		&app.Erc20Keeper,
 		tracer, app.GetSubspace(evmtypes.ModuleName),
 	)
 
@@ -437,6 +461,7 @@ func NewExampleApp(
 		// evmOS modules
 		evm.NewAppModule(app.EVMKeeper, app.AccountKeeper, app.GetSubspace(evmtypes.ModuleName)),
 		feemarket.NewAppModule(app.FeeMarketKeeper, app.GetSubspace(feemarkettypes.ModuleName)),
+		erc20.NewAppModule(app.Erc20Keeper, app.AccountKeeper, app.GetSubspace(erc20types.ModuleName)),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -448,7 +473,7 @@ func NewExampleApp(
 		upgradetypes.ModuleName, capabilitytypes.ModuleName, minttypes.ModuleName,
 
 		// evmOS BeginBlockers
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName, erc20types.ModuleName,
 
 		distrtypes.ModuleName, slashingtypes.ModuleName,
 		evidencetypes.ModuleName, stakingtypes.ModuleName,
@@ -461,7 +486,7 @@ func NewExampleApp(
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
 
 		// evmOS BeginBlockers
-		evmtypes.ModuleName, feemarkettypes.ModuleName,
+		evmtypes.ModuleName, feemarkettypes.ModuleName, erc20types.ModuleName,
 
 		distrtypes.ModuleName,
 		slashingtypes.ModuleName, minttypes.ModuleName,
@@ -486,6 +511,7 @@ func NewExampleApp(
 		// gentx transactions use MinGasPriceDecorator.AnteHandle
 		evmtypes.ModuleName,
 		feemarkettypes.ModuleName,
+		erc20types.ModuleName,
 
 		genutiltypes.ModuleName, evidencetypes.ModuleName, authz.ModuleName,
 		feegrant.ModuleName, paramstypes.ModuleName, upgradetypes.ModuleName,
@@ -798,6 +824,7 @@ func initParamsKeeper(appCodec codec.BinaryCodec, legacyAmino *codec.LegacyAmino
 	// evmOS modules
 	paramsKeeper.Subspace(evmtypes.ModuleName)
 	paramsKeeper.Subspace(feemarkettypes.ModuleName)
+	paramsKeeper.Subspace(erc20types.ModuleName)
 
 	return paramsKeeper
 }
