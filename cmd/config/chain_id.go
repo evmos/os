@@ -1,9 +1,13 @@
+// Copyright Tharsis Labs Ltd.(Evmos)
+// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package config
 
 import (
+	"path/filepath"
+
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/spf13/viper"
-	"path/filepath"
 )
 
 // GetChainIDFromHome returns the chain ID from the client configuration
