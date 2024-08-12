@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 
-	"cosmossdk.io/simapp"
 	"cosmossdk.io/simapp/params"
 	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
 	dbm "github.com/cometbft/cometbft-db"
@@ -256,14 +255,14 @@ func newApp(
 
 	baseappOptions := server.DefaultBaseappOptions(appOpts)
 
-	return simapp.NewSimApp(
+	return example_chain.NewExampleApp(
 		logger, db, traceStore, true,
 		appOpts,
 		baseappOptions...,
 	)
 }
 
-// appExport creates a new simapp (optionally at a given height) and exports state.
+// appExport creates a new application (optionally at a given height) and exports state.
 func appExport(
 	logger log.Logger,
 	db dbm.DB,
@@ -274,7 +273,7 @@ func appExport(
 	appOpts servertypes.AppOptions,
 	modulesToExport []string,
 ) (servertypes.ExportedApp, error) {
-	var simApp *simapp.SimApp
+	var exampleApp *example_chain.ExampleChain
 
 	// this check is necessary as we use the flag in x/upgrade.
 	// we can exit more gracefully by checking the flag here.
@@ -293,14 +292,14 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		simApp = simapp.NewSimApp(logger, db, traceStore, false, appOpts)
+		exampleApp = example_chain.NewExampleApp(logger, db, traceStore, false, appOpts)
 
-		if err := simApp.LoadHeight(height); err != nil {
+		if err := exampleApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		simApp = simapp.NewSimApp(logger, db, traceStore, true, appOpts)
+		exampleApp = example_chain.NewExampleApp(logger, db, traceStore, true, appOpts)
 	}
 
-	return simApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
+	return exampleApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)
 }
