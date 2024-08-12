@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/config"
 	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/snapshot"
@@ -28,7 +27,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
+	evmoscmd "github.com/evmos/os/client"
+	evmoskeyring "github.com/evmos/os/crypto/keyring"
 	evmosencoding "github.com/evmos/os/encoding"
+	evmoseip712 "github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/example_chain"
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	evmosserver "github.com/evmos/os/server"
@@ -49,8 +51,15 @@ func NewRootCmd() *cobra.Command {
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
 		WithAccountRetriever(types.AccountRetriever{}).
+		WithBroadcastMode(flags.FlagBroadcastMode).
 		WithHomeDir(example_chain.DefaultNodeHome).
-		WithViper("") // In simapp, we don't use any prefix for env variables.
+		WithViper(""). // In simapp, we don't use any prefix for env variables.
+		// evmOS specific setup
+		WithKeyringOptions(evmoskeyring.Option()).
+		WithLedgerHasProtobuf(true)
+
+	// add EIP-712 encoding
+	evmoseip712.SetEncodingConfig(encodingConfig)
 
 	rootCmd := &cobra.Command{
 		Use:   "osd",
@@ -144,15 +153,24 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 	cfg.Seal()
 
 	rootCmd.AddCommand(
-		genutilcli.InitCmd(simapp.ModuleBasics, simapp.DefaultNodeHome),
-		NewTestnetCmd(simapp.ModuleBasics, banktypes.GenesisBalancesIterator{}),
+		genutilcli.InitCmd(example_chain.ModuleBasics, example_chain.DefaultNodeHome),
+		NewTestnetCmd(example_chain.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
-		pruning.Cmd(newApp, simapp.DefaultNodeHome),
+		pruning.Cmd(newApp, example_chain.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
-	evmosserver.AddCommands(rootCmd, newApp, appExport, addModuleInitFlags)
+	// add evmOS' flavored TM commands to start server, etc.
+	evmosserver.AddCommands(
+		rootCmd,
+		evmosserver.NewDefaultStartOptions(newApp, example_chain.DefaultNodeHome),
+		appExport,
+		addModuleInitFlags,
+	)
+
+	// add evmOS key commands
+	rootCmd.AddCommand(evmoscmd.KeyCommands(example_chain.DefaultNodeHome))
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
@@ -160,21 +178,20 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genesisCommand(encodingConfig),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(simapp.DefaultNodeHome),
 	)
 
 	// add rosetta
 	rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
 }
 
-func addModuleInitFlags(startCmd *cobra.Command) {}
+func addModuleInitFlags(_ *cobra.Command) {}
 
 // genesisCommand builds genesis-related `simd genesis` command. Users may provide application specific commands as a parameter
 func genesisCommand(encodingConfig params.EncodingConfig, cmds ...*cobra.Command) *cobra.Command {
-	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, simapp.ModuleBasics, simapp.DefaultNodeHome)
+	cmd := genutilcli.GenesisCoreCommand(encodingConfig.TxConfig, example_chain.ModuleBasics, example_chain.DefaultNodeHome)
 
-	for _, sub_cmd := range cmds {
-		cmd.AddCommand(sub_cmd)
+	for _, subCmd := range cmds {
+		cmd.AddCommand(subCmd)
 	}
 	return cmd
 }
@@ -198,7 +215,7 @@ func queryCommand() *cobra.Command {
 		authcmd.QueryTxCmd(),
 	)
 
-	simapp.ModuleBasics.AddQueryCommands(cmd)
+	example_chain.ModuleBasics.AddQueryCommands(cmd)
 
 	return cmd
 }
@@ -224,7 +241,7 @@ func txCommand() *cobra.Command {
 		authcmd.GetAuxToFeeCommand(),
 	)
 
-	simapp.ModuleBasics.AddTxCommands(cmd)
+	example_chain.ModuleBasics.AddTxCommands(cmd)
 
 	return cmd
 }
