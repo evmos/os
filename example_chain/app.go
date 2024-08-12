@@ -259,7 +259,14 @@ func NewExampleApp(
 	// }
 	// baseAppOptions = append(baseAppOptions, prepareOpt)
 
-	bApp := baseapp.NewBaseApp(appName, logger, db, txConfig.TxDecoder(), baseAppOptions...)
+	bApp := baseapp.NewBaseApp(
+		appName,
+		logger,
+		db,
+		// use transaction decoder to support the sdk.Tx interface instead of sdk.StdTx
+		encodingConfig.TxConfig.TxDecoder(),
+		baseAppOptions...,
+	)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)

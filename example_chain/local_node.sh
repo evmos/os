@@ -199,4 +199,6 @@ fi
 osd start \
 	--log_level $LOGLEVEL \
 	--minimum-gas-prices=0.0001aevmos \
-	--home "$HOMEDIR"
+	--home "$HOMEDIR" \
+	--json-rpc.api eth,txpool,personal,net,debug,web3 \
+	--chain-id "$CHAINID"
