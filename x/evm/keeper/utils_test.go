@@ -5,16 +5,15 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/os/x/evm/keeper/testdata"
-
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/server/config"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/x/evm/keeper/testdata"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
@@ -29,7 +28,7 @@ func (suite *KeeperTestSuite) EvmDenom() string {
 // Commit and begin new block
 func (suite *KeeperTestSuite) Commit() {
 	var err error
-	suite.ctx, err = testutil.CommitAndCreateNewCtx(suite.ctx, suite.app, 0*time.Second, nil)
+	suite.ctx, err = chainutil.CommitAndCreateNewCtx(suite.ctx, suite.app, 0*time.Second, nil)
 	suite.Require().NoError(err)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())

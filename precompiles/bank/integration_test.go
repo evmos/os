@@ -4,23 +4,20 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/evmos/os/precompiles/bank/testdata"
-
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/testutil/integration/evmos/factory"
-	"github.com/evmos/os/testutil/integration/evmos/grpc"
-	"github.com/evmos/os/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/os/testutil/integration/evmos/utils"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
-
-	evmosutiltx "github.com/evmos/os/testutil/tx"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/bank"
-
+	"github.com/evmos/os/precompiles/bank/testdata"
 	"github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/testutil/integration/evmos/keyring"
+	evmosutil "github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	"github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
+	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
+	evmosutiltx "github.com/evmos/os/testutil/tx"
+	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -74,7 +71,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.evmosAddr = common.HexToAddress(tokenPair.Erc20Address)
 
 	// Mint and register a second coin for testing purposes
-	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: sdk.NewInt(1e18)}})
+	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), minttypes.ModuleName, sdk.Coins{{Denom: is.tokenDenom, Amount: sdk.NewInt(1e18)}})
 	Expect(err).ToNot(HaveOccurred(), "failed to mint coin")
 
 	tokenPairID = is.network.App.Erc20Keeper.GetTokenPairID(is.network.GetContext(), is.tokenDenom)
@@ -173,7 +170,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, testutil.ExampleAttoDenom)
+				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, evmosutil.ExampleAttoDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -317,7 +314,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, testutil.ExampleAttoDenom)
+				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, evmosutil.ExampleAttoDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))

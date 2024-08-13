@@ -10,6 +10,7 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	bankprecompile "github.com/evmos/os/precompiles/bank"
@@ -18,26 +19,23 @@ import (
 	ics20precompile "github.com/evmos/os/precompiles/ics20"
 	"github.com/evmos/os/precompiles/p256"
 	stakingprecompile "github.com/evmos/os/precompiles/staking"
-	vestingprecompile "github.com/evmos/os/precompiles/vesting"
 	erc20Keeper "github.com/evmos/os/x/erc20/keeper"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/types"
 	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
-	stakingkeeper "github.com/evmos/os/x/staking/keeper"
-	vestingkeeper "github.com/evmos/os/x/vesting/keeper"
 	"golang.org/x/exp/maps"
 )
 
 const bech32PrecompileBaseGas = 6_000
 
-// AvailableStaticPrecompiles returns the list of all available static precompiled contracts.
+// AvailableStaticPrecompiles returns the list of all available static precompiled contracts from evmOS.
+//
 // NOTE: this should only be used during initialization of the Keeper.
 func NewAvailableStaticPrecompiles(
 	stakingKeeper stakingkeeper.Keeper,
 	distributionKeeper distributionkeeper.Keeper,
 	bankKeeper bankkeeper.Keeper,
 	erc20Keeper erc20Keeper.Keeper,
-	vestingKeeper vestingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
@@ -77,11 +75,6 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate ICS20 precompile: %w", err))
 	}
 
-	vestingPrecompile, err := vestingprecompile.NewPrecompile(vestingKeeper, authzKeeper)
-	if err != nil {
-		panic(fmt.Errorf("failed to instantiate vesting precompile: %w", err))
-	}
-
 	bankPrecompile, err := bankprecompile.NewPrecompile(bankKeeper, erc20Keeper)
 	if err != nil {
 		panic(fmt.Errorf("failed to instantiate bank precompile: %w", err))
@@ -95,8 +88,8 @@ func NewAvailableStaticPrecompiles(
 	precompiles[stakingPrecompile.Address()] = stakingPrecompile
 	precompiles[distributionPrecompile.Address()] = distributionPrecompile
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
-	precompiles[vestingPrecompile.Address()] = vestingPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
+
 	return precompiles
 }
 

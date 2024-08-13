@@ -24,10 +24,8 @@ import (
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/gogoproto/proto"
-	"github.com/evmos/os/encoding"
 	example_app "github.com/evmos/os/example_chain"
-	evmosutil "github.com/evmos/os/utils"
-	epochstypes "github.com/evmos/os/x/epochs/types"
+	"github.com/evmos/os/testutil"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	infltypes "github.com/evmos/os/x/inflation/v1/types"
@@ -90,28 +88,20 @@ func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []bankty
 	return fundedAccountBalances
 }
 
-// createEvmosApp creates an evmos app
-func createEvmosApp(chainID string) *example_app.Evmos {
+// createExampleApp creates an exemplary evmOS based application
+func createExampleApp(chainID string) *example_app.ExampleChain {
 	// Create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	loadLatest := true
-	skipUpgradeHeights := map[int64]bool{}
-	homePath := example_app.DefaultNodeHome
-	invCheckPeriod := uint(5)
-	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
 	appOptions := simutils.NewAppOptionsWithFlagHome(example_app.DefaultNodeHome)
 	baseAppOptions := []func(*baseapp.BaseApp){baseapp.SetChainID(chainID)}
 
-	return example_app.NewEvmos(
+	return example_app.NewExampleApp(
 		logger,
 		db,
 		nil,
 		loadLatest,
-		skipUpgradeHeights,
-		homePath,
-		invCheckPeriod,
-		encodingConfig,
 		appOptions,
 		baseAppOptions...,
 	)
@@ -181,7 +171,7 @@ type StakingCustomGenesisState struct {
 }
 
 // setDefaultStakingGenesisState sets the staking genesis state
-func setDefaultStakingGenesisState(evmosApp *example_app.Evmos, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
+func setDefaultStakingGenesisState(evmosApp *example_app.ExampleChain, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
@@ -197,7 +187,7 @@ func setDefaultStakingGenesisState(evmosApp *example_app.Evmos, genesisState sim
 
 // TODO: remove Evmos specific stuff
 // setDefaultInflationGenesisState sets the inflation genesis state
-func setDefaultInflationGenesisState(evmosApp *example_app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+func setDefaultInflationGenesisState(evmosApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	inflationParams := infltypes.DefaultParams()
 	inflationParams.EnableInflation = false
 
@@ -213,7 +203,7 @@ type BankCustomGenesisState struct {
 
 // setDefaultBankGenesisState sets the bank genesis state
 func setDefaultBankGenesisState(
-	evmosApp *example_app.Evmos,
+	evmosApp *example_app.ExampleChain,
 	genesisState simapp.GenesisState,
 	overwriteParams BankCustomGenesisState,
 ) simapp.GenesisState {
@@ -230,7 +220,7 @@ func setDefaultBankGenesisState(
 
 // genSetupFn is the type for the module genesis setup functions
 type genSetupFn func(
-	evmosApp *example_app.Evmos,
+	evmosApp *example_app.ExampleChain,
 	genesisState simapp.GenesisState,
 	customGenesis interface{},
 ) (simapp.GenesisState, error)
@@ -246,7 +236,7 @@ type defaultGenesisParams struct {
 // genStateSetter is a generic function to set module-specific genesis state
 func genStateSetter[T proto.Message](moduleName string) genSetupFn {
 	return func(
-		evmosApp *example_app.Evmos,
+		evmosApp *example_app.ExampleChain,
 		genesisState simapp.GenesisState,
 		customGenesis interface{},
 	) (simapp.GenesisState, error) {
@@ -272,7 +262,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 
 // setDefaultAuthGenesisState sets the default auth genesis state
 func setDefaultAuthGenesisState(
-	evmosApp *example_app.Evmos,
+	evmosApp *example_app.ExampleChain,
 	genesisState simapp.GenesisState,
 	genAccs []authtypes.GenesisAccount,
 ) simapp.GenesisState {
@@ -282,17 +272,18 @@ func setDefaultAuthGenesisState(
 }
 
 // setDefaultGovGenesisState sets the default gov genesis state
-func setDefaultGovGenesisState(evmosApp *example_app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+func setDefaultGovGenesisState(evmosApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
 	// set 'aevmos' as deposit denom
-	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(evmosutil.BaseDenom, sdkmath.NewInt(1e18)))
+	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewInt(1e18)))
 	govGen.Params = updatedParams
 	genesisState[govtypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(govGen)
 	return genesisState
 }
 
-func setDefaultErc20GenesisState(evmosApp *example_app.Evmos, genesisState simapp.GenesisState) simapp.GenesisState {
+// TODO: remove Evmos specific stuff
+func setDefaultErc20GenesisState(evmosApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
 	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
@@ -300,7 +291,7 @@ func setDefaultErc20GenesisState(evmosApp *example_app.Evmos, genesisState simap
 
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
-func newDefaultGenesisState(evmosApp *example_app.Evmos, params defaultGenesisParams) simapp.GenesisState {
+func newDefaultGenesisState(evmosApp *example_app.ExampleChain, params defaultGenesisParams) simapp.GenesisState {
 	genesisState := example_app.NewDefaultGenesisState()
 
 	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
@@ -316,7 +307,7 @@ func newDefaultGenesisState(evmosApp *example_app.Evmos, params defaultGenesisPa
 // customizeGenesis modifies genesis state if there're any custom genesis state
 // for specific modules
 func customizeGenesis(
-	evmosApp *example_app.Evmos,
+	evmosApp *example_app.ExampleChain,
 	customGen CustomGenesisState,
 	genesisState simapp.GenesisState,
 ) (simapp.GenesisState, error) {

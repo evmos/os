@@ -41,7 +41,6 @@ import (
 	evmosutil "github.com/evmos/os/testutil"
 	evmosutiltx "github.com/evmos/os/testutil/tx"
 	evmostypes "github.com/evmos/os/types"
-	"github.com/evmos/os/utils"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -59,14 +58,14 @@ type erc20Meta struct {
 }
 
 var (
-	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewIntFromBigInt(abi.MaxUint256)}}
-	maxUint256CmnCoins = []cmn.Coin{{Denom: testutil.ExampleAttoDenom, Amount: abi.MaxUint256}}
-	defaultCoins       = sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(1e18)}}
-	baseDenomCmnCoin   = cmn.Coin{Denom: testutil.ExampleAttoDenom, Amount: big.NewInt(1e18)}
+	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: evmosutil.ExampleAttoDenom, Amount: math.NewIntFromBigInt(abi.MaxUint256)}}
+	maxUint256CmnCoins = []cmn.Coin{{Denom: evmosutil.ExampleAttoDenom, Amount: abi.MaxUint256}}
+	defaultCoins       = sdk.Coins{sdk.Coin{Denom: evmosutil.ExampleAttoDenom, Amount: math.NewInt(1e18)}}
+	baseDenomCmnCoin   = cmn.Coin{Denom: evmosutil.ExampleAttoDenom, Amount: big.NewInt(1e18)}
 	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
 	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
-	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
+	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: evmosutil.ExampleAttoDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
 		Name:     "TestCoin",
@@ -91,7 +90,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
+	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -119,7 +118,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = testutil.ExampleAttoDenom
+	stakingParams.BondDenom = evmosutil.ExampleAttoDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -127,13 +126,13 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(testutil.ExampleAttoDenom, totalBondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(evmosutil.ExampleAttoDenom, totalBondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(testutil.ExampleAttoDenom, totalBondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(evmosutil.ExampleAttoDenom, totalBondAmt)},
 	})
 
 	// update total supply
@@ -209,7 +208,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	// Create 2 Evmos chains
 	chains[cmn.DefaultChainID] = s.NewTestChainWithValSet(s.coordinator, s.valSet, signersByAddress)
 	// TODO: Figure out if we want to make the second chain keepers accessible to the tests to check the state
-	chainID2 := utils.MainnetChainID + "-2"
+	chainID2 := evmosutil.ExampleChainID + "2"
 	chains[chainID2] = ibctesting.NewTestChain(s.T(), s.coordinator, chainID2)
 	s.coordinator.Chains = chains
 
@@ -232,11 +231,11 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	s.signer = evmosutiltx.NewSigner(priv)
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
-	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
+	amount := sdk.TokensFromConsensusPower(5, evmostypes.AttoPowerReduction)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, amount)),
 	}
 
 	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{baseAcc}, balance)
@@ -255,7 +254,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
-	stakingParams.BondDenom = testutil.ExampleAttoDenom
+	stakingParams.BondDenom = evmosutil.ExampleAttoDenom
 	s.bondDenom = stakingParams.BondDenom
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
@@ -395,7 +394,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 
 	s.app = s.chainA.App.(*evmosapp.Evmos)
 	evmParams := s.app.EvmKeeper.GetParams(s.chainA.GetContext())
-	evmParams.EvmDenom = testutil.ExampleAttoDenom
+	evmParams.EvmDenom = evmosutil.ExampleAttoDenom
 	err := s.app.EvmKeeper.SetParams(s.chainA.GetContext(), evmParams)
 	s.Require().NoError(err)
 
@@ -414,7 +413,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	// Mint coins locked on the evmos account generated with secp.
 	amt, ok := math.NewIntFromString("1000000000000000000000")
 	s.Require().True(ok)
-	coinEvmos := sdk.NewCoin(testutil.ExampleAttoDenom, amt)
+	coinEvmos := sdk.NewCoin(evmosutil.ExampleAttoDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 	err = s.app.BankKeeper.MintCoins(s.chainA.GetContext(), inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)

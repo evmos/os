@@ -12,20 +12,17 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/stretchr/testify/require"
-
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
-
 	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
-	"github.com/evmos/os/types"
+	evmostypes "github.com/evmos/os/types"
+	"github.com/stretchr/testify/require"
 )
 
 // DefaultTestingAppInit is a test helper function used to initialize an App
@@ -46,7 +43,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.TokensFromConsensusPower(1, types.PowerReduction)
+	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)

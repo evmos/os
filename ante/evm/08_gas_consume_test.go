@@ -6,9 +6,9 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	evmante "github.com/evmos/os/ante/evm"
-	"github.com/evmos/os/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/evmos/keyring"
-	"github.com/evmos/os/testutil/integration/evmos/network"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {

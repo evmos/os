@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	erc20precompile "github.com/evmos/os/precompiles/erc20"
-	"github.com/evmos/os/testutil/integration/evmos/factory"
-	"github.com/evmos/os/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/evmos/keyring"
-	"github.com/evmos/os/testutil/integration/evmos/network"
+	"github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/stretchr/testify/suite"
 )
 

@@ -24,6 +24,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
@@ -31,6 +33,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	evmosapp "github.com/evmos/os/app"
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/staking"
@@ -41,13 +44,10 @@ import (
 	evmostypes "github.com/evmos/os/types"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
-	stakingkeeper "github.com/evmos/os/x/staking/keeper"
-	vestingtypes "github.com/evmos/os/x/vesting/types"
 )
 
 // stipend to pay EVM tx fees
-var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e16)))
+var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, math.NewInt(1e16)))
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
@@ -65,7 +65,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
+	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -93,7 +93,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = testutil.ExampleAttoDenom
+	stakingParams.BondDenom = evmosutil.ExampleAttoDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -104,13 +104,13 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(testutil.ExampleAttoDenom, totalBondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(evmosutil.ExampleAttoDenom, totalBondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(testutil.ExampleAttoDenom, totalBondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(evmosutil.ExampleAttoDenom, totalBondAmt)},
 	})
 
 	// update total supply
@@ -173,11 +173,11 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
-	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
+	amount := sdk.TokensFromConsensusPower(5, evmostypes.AttoPowerReduction)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, amount)),
 	}
 
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)
@@ -187,7 +187,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
-	stakingParams.BondDenom = testutil.ExampleAttoDenom
+	stakingParams.BondDenom = evmosutil.ExampleAttoDenom
 	s.bondDenom = stakingParams.BondDenom
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
@@ -198,11 +198,11 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.Require().NoError(err)
 	s.precompile = precompile
 
-	coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(5000000000000000000)))
-	distrCoins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(2000000000000000000)))
-	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
+	coins := sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, math.NewInt(5000000000000000000)))
+	distrCoins := sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, math.NewInt(2000000000000000000)))
+	err = s.app.BankKeeper.MintCoins(s.ctx, minttypes.ModuleName, coins)
 	s.Require().NoError(err)
-	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, minttypes.ModuleName, authtypes.FeeCollectorName, distrCoins)
 	s.Require().NoError(err)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
@@ -361,7 +361,7 @@ func (s *PrecompileTestSuite) SetupApprovalWithContractCalls(approvalArgs contra
 
 // DeployContract deploys a contract that calls the staking precompile's methods for testing purposes.
 func (s *PrecompileTestSuite) DeployContract(contract evmtypes.CompiledContract) (addr common.Address, err error) {
-	addr, err = evmosutil.DeployContract(
+	addr, err = chainutil.DeployContract(
 		s.ctx,
 		s.app,
 		s.privKey,

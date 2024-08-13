@@ -125,7 +125,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
 
 	// Create a new EvmosApp with the following params
-	evmosApp := createEvmosApp(n.cfg.chainID)
+	evmosApp := createExampleApp(n.cfg.chainID)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,

@@ -9,7 +9,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/ante/evm"
-	testkeyring "github.com/evmos/os/testutil/integration/evmos/keyring"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 

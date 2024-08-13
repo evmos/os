@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	precompiletestutil "github.com/evmos/os/precompiles/testutil"
-	evmosutil "github.com/evmos/os/testutil"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -82,7 +82,7 @@ func Call(ctx sdk.Context, app *example_app.ExampleChain, args CallArgs) (res ab
 	})
 	msg.From = addr.Hex()
 
-	res, err = evmosutil.DeliverEthTx(app, args.PrivKey, msg)
+	res, err = chainutil.DeliverEthTx(app, args.PrivKey, msg)
 	if err != nil {
 		return res, nil, fmt.Errorf("error during deliver tx: %s", err)
 	}

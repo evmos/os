@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"os"
 
@@ -39,7 +38,6 @@ import (
 	evmosencoding "github.com/evmos/os/encoding"
 	evmoseip712 "github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/example_chain"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	evmosserver "github.com/evmos/os/server"
 	evmosserverconfig "github.com/evmos/os/server/config"
 	srvflags "github.com/evmos/os/server/flags"
@@ -93,7 +91,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := initAppConfig()
+			customAppTemplate, customAppConfig := InitAppConfig()
 			customTMConfig := initTendermintConfig()
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
@@ -117,9 +115,9 @@ func initTendermintConfig() *tmcfg.Config {
 	return cfg
 }
 
-// initAppConfig helps to override default appConfig template and configs.
+// InitAppConfig helps to override default appConfig template and configs.
 // return "", nil if no custom configuration is required for the application.
-func initAppConfig() (string, interface{}) {
+func InitAppConfig(denom string) (string, interface{}) {
 	type CustomAppConfig struct {
 		serverconfig.Config
 
@@ -143,7 +141,7 @@ func initAppConfig() (string, interface{}) {
 	//   own app.toml to override, or use this default value.
 	//
 	// In this example application, we set the min gas prices to 0.
-	srvCfg.MinGasPrices = fmt.Sprintf("0%s", chainconfig.BaseDenom)
+	srvCfg.MinGasPrices = "0" + denom
 
 	customAppConfig := CustomAppConfig{
 		Config:  *srvCfg,

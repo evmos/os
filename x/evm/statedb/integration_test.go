@@ -12,10 +12,10 @@ import (
 	"github.com/evmos/os/contracts"
 	stakingprecompile "github.com/evmos/os/precompiles/staking"
 	testcontracts "github.com/evmos/os/precompiles/testutil/contracts"
-	testfactory "github.com/evmos/os/testutil/integration/evmos/factory"
-	"github.com/evmos/os/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/evmos/keyring"
-	testnetwork "github.com/evmos/os/testutil/integration/evmos/network"
+	testfactory "github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	testnetwork "github.com/evmos/os/testutil/integration/os/network"
 	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // okay to use dot imports for Ginkgo

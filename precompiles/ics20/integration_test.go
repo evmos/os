@@ -9,6 +9,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
@@ -23,11 +24,9 @@ import (
 	"github.com/evmos/os/precompiles/testutil"
 	"github.com/evmos/os/precompiles/testutil/contracts"
 	evmosutil "github.com/evmos/os/testutil"
-	teststypes "github.com/evmos/os/types/tests"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	"github.com/evmos/os/x/evm/core/vm"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -209,7 +208,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		// 			s.address,
 		// 			s.transferPath.EndpointA.ChannelConfig.PortID,
 		// 			s.transferPath.EndpointA.ChannelID,
-		// 			testutil.ExampleAttoDenom,
+		// 			evmosutil.ExampleAttoDenom,
 		// 			big.NewInt(1e18),
 		// 		)
 
@@ -264,7 +263,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.differentAddr,
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					testutil.ExampleAttoDenom,
+					evmosutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 				)
 
@@ -281,7 +280,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			Expect(auths).To(HaveLen(1), "expected one authorization")
 			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(1e18)})))
+			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: evmosutil.ExampleAttoDenom, Amount: math.NewInt(1e18)})))
 		})
 	})
 
@@ -297,7 +296,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.differentAddr,
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					testutil.ExampleAttoDenom,
+					evmosutil.ExampleAttoDenom,
 					big.NewInt(2e18),
 				)
 
@@ -317,7 +316,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		// 			s.address,
 		// 			s.transferPath.EndpointA.ChannelConfig.PortID,
 		// 			s.transferPath.EndpointA.ChannelID,
-		// 			testutil.ExampleAttoDenom,
+		// 			evmosutil.ExampleAttoDenom,
 		// 			big.NewInt(1e18),
 		// 		)
 
@@ -370,7 +369,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.differentAddr,
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					testutil.ExampleAttoDenom,
+					evmosutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 				)
 
@@ -894,7 +893,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			)
 			expTrace = transfertypes.DenomTrace{
 				Path:      path,
-				BaseDenom: testutil.ExampleAttoDenom,
+				BaseDenom: evmosutil.ExampleAttoDenom,
 			}
 		})
 
@@ -926,8 +925,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				method = ics20.DenomTracesMethod
 				// setup - create some denom traces to get on the query result
 				expTraces = []transfertypes.DenomTrace{
-					{Path: "", BaseDenom: testutil.ExampleAttoDenom},
-					{Path: fmt.Sprintf("%s/%s", s.transferPath.EndpointA.ChannelConfig.PortID, s.transferPath.EndpointA.ChannelID), BaseDenom: testutil.ExampleAttoDenom},
+					{Path: "", BaseDenom: evmosutil.ExampleAttoDenom},
+					{Path: fmt.Sprintf("%s/%s", s.transferPath.EndpointA.ChannelConfig.PortID, s.transferPath.EndpointA.ChannelID), BaseDenom: evmosutil.ExampleAttoDenom},
 					expTrace,
 				}
 
@@ -1196,7 +1195,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				WithArgs(
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					testutil.ExampleAttoDenom,
+					evmosutil.ExampleAttoDenom,
 					amt,
 				)
 		})
@@ -1214,7 +1213,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				Expect(auths).To(HaveLen(1), "expected one authorization")
 				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(testutil.ExampleAttoDenom)).To(Equal(defaultCoins.AmountOf(testutil.ExampleAttoDenom).Add(math.NewIntFromBigInt(amt))))
+				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(evmosutil.ExampleAttoDenom)).To(Equal(defaultCoins.AmountOf(evmosutil.ExampleAttoDenom).Add(math.NewIntFromBigInt(amt))))
 			})
 		})
 
@@ -1238,7 +1237,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				Expect(auths).To(HaveLen(1), "expected one authorization")
 				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(testutil.ExampleAttoDenom)).To(Equal(defaultCoins.AmountOf(testutil.ExampleAttoDenom).Sub(math.NewIntFromBigInt(amt))))
+				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(evmosutil.ExampleAttoDenom)).To(Equal(defaultCoins.AmountOf(evmosutil.ExampleAttoDenom).Sub(math.NewIntFromBigInt(amt))))
 			})
 		})
 	})
@@ -1373,7 +1372,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 
 		Context("IBC coin", func() {
 			var (
-				ibcDenom                   = teststypes.UosmoIbcdenom
+				ibcDenom                   = testutil.UosmoIbcdenom
 				amt, _                     = math.NewIntFromString("1000000000000000000000")
 				sentAmt, _                 = math.NewIntFromString("100000000000000000000")
 				coinOsmo                   = sdk.NewCoin(ibcDenom, amt)
@@ -1386,15 +1385,15 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				s.app.TransferKeeper.SetDenomTrace(
 					s.chainA.GetContext(),
 					transfertypes.DenomTrace{
-						Path:      teststypes.UosmoDenomtrace.Path,
-						BaseDenom: teststypes.UosmoDenomtrace.BaseDenom,
+						Path:      testutil.UosmoDenomtrace.Path,
+						BaseDenom: testutil.UosmoDenomtrace.BaseDenom,
 					},
 				)
 
 				// Mint IBC coins and add them to sender balance
-				err = s.app.BankKeeper.MintCoins(s.chainA.GetContext(), inflationtypes.ModuleName, coins)
+				err = s.app.BankKeeper.MintCoins(s.chainA.GetContext(), minttypes.ModuleName, coins)
 				s.Require().NoError(err)
-				err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.chainA.GetContext(), inflationtypes.ModuleName, s.chainA.SenderAccount.GetAddress(), coins)
+				err = s.app.BankKeeper.SendCoinsFromModuleToAccount(s.chainA.GetContext(), minttypes.ModuleName, s.chainA.SenderAccount.GetAddress(), coins)
 				s.Require().NoError(err)
 
 				initialOsmoBalance = s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), ibcDenom)
@@ -1546,7 +1545,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 							{
 								SourcePort:    ibctesting.TransferPort,
 								SourceChannel: s.transferPath.EndpointA.ChannelID,
-								SpendLimit:    []cmn.Coin{{Denom: teststypes.UosmoIbcdenom, Amount: big.NewInt(10000)}},
+								SpendLimit:    []cmn.Coin{{Denom: testutil.UosmoIbcdenom, Amount: big.NewInt(10000)}},
 								AllowList:     []string{},
 							},
 						})

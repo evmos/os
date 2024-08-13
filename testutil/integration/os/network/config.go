@@ -12,7 +12,6 @@ import (
 	"github.com/evmos/os/testutil"
 	testtx "github.com/evmos/os/testutil/tx"
 	evmostypes "github.com/evmos/os/types"
-	"github.com/evmos/os/utils"
 )
 
 // Config defines the configuration for a chain.
@@ -34,7 +33,7 @@ type CustomGenesisState map[string]interface{}
 func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 	return Config{
-		chainID:            utils.MainnetChainID + "-1",
+		chainID:            testutil.ExampleChainID,
 		eip155ChainID:      big.NewInt(9001),
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default

@@ -9,17 +9,16 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/os/app"
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/suite"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
-
-	"github.com/stretchr/testify/suite"
 )
 
 var s *PrecompileTestSuite
@@ -28,7 +27,7 @@ type PrecompileTestSuite struct {
 	suite.Suite
 
 	ctx        sdk.Context
-	app        *evmosapp.Evmos
+	app        *example_app.ExampleChain
 	address    common.Address
 	validators []stakingtypes.Validator
 	ethSigner  ethtypes.Signer

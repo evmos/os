@@ -6,22 +6,20 @@ import (
 	"testing"
 	"time"
 
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/stretchr/testify/require"
-
 	"cosmossdk.io/math"
+	abci "github.com/cometbft/cometbft/abci/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	sdkvesting "github.com/cosmos/cosmos-sdk/x/auth/vesting/types"
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	cosmosante "github.com/evmos/os/ante/cosmos"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAuthzLimiterDecorator(t *testing.T) {
@@ -54,7 +52,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 				banktypes.NewMsgSend(
 					testAddresses[0],
 					testAddresses[1],
-					sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+					sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 				),
 			},
 			false,
@@ -136,7 +134,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 					[]sdk.Msg{banktypes.NewMsgSend(
 						testAddresses[0],
 						testAddresses[3],
-						sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+						sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 					)}),
 			},
 			false,
@@ -170,7 +168,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 						&evmtypes.MsgEthereumTx{},
 					},
@@ -221,7 +219,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 					},
 				),
@@ -239,7 +237,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 					},
 				),
@@ -250,7 +248,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 					},
 				),
@@ -339,7 +337,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 						msgEthereumTx,
 					},
@@ -370,7 +368,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 					},
 				),
@@ -387,7 +385,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 					},
 				),
@@ -398,7 +396,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 						banktypes.NewMsgSend(
 							testAddresses[0],
 							testAddresses[3],
-							sdk.NewCoins(sdk.NewInt64Coin(evmtypes.DefaultEVMDenom, 100e6)),
+							sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100e6)),
 						),
 					},
 				),
@@ -416,7 +414,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 			)
 
 			if tc.isEIP712 {
-				coinAmount := sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(20))
+				coinAmount := sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(20))
 				fees := sdk.NewCoins(coinAmount)
 				cosmosTxArgs := utiltx.CosmosTxArgs{
 					TxCfg:   suite.clientCtx.TxConfig,

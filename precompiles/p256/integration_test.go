@@ -16,11 +16,11 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/evmos/os/precompiles/p256"
-	"github.com/evmos/os/testutil/integration/evmos/factory"
-	"github.com/evmos/os/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/os/testutil/integration/evmos/keyring"
-	"github.com/evmos/os/testutil/integration/evmos/network"
-	"github.com/evmos/os/testutil/integration/evmos/utils"
+	"github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
+	"github.com/evmos/os/testutil/integration/os/utils"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
