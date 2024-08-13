@@ -5,8 +5,7 @@ import (
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
-
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/bank"
 	"github.com/evmos/os/testutil/integration/os/factory"
@@ -72,7 +71,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 	s.evmosAddr = tokenPair.GetERC20Contract()
 
 	// Mint and register a second coin for testing purposes
-	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), minttypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
 	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)

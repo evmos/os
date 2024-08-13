@@ -16,11 +16,13 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	sdkstaking "github.com/cosmos/cosmos-sdk/x/staking"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/os/app"
+	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/distribution"
 	"github.com/evmos/os/testutil"
@@ -29,7 +31,6 @@ import (
 	evmostypes "github.com/evmos/os/types"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
 // SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
@@ -37,7 +38,7 @@ import (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := evmosapp.SetupTestingApp(cmn.DefaultChainID)()
+	appI, genesisState := example_app.SetupTestingApp(cmn.DefaultChainID)()
 	app, ok := appI.(*evmosapp.Evmos)
 	s.Require().True(ok)
 
@@ -48,7 +49,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	validators := make([]stakingtypes.Validator, 0, len(valSet.Validators))
 	delegations := make([]stakingtypes.Delegation, 0, len(valSet.Validators))
 
-	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.PowerReduction)
+	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
 
 	for _, val := range valSet.Validators {
 		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
@@ -105,7 +106,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 		abci.RequestInitChain{
 			ChainId:         cmn.DefaultChainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: evmosapp.DefaultConsensusParams,
+			ConsensusParams: example_app.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
@@ -156,7 +157,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 
 	baseAcc := authtypes.NewBaseAccount(priv.PubKey().Address().Bytes(), priv.PubKey(), 0, 0)
 
-	amount := sdk.TokensFromConsensusPower(5, evmostypes.PowerReduction)
+	amount := sdk.TokensFromConsensusPower(5, evmostypes.AttoPowerReduction)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
@@ -166,7 +167,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{baseAcc}, balance)
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EVMKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
 
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
@@ -175,30 +176,30 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	err = s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
 
-	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
+	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EVMKeeper.ChainID())
 
-	precompile, err := distribution.NewPrecompile(s.app.DistrKeeper, s.app.StakingKeeper, s.app.AuthzKeeper)
+	precompile, err := distribution.NewPrecompile(s.app.DistrKeeper, *s.app.StakingKeeper, s.app.AuthzKeeper)
 	s.Require().NoError(err)
 	s.precompile = precompile
 
 	coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(5_000_000_000_000_000_000)))
 	inflCoins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(2_000_000_000_000_000_000)))
 	distrCoins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(3_000_000_000_000_000_000)))
-	err = s.app.BankKeeper.MintCoins(s.ctx, inflationtypes.ModuleName, coins)
+	err = s.app.BankKeeper.MintCoins(s.ctx, minttypes.ModuleName, coins)
 	s.Require().NoError(err)
-	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, authtypes.FeeCollectorName, inflCoins)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, minttypes.ModuleName, authtypes.FeeCollectorName, inflCoins)
 	s.Require().NoError(err)
-	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, inflationtypes.ModuleName, distrtypes.ModuleName, distrCoins)
+	err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, minttypes.ModuleName, distrtypes.ModuleName, distrCoins)
 	s.Require().NoError(err)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EVMKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 }
 
 // DeployContract deploys a contract that calls the distribution precompile's methods for testing purposes.
 func (s *PrecompileTestSuite) DeployContract(contract evmtypes.CompiledContract) (addr common.Address, err error) {
-	addr, err = evmosutil.DeployContract(
+	addr, err = chainutil.DeployContract(
 		s.ctx,
 		s.app,
 		s.privKey,
@@ -226,11 +227,11 @@ type stakingRewards struct {
 func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 	for _, r := range stkRs {
 		// fund account to make delegation
-		err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, r.Delegator, r.RewardAmt.Int64())
+		err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, r.Delegator, r.RewardAmt.Int64())
 		s.Require().NoError(err)
 		// set distribution module account balance which pays out the rewards
 		distrAcc := s.app.DistrKeeper.GetDistributionAccount(s.ctx)
-		err = evmosutil.FundModuleAccount(s.ctx, s.app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(s.bondDenom, r.RewardAmt)))
+		err = chainutil.FundModuleAccount(s.ctx, s.app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(s.bondDenom, r.RewardAmt)))
 		s.Require().NoError(err)
 
 		// make a delegation
@@ -249,7 +250,7 @@ func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 // NextBlock commits the current block and sets up the next block.
 func (s *PrecompileTestSuite) NextBlock() {
 	var err error
-	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, s.valSet)
+	s.ctx, err = chainutil.CommitAndCreateNewCtx(s.ctx, s.app, time.Second, s.valSet)
 	s.Require().NoError(err)
 }
 

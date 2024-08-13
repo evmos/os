@@ -9,8 +9,6 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/stretchr/testify/suite"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,11 +16,11 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	utiltx "github.com/evmos/os/testutil/tx"
-
-	"github.com/evmos/os/app"
 	"github.com/evmos/os/encoding"
+	example_app "github.com/evmos/os/example_chain"
+	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/suite"
 )
 
 const invalidAddress = "0x0000"
@@ -52,7 +50,7 @@ func (suite *MsgsTestSuite) SetupTest() {
 	suite.chainID = big.NewInt(1)
 	suite.hundredBigInt = big.NewInt(100)
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 }
 

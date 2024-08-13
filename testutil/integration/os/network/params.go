@@ -7,19 +7,14 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarketypes "github.com/evmos/os/x/feemarket/types"
-	infltypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
 func (n *IntegrationNetwork) UpdateEvmParams(params evmtypes.Params) error {
-	return n.app.EvmKeeper.SetParams(n.ctx, params)
+	return n.app.EVMKeeper.SetParams(n.ctx, params)
 }
 
 func (n *IntegrationNetwork) UpdateFeeMarketParams(params feemarketypes.Params) error {
 	return n.app.FeeMarketKeeper.SetParams(n.ctx, params)
-}
-
-func (n *IntegrationNetwork) UpdateInflationParams(params infltypes.Params) error {
-	return n.app.InflationKeeper.SetParams(n.ctx, params)
 }
 
 func (n *IntegrationNetwork) UpdateGovParams(params govtypes.Params) error {

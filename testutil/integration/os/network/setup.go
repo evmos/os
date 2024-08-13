@@ -22,13 +22,13 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/gogoproto/proto"
 	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	infltypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
 // createValidatorSetAndSigners creates validator set with the amount of validators specified
@@ -185,17 +185,6 @@ func setDefaultStakingGenesisState(evmosApp *example_app.ExampleChain, genesisSt
 	return genesisState
 }
 
-// TODO: remove Evmos specific stuff
-// setDefaultInflationGenesisState sets the inflation genesis state
-func setDefaultInflationGenesisState(evmosApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
-	inflationParams := infltypes.DefaultParams()
-	inflationParams.EnableInflation = false
-
-	inflationGenesis := infltypes.NewGenesisState(inflationParams, uint64(0), epochstypes.DayEpochID, 365, 0)
-	genesisState[infltypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&inflationGenesis)
-	return genesisState
-}
-
 type BankCustomGenesisState struct {
 	totalSupply sdktypes.Coins
 	balances    []banktypes.Balance
@@ -256,7 +245,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	authtypes.ModuleName:  genStateSetter[*authtypes.GenesisState](authtypes.ModuleName),
 	evmtypes.ModuleName:   genStateSetter[*evmtypes.GenesisState](evmtypes.ModuleName),
 	govtypes.ModuleName:   genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
-	infltypes.ModuleName:  genStateSetter[*infltypes.GenesisState](infltypes.ModuleName),
+	minttypes.ModuleName:  genStateSetter[*minttypes.GenesisState](minttypes.ModuleName),
 	erc20types.ModuleName: genStateSetter[*erc20types.GenesisState](erc20types.ModuleName),
 }
 
@@ -297,7 +286,6 @@ func newDefaultGenesisState(evmosApp *example_app.ExampleChain, params defaultGe
 	genesisState = setDefaultAuthGenesisState(evmosApp, genesisState, params.genAccounts)
 	genesisState = setDefaultStakingGenesisState(evmosApp, genesisState, params.staking)
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
-	genesisState = setDefaultInflationGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState)
 	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
 

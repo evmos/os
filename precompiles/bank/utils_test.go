@@ -4,12 +4,12 @@ import (
 	"cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/bank"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -42,18 +42,18 @@ func (is *IntegrationTestSuite) setupBankPrecompile() *bank.Precompile {
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
 func (s *PrecompileTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(s.tokenDenom, amount))
-	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, coins)
+	err := s.network.App.BankKeeper.MintCoins(s.network.GetContext(), minttypes.ModuleName, coins)
 	s.Require().NoError(err)
-	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), inflationtypes.ModuleName, addr, coins)
+	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(s.network.GetContext(), minttypes.ModuleName, addr, coins)
 	s.Require().NoError(err)
 }
 
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
 func (is *IntegrationTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) {
 	coins := sdk.NewCoins(sdk.NewCoin(is.tokenDenom, amount))
-	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, coins)
+	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), minttypes.ModuleName, coins)
 	Expect(err).ToNot(HaveOccurred())
-	err = is.network.App.BankKeeper.SendCoinsFromModuleToAccount(is.network.GetContext(), inflationtypes.ModuleName, addr, coins)
+	err = is.network.App.BankKeeper.SendCoinsFromModuleToAccount(is.network.GetContext(), minttypes.ModuleName, addr, coins)
 	Expect(err).ToNot(HaveOccurred())
 }
 

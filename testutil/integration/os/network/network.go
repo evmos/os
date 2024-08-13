@@ -24,7 +24,6 @@ import (
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
-	infltypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
 // Network is the interface that wraps the methods to interact with integration test network.
@@ -41,14 +40,12 @@ type Network interface {
 	GetERC20Client() erc20types.QueryClient
 	GetEvmClient() evmtypes.QueryClient
 	GetGovClient() govtypes.QueryClient
-	GetInflationClient() infltypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
 
 	// Because to update the module params on a conventional manner governance
 	// would be required, we should provide an easier way to update the params
 	UpdateEvmParams(params evmtypes.Params) error
 	UpdateGovParams(params govtypes.Params) error
-	UpdateInflationParams(params infltypes.Params) error
 	UpdateFeeMarketParams(params feemarkettypes.Params) error
 }
 
@@ -94,7 +91,7 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 
 var (
 	// bondedAmt is the amount of tokens that each validator will have initially bonded
-	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.PowerReduction)
+	bondedAmt = sdktypes.TokensFromConsensusPower(1, types.AttoPowerReduction)
 	// PrefundedAccountInitialBalance is the amount of tokens that each prefunded account has at genesis
 	PrefundedAccountInitialBalance = sdktypes.NewInt(int64(math.Pow10(18) * 4))
 )

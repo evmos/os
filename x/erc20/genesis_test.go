@@ -4,31 +4,26 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/suite"
-
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
-
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-
-	"github.com/evmos/os/testutil/integration/evmos/network"
+	example_app "github.com/evmos/os/example_chain"
+	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/utils"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
-
-	"github.com/evmos/evmos/v19/app"
 	"github.com/evmos/os/x/erc20"
 	"github.com/evmos/os/x/erc20/types"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
+	"github.com/stretchr/testify/suite"
 )
 
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *app.Evmos
+	app     *example_app.Evmos
 	genesis types.GenesisState
 }
 
@@ -48,7 +43,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	chainID := utils.TestnetChainID + "-1"
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
+	suite.app = example_app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,

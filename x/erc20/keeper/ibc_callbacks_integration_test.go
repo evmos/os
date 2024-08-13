@@ -8,7 +8,7 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/contracts"
-	teststypes "github.com/evmos/os/types/tests"
+	precompiletestutil "github.com/evmos/os/precompiles/testutil"
 	"github.com/evmos/os/utils"
 	"github.com/evmos/os/x/erc20/types"
 
@@ -54,7 +54,7 @@ var _ = Describe("Convert native ERC20 receiving from IBC back to Erc20", Ordere
 		})
 		It("should convert erc20 ibc voucher to original erc20", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EVMKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -100,7 +100,7 @@ var _ = Describe("Convert native ERC20 receiving from IBC back to Erc20", Ordere
 
 		It("should convert full available balance of erc20 coin to original erc20 token", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EVMKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -150,7 +150,7 @@ var _ = Describe("Convert native ERC20 receiving from IBC back to Erc20", Ordere
 
 		It("send native ERC-20 to osmosis, when sending back IBC coins should convert full balance back to erc20 token", func() {
 			// Mint tokens and send to receiver
-			_, err := s.app.EvmKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
+			_, err := s.app.EVMKeeper.CallEVM(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, common.BytesToAddress(senderAcc.Bytes()), pair.GetERC20Contract(), true, "mint", common.BytesToAddress(senderAcc.Bytes()), big.NewInt(amount))
 			s.Require().NoError(err)
 			// Check Balance
 			balanceToken := s.app.Erc20Keeper.BalanceOf(s.EvmosChain.GetContext(), contracts.ERC20MinterBurnerDecimalsContract.ABI, pair.GetERC20Contract(), common.BytesToAddress(senderAcc.Bytes()))
@@ -202,13 +202,13 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		evmosAccount := sdk.MustAccAddressFromBech32(evmosAddress)
 
 		// Precompile should not be available before IBC
-		uosmoContractAddr, err := utils.GetIBCDenomAddress(teststypes.UosmoIbcdenom)
+		uosmoContractAddr, err := utils.GetIBCDenomAddress(precompiletestutil.UosmoIbcdenom)
 		s.Require().NoError(err)
 
-		params := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
-		s.Require().False(s.app.EvmKeeper.IsAvailableStaticPrecompile(&params, uosmoContractAddr))
+		params := s.app.EVMKeeper.GetParams(s.EvmosChain.GetContext())
+		s.Require().False(s.app.EVMKeeper.IsAvailableStaticPrecompile(&params, uosmoContractAddr))
 		// Check receiver's balance for IBC before transfer. Should be zero
-		ibcOsmoBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, teststypes.UosmoIbcdenom)
+		ibcOsmoBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, precompiletestutil.UosmoIbcdenom)
 		s.Require().Equal(int64(0), ibcOsmoBalanceBefore.Amount.Int64())
 		s.EvmosChain.Coordinator.CommitBlock()
 
@@ -217,11 +217,11 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		s.EvmosChain.Coordinator.CommitBlock()
 
 		// Check IBC uosmo coin balance - should be equals to amount sended
-		ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, teststypes.UosmoIbcdenom)
+		ibcOsmoBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), evmosAccount, precompiletestutil.UosmoIbcdenom)
 		s.Require().Equal(amount, ibcOsmoBalanceAfter.Amount.Int64())
 
 		// Pair should be registered now and precompile available
-		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), teststypes.UosmoIbcdenom)
+		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), precompiletestutil.UosmoIbcdenom)
 		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
 		s.Require().True(found)
 		activeDynamicPrecompiles := s.app.Erc20Keeper.GetParams(s.EvmosChain.GetContext()).DynamicPrecompiles
@@ -240,11 +240,11 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		UatomInOsmosisIbcdenom := UatomInOsmosisDenomtrace.IBCDenom()
 		uosmoContractAddr, err := utils.GetIBCDenomAddress(UatomInOsmosisIbcdenom)
 		s.Require().NoError(err)
-		params := s.app.EvmKeeper.GetParams(s.EvmosChain.GetContext())
-		s.Require().False(s.app.EvmKeeper.IsAvailableStaticPrecompile(&params, uosmoContractAddr))
+		params := s.app.EVMKeeper.GetParams(s.EvmosChain.GetContext())
+		s.Require().False(s.app.EVMKeeper.IsAvailableStaticPrecompile(&params, uosmoContractAddr))
 
 		// check balance before transfer is 0
-		ibcAtomBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UatomOsmoIbcdenom)
+		ibcAtomBalanceBefore := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, precompiletestutil.UatomOsmoIbcdenom)
 		s.Require().Equal(int64(0), ibcAtomBalanceBefore.Amount.Int64())
 
 		s.EvmosChain.Coordinator.CommitBlock()
@@ -261,12 +261,12 @@ var _ = Describe("Native coins from IBC", Ordered, func() {
 		s.SendBackCoins(s.pathOsmosisEvmos, s.IBCOsmosisChain, UatomInOsmosisIbcdenom, amount, sender, receiver, 1, "transfer/channel-1/uatom")
 
 		// check balance of ibc atom on evmos after transfer
-		ibcAtomBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, teststypes.UatomOsmoIbcdenom)
+		ibcAtomBalanceAfter := s.app.BankKeeper.GetBalance(s.EvmosChain.GetContext(), receiverAcc, precompiletestutil.UatomOsmoIbcdenom)
 		s.Require().Equal(amount, ibcAtomBalanceAfter.Amount.Int64())
 
 		// Pair should not have been registered since atom is not native from osmosis
 		// Precompile shouldnt be deployed
-		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), teststypes.UatomOsmoIbcdenom)
+		pairID := s.app.Erc20Keeper.GetTokenPairID(s.EvmosChain.GetContext(), precompiletestutil.UatomOsmoIbcdenom)
 		_, found := s.app.Erc20Keeper.GetTokenPair(s.EvmosChain.GetContext(), pairID)
 		s.Require().False(found)
 		activeDynamicPrecompiles := s.app.Erc20Keeper.GetParams(s.EvmosChain.GetContext()).DynamicPrecompiles

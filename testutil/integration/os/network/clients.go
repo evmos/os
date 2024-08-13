@@ -16,7 +16,6 @@ import (
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
-	infltypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
@@ -37,7 +36,7 @@ func (n *IntegrationNetwork) GetERC20Client() erc20types.QueryClient {
 
 func (n *IntegrationNetwork) GetEvmClient() evmtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
-	evmtypes.RegisterQueryServer(queryHelper, n.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelper, n.app.EVMKeeper)
 	return evmtypes.NewQueryClient(queryHelper)
 }
 
@@ -59,13 +58,6 @@ func (n *IntegrationNetwork) GetFeeMarketClient() feemarkettypes.QueryClient {
 	return feemarkettypes.NewQueryClient(queryHelper)
 }
 
-// TODO: get rid of Evmos native clients
-func (n *IntegrationNetwork) GetInflationClient() infltypes.QueryClient {
-	queryHelper := getQueryHelper(n.GetContext())
-	infltypes.RegisterQueryServer(queryHelper, n.app.InflationKeeper)
-	return infltypes.NewQueryClient(queryHelper)
-}
-
 func (n *IntegrationNetwork) GetAuthClient() authtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
 	authtypes.RegisterQueryServer(queryHelper, n.app.AccountKeeper)
@@ -80,6 +72,6 @@ func (n *IntegrationNetwork) GetAuthzClient() authz.QueryClient {
 
 func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext())
-	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: n.app.StakingKeeper.Keeper})
+	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: n.app.StakingKeeper})
 	return stakingtypes.NewQueryClient(queryHelper)
 }

@@ -89,8 +89,11 @@ import (
 	upgradeclient "github.com/cosmos/cosmos-sdk/x/upgrade/client"
 	upgradekeeper "github.com/cosmos/cosmos-sdk/x/upgrade/keeper"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
+	ibctestingtypes "github.com/cosmos/ibc-go/v7/testing/types"
 	evmosante "github.com/evmos/os/ante"
 	evmosevmante "github.com/evmos/os/ante/evm"
+	"github.com/evmos/os/encoding"
 	evmosencoding "github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	chainante "github.com/evmos/os/example_chain/ante"
@@ -109,6 +112,9 @@ import (
 	feemarketkeeper "github.com/evmos/os/x/feemarket/keeper"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/spf13/cast"
+
+	// NOTE: override ICS20 keeper to support IBC transfers of ERC20 tokens
+	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
 
 const appName = "os"
@@ -204,6 +210,12 @@ type ExampleChain struct {
 	EvidenceKeeper        evidencekeeper.Keeper
 	FeeGrantKeeper        feegrantkeeper.Keeper
 	ConsensusParamsKeeper consensusparamkeeper.Keeper
+
+	// IBC keepers
+	IBCKeeper            *ibckeeper.Keeper // IBC Keeper must be a pointer in the app, so we can SetRouter on it correctly
+	TransferKeeper       transferkeeper.Keeper
+	scopedIBCKeeper      capabilitykeeper.ScopedKeeper
+	scopedTransferKeeper capabilitykeeper.ScopedKeeper
 
 	// evmOS keepers
 	FeeMarketKeeper feemarketkeeper.Keeper
@@ -769,6 +781,41 @@ func (app *ExampleChain) RegisterTendermintService(clientCtx client.Context) {
 
 func (app *ExampleChain) RegisterNodeService(clientCtx client.Context) {
 	nodeservice.RegisterNodeService(clientCtx, app.GRPCQueryRouter())
+}
+
+// ---------------------------------------------
+// IBC Go TestingApp functions
+//
+
+// GetBaseApp implements the TestingApp interface.
+func (app *ExampleChain) GetBaseApp() *baseapp.BaseApp {
+	return app.BaseApp
+}
+
+// GetStakingKeeper implements the TestingApp interface.
+func (app *ExampleChain) GetStakingKeeper() ibctestingtypes.StakingKeeper {
+	return app.StakingKeeper
+}
+
+// GetStakingKeeperSDK implements the TestingApp interface.
+func (app *ExampleChain) GetStakingKeeperSDK() stakingkeeper.Keeper {
+	return app.StakingKeeper
+}
+
+// GetIBCKeeper implements the TestingApp interface.
+func (app *ExampleChain) GetIBCKeeper() *ibckeeper.Keeper {
+	return app.IBCKeeper
+}
+
+// GetScopedIBCKeeper implements the TestingApp interface.
+func (app *ExampleChain) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
+	return app.ScopedIBCKeeper
+}
+
+// GetTxConfig implements the TestingApp interface.
+func (app *ExampleChain) GetTxConfig() client.TxConfig {
+	cfg := encoding.MakeConfig(ModuleBasics)
+	return cfg.TxConfig
 }
 
 // GetMaccPerms returns a copy of the module account permissions

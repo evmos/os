@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/os/app"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/precompiles/distribution"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/core/vm"
@@ -194,7 +194,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				To:        &contractAddr,
 				Amount:    nil,
 				GasLimit:  100000,
-				GasPrice:  app.MainnetMinGasPrices.BigInt(),
+				GasPrice:  chainutil.ExampleMinGasPrices.BigInt(),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
 				Accesses:  &ethtypes.AccessList{},
