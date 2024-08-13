@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/evmos/v19/utils"
-
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -16,8 +14,9 @@ import (
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/cmd/config"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	"github.com/evmos/os/cmd/config"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/testutil"
 )
 
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
@@ -171,7 +170,7 @@ func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundComm
 
 	msg := &distributiontypes.MsgFundCommunityPool{
 		Depositor: sdk.AccAddress(depositorAddress.Bytes()).String(),
-		Amount:    sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(amount)}},
+		Amount:    sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewIntFromBigInt(amount)}},
 	}
 
 	if err := msg.ValidateBasic(); err != nil {

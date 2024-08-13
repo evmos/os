@@ -8,11 +8,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/cmd/config"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/cmd/config"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/distribution"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
@@ -91,7 +91,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewardsEvent() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -160,7 +160,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommissionEvent() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(testutil.ExampleAttoDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -221,7 +221,7 @@ func (s *PrecompileTestSuite) TestClaimRewardsEvent() {
 	}{
 		{
 			"success",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e18))),
 			func() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())
@@ -259,7 +259,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPoolEvent() {
 	}{
 		{
 			"success - the correct event is emitted",
-			sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18))),
+			sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e18))),
 			func() {
 				log := s.stateDB.Logs()[0]
 				s.Require().Equal(log.Address, s.precompile.Address())

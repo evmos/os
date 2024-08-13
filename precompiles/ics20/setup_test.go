@@ -14,11 +14,11 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmosapp "github.com/evmos/evmos/v19/app"
-	evmosibc "github.com/evmos/evmos/v19/ibc/testing"
-	"github.com/evmos/evmos/v19/precompiles/ics20"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmosapp "github.com/evmos/os/app"
+	evmosibc "github.com/evmos/os/ibc/testing"
+	"github.com/evmos/os/precompiles/ics20"
+	"github.com/evmos/os/x/evm/statedb"
+	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

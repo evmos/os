@@ -10,10 +10,10 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	erc20keeper "github.com/evmos/evmos/v19/x/erc20/keeper"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	cmn "github.com/evmos/os/precompiles/common"
+	erc20keeper "github.com/evmos/os/x/erc20/keeper"
+	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const (

@@ -12,8 +12,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos

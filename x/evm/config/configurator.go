@@ -11,8 +11,8 @@ import (
 
 	"golang.org/x/exp/slices"
 
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/types"
 )
 
 // EVMConfigurator allows to extend x/evm module configurations. The configurator modifies

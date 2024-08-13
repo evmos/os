@@ -14,9 +14,9 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 var (

@@ -34,10 +34,10 @@ import (
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/ethereum/eip712"
 	utiltx "github.com/evmos/os/testutil/tx"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *AnteTestSuite) BuildTestEthTx(

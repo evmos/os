@@ -13,15 +13,14 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/distribution"
+	"github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/os/testutil"
+	testutiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -1536,7 +1535,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				},
 			}...)
 
-			expectedBalance = sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(2e18)}
+			expectedBalance = sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(2e18)}
 			// populate default arguments
 			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
 				"testClaimRewards",
@@ -1940,7 +1939,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 					// send some funds to the Reverter contracts to transfer to the
 					// delegator during the tx
-					err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, reverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+					err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, reverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, testContractInitialBalance)))
 					Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
 				})
 

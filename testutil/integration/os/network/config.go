@@ -9,6 +9,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/evmos/os/testutil"
 	testtx "github.com/evmos/os/testutil/tx"
 	evmostypes "github.com/evmos/os/types"
 	"github.com/evmos/os/utils"
@@ -40,7 +41,7 @@ func DefaultConfig() Config {
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
-		denom:              utils.BaseDenom,
+		denom:              testutil.ExampleAttoDenom,
 		customGenesisState: nil,
 	}
 }

@@ -9,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/statedb"
+	"github.com/evmos/os/x/evm/types"
 )
 
 // EVMConfig creates the EVMConfig based on current state

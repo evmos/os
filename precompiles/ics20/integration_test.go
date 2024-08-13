@@ -14,21 +14,20 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
-	evmoscontracts "github.com/evmos/evmos/v19/contracts"
-	evmostesting "github.com/evmos/evmos/v19/ibc/testing"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/precompiles/ics20"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	teststypes "github.com/evmos/evmos/v19/types/tests"
-	"github.com/evmos/evmos/v19/utils"
-	erc20types "github.com/evmos/evmos/v19/x/erc20/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	evmoscontracts "github.com/evmos/os/contracts"
+	evmostesting "github.com/evmos/os/ibc/testing"
+	"github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/erc20"
+	"github.com/evmos/os/precompiles/ics20"
+	"github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/os/testutil"
+	teststypes "github.com/evmos/os/types/tests"
+	erc20types "github.com/evmos/os/x/erc20/types"
+	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -210,7 +209,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		// 			s.address,
 		// 			s.transferPath.EndpointA.ChannelConfig.PortID,
 		// 			s.transferPath.EndpointA.ChannelID,
-		// 			utils.BaseDenom,
+		// 			testutil.ExampleAttoDenom,
 		// 			big.NewInt(1e18),
 		// 		)
 
@@ -265,7 +264,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.differentAddr,
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 				)
 
@@ -282,7 +281,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			Expect(auths).To(HaveLen(1), "expected one authorization")
 			Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 			transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)})))
+			Expect(transferAuthz.Allocations[0].SpendLimit).To(Equal(defaultCoins.Add(sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(1e18)})))
 		})
 	})
 
@@ -298,7 +297,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.differentAddr,
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(2e18),
 				)
 
@@ -318,7 +317,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 		// 			s.address,
 		// 			s.transferPath.EndpointA.ChannelConfig.PortID,
 		// 			s.transferPath.EndpointA.ChannelID,
-		// 			utils.BaseDenom,
+		// 			testutil.ExampleAttoDenom,
 		// 			big.NewInt(1e18),
 		// 		)
 
@@ -371,7 +370,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 					s.differentAddr,
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 				)
 
@@ -895,7 +894,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			)
 			expTrace = transfertypes.DenomTrace{
 				Path:      path,
-				BaseDenom: utils.BaseDenom,
+				BaseDenom: testutil.ExampleAttoDenom,
 			}
 		})
 
@@ -927,8 +926,8 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				method = ics20.DenomTracesMethod
 				// setup - create some denom traces to get on the query result
 				expTraces = []transfertypes.DenomTrace{
-					{Path: "", BaseDenom: utils.BaseDenom},
-					{Path: fmt.Sprintf("%s/%s", s.transferPath.EndpointA.ChannelConfig.PortID, s.transferPath.EndpointA.ChannelID), BaseDenom: utils.BaseDenom},
+					{Path: "", BaseDenom: testutil.ExampleAttoDenom},
+					{Path: fmt.Sprintf("%s/%s", s.transferPath.EndpointA.ChannelConfig.PortID, s.transferPath.EndpointA.ChannelID), BaseDenom: testutil.ExampleAttoDenom},
 					expTrace,
 				}
 
@@ -1197,7 +1196,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				WithArgs(
 					s.transferPath.EndpointA.ChannelConfig.PortID,
 					s.transferPath.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					amt,
 				)
 		})
@@ -1215,7 +1214,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				Expect(auths).To(HaveLen(1), "expected one authorization")
 				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(utils.BaseDenom)).To(Equal(defaultCoins.AmountOf(utils.BaseDenom).Add(math.NewIntFromBigInt(amt))))
+				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(testutil.ExampleAttoDenom)).To(Equal(defaultCoins.AmountOf(testutil.ExampleAttoDenom).Add(math.NewIntFromBigInt(amt))))
 			})
 		})
 
@@ -1239,7 +1238,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				Expect(auths).To(HaveLen(1), "expected one authorization")
 				Expect(auths[0].MsgTypeURL()).To(Equal(ics20.TransferMsgURL))
 				transferAuthz := auths[0].(*transfertypes.TransferAuthorization)
-				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(utils.BaseDenom)).To(Equal(defaultCoins.AmountOf(utils.BaseDenom).Sub(math.NewIntFromBigInt(amt))))
+				Expect(transferAuthz.Allocations[0].SpendLimit.AmountOf(testutil.ExampleAttoDenom)).To(Equal(defaultCoins.AmountOf(testutil.ExampleAttoDenom).Sub(math.NewIntFromBigInt(amt))))
 			})
 		})
 	})

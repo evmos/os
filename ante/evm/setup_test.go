@@ -16,13 +16,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	evmosante "github.com/evmos/os/ante"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
 	app "github.com/evmos/os/example_chain"
 	chainante "github.com/evmos/os/example_chain/ante"
 	"github.com/evmos/os/testutil"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 

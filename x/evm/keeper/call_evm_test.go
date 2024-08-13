@@ -4,11 +4,11 @@ import (
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/x/erc20/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/contracts"
+	"github.com/evmos/os/testutil"
+	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/erc20/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const erc20Decimals = uint8(18)

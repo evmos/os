@@ -14,14 +14,14 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 var (
 	// DefaultEVMDenom defines the default EVM denomination on Evmos
-	DefaultEVMDenom = utils.BaseDenom
+	DefaultEVMDenom = testutil.ExampleAttoDenom
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles

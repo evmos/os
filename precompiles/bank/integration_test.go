@@ -4,24 +4,23 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/evmos/evmos/v19/precompiles/bank/testdata"
+	"github.com/evmos/os/precompiles/bank/testdata"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	integrationutils "github.com/evmos/evmos/v19/testutil/integration/evmos/utils"
-	"github.com/evmos/evmos/v19/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/os/testutil/integration/evmos/factory"
+	"github.com/evmos/os/testutil/integration/evmos/grpc"
+	"github.com/evmos/os/testutil/integration/evmos/network"
+	integrationutils "github.com/evmos/os/testutil/integration/evmos/utils"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 
-	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
+	evmosutiltx "github.com/evmos/os/testutil/tx"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/precompiles/bank"
+	"github.com/evmos/os/precompiles/bank"
 
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
+	"github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/testutil/integration/evmos/keyring"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -174,7 +173,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, utils.BaseDenom)
+				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, testutil.ExampleAttoDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -318,7 +317,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, utils.BaseDenom)
+				balanceAfter, err := is.grpcHandler.GetBalance(sender.AccAddr, testutil.ExampleAttoDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(sdk.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))

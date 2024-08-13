@@ -29,24 +29,24 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmosapp "github.com/evmos/evmos/v19/app"
-	evmoscontracts "github.com/evmos/evmos/v19/contracts"
-	evmosibc "github.com/evmos/evmos/v19/ibc/testing"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/precompiles/ics20"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	evmosutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	evmostypes "github.com/evmos/evmos/v19/types"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	evmosapp "github.com/evmos/os/app"
+	evmoscontracts "github.com/evmos/os/contracts"
+	evmosibc "github.com/evmos/os/ibc/testing"
+	"github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/erc20"
+	"github.com/evmos/os/precompiles/ics20"
+	"github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/os/testutil"
+	evmosutiltx "github.com/evmos/os/testutil/tx"
+	evmostypes "github.com/evmos/os/types"
+	"github.com/evmos/os/utils"
+	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/statedb"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
+	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
@@ -59,14 +59,14 @@ type erc20Meta struct {
 }
 
 var (
-	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewIntFromBigInt(abi.MaxUint256)}}
-	maxUint256CmnCoins = []cmn.Coin{{Denom: utils.BaseDenom, Amount: abi.MaxUint256}}
-	defaultCoins       = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}}
-	baseDenomCmnCoin   = cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}
+	maxUint256Coins    = sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewIntFromBigInt(abi.MaxUint256)}}
+	maxUint256CmnCoins = []cmn.Coin{{Denom: testutil.ExampleAttoDenom, Amount: abi.MaxUint256}}
+	defaultCoins       = sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(1e18)}}
+	baseDenomCmnCoin   = cmn.Coin{Denom: testutil.ExampleAttoDenom, Amount: big.NewInt(1e18)}
 	defaultCmnCoins    = []cmn.Coin{baseDenomCmnCoin}
 	atomCoins          = sdk.Coins{sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	atomCmnCoin        = cmn.Coin{Denom: "uatom", Amount: big.NewInt(1e18)}
-	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: utils.BaseDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
+	mutliSpendLimit    = sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(1e18)}, sdk.Coin{Denom: "uatom", Amount: math.NewInt(1e18)}}
 	mutliCmnCoins      = []cmn.Coin{baseDenomCmnCoin, atomCmnCoin}
 	testERC20          = erc20Meta{
 		Name:     "TestCoin",
@@ -119,7 +119,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.BondDenom = testutil.ExampleAttoDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
@@ -127,13 +127,13 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(utils.BaseDenom, totalBondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(testutil.ExampleAttoDenom, totalBondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(utils.BaseDenom, totalBondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(testutil.ExampleAttoDenom, totalBondAmt)},
 	})
 
 	// update total supply
@@ -236,7 +236,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, amount)),
 	}
 
 	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{baseAcc}, balance)
@@ -255,7 +255,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
-	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.BondDenom = testutil.ExampleAttoDenom
 	s.bondDenom = stakingParams.BondDenom
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
@@ -395,7 +395,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 
 	s.app = s.chainA.App.(*evmosapp.Evmos)
 	evmParams := s.app.EvmKeeper.GetParams(s.chainA.GetContext())
-	evmParams.EvmDenom = utils.BaseDenom
+	evmParams.EvmDenom = testutil.ExampleAttoDenom
 	err := s.app.EvmKeeper.SetParams(s.chainA.GetContext(), evmParams)
 	s.Require().NoError(err)
 
@@ -414,7 +414,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	// Mint coins locked on the evmos account generated with secp.
 	amt, ok := math.NewIntFromString("1000000000000000000000")
 	s.Require().True(ok)
-	coinEvmos := sdk.NewCoin(utils.BaseDenom, amt)
+	coinEvmos := sdk.NewCoin(testutil.ExampleAttoDenom, amt)
 	coins := sdk.NewCoins(coinEvmos)
 	err = s.app.BankKeeper.MintCoins(s.chainA.GetContext(), inflationtypes.ModuleName, coins)
 	s.Require().NoError(err)

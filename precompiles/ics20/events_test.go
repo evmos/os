@@ -6,11 +6,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/ics20"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/ics20"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 func (s *PrecompileTestSuite) TestTransferEvent() {
@@ -32,7 +32,7 @@ func (s *PrecompileTestSuite) TestTransferEvent() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(sender.Bytes()),
 					receiver.String(),
@@ -59,7 +59,7 @@ func (s *PrecompileTestSuite) TestTransferEvent() {
 				s.Require().Equal("transfer", ibcTransferEvent.SourcePort)
 				s.Require().Equal("channel-0", ibcTransferEvent.SourceChannel)
 				s.Require().Equal(big.NewInt(1e18), ibcTransferEvent.Amount)
-				s.Require().Equal(utils.BaseDenom, ibcTransferEvent.Denom)
+				s.Require().Equal(testutil.ExampleAttoDenom, ibcTransferEvent.Denom)
 				s.Require().Equal("memo", ibcTransferEvent.Memo)
 			},
 		},
@@ -228,7 +228,7 @@ func (s *PrecompileTestSuite) TestIncreaseAllowanceEvent() {
 					s.address,
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 				}
 			},
@@ -279,7 +279,7 @@ func (s *PrecompileTestSuite) TestDecreaseAllowanceEvent() {
 					s.address,
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18 / 2),
 				}
 			},

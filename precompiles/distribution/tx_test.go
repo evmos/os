@@ -5,17 +5,16 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/x/evm/core/vm"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/distribution"
+	utiltx "github.com/evmos/os/testutil/tx"
 )
 
 func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
@@ -172,7 +171,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.app.StakingKeeper.GetValidator(s.ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 				return []interface{}{
 					s.address,
@@ -183,10 +182,10 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 				var coins []cmn.Coin
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawDelegatorRewardsMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
+				s.Require().Equal(coins[0].Denom, testutil.ExampleAttoDenom)
 				s.Require().Equal(coins[0].Amount, big.NewInt(1000000000000000000))
 				// Check bank balance after the withdrawal of rewards
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6000000000000000000))
 			},
 			20000,
@@ -200,7 +199,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 			s.SetupTest()
 
 			// sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5000000000000000000))
 
 			var contract *vm.Contract
@@ -256,7 +255,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			func(operatorAddress string) []interface{} {
 				valAddr, err := sdk.ValAddressFromBech32(operatorAddress)
 				s.Require().NoError(err)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(utils.BaseDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(testutil.ExampleAttoDenom, math.LegacyNewDecWithPrec(1000000000000000000, 1))}
 				// set outstanding rewards
 				s.app.DistrKeeper.SetValidatorOutstandingRewards(s.ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission})
 				// set commission
@@ -269,12 +268,12 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 				var coins []cmn.Coin
 				err := s.precompile.UnpackIntoInterface(&coins, distribution.WithdrawValidatorCommissionMethod, data)
 				s.Require().NoError(err, "failed to unpack output")
-				s.Require().Equal(coins[0].Denom, utils.BaseDenom)
+				s.Require().Equal(coins[0].Denom, testutil.ExampleAttoDenom)
 				s.Require().Equal(coins[0].Amount, big.NewInt(100000000000000000))
 				// Check bank balance after the withdrawal of commission
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(100000000000000000))
-				s.Require().Equal(balance.Denom, utils.BaseDenom)
+				s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 			},
 			20000,
 			false,
@@ -287,9 +286,9 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 			s.SetupTest()
 
 			// Sanity check to make sure the starting balance is always 0
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), utils.BaseDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, s.validators[0].GetOperator().Bytes(), testutil.ExampleAttoDenom)
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(0))
-			s.Require().Equal(balance.Denom, utils.BaseDenom)
+			s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 
 			validatorAddress := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
 			var contract *vm.Contract
@@ -363,7 +362,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 				}
 			},
 			func([]byte) {
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
 			},
 			20000,
@@ -392,7 +391,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 				}
 			},
 			func([]byte) {
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(7e18))
 			},
 			20000,
@@ -408,7 +407,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 				}
 			},
 			func([]byte) {
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount.BigInt(), big.NewInt(6e18))
 			},
 			20000,
@@ -425,12 +424,12 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
 			// Sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
 
 			// Distribute rewards to the 2 validators, 1 EVMOS each
 			for _, val := range s.validators {
-				coins := sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, math.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e18)))
 				s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, val, sdk.NewDecCoinsFromCoins(coins...))
 			}
 
@@ -491,8 +490,8 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			func([]byte) {
 				coins := s.app.DistrKeeper.GetFeePoolCommunityCoins(s.ctx)
 				expectedAmount := new(big.Int).Mul(big.NewInt(1e18), new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(sdk.Precision)), nil))
-				s.Require().Equal(expectedAmount, coins.AmountOf(utils.BaseDenom).BigInt())
-				userBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+				s.Require().Equal(expectedAmount, coins.AmountOf(testutil.ExampleAttoDenom).BigInt())
+				userBalance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(big.NewInt(4e18), userBalance.Amount.BigInt())
 			},
 			20000,
@@ -509,7 +508,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
 			// Sanity check to make sure the starting balance is always 5 EVMOS
-			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), utils.BaseDenom)
+			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5e18))
 
 			bz, err := s.precompile.FundCommunityPool(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())

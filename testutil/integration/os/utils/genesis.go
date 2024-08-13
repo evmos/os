@@ -6,9 +6,9 @@ package utils
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	"github.com/evmos/os/testutil"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/utils"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -54,7 +54,7 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	}, {
 		Erc20Address:  WEVMOSContractTestnet,
-		Denom:         utils.BaseDenom,
+		Denom:         testutil.ExampleAttoDenom,
 		Enabled:       true,
 		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 	}}

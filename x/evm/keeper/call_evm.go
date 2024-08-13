@@ -13,8 +13,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/server/config"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/server/config"
+	"github.com/evmos/os/x/evm/types"
 )
 
 // CallEVM performs a smart contract method call using given args

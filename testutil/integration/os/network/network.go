@@ -9,20 +9,18 @@ import (
 	"math/big"
 	"time"
 
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	gethparams "github.com/ethereum/go-ethereum/params"
-	example_app "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/types"
-
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	gethparams "github.com/ethereum/go-ethereum/params"
+	example_app "github.com/evmos/os/example_chain"
 	commonnetwork "github.com/evmos/os/testutil/integration/common/network"
+	"github.com/evmos/os/types"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
@@ -61,7 +59,7 @@ type IntegrationNetwork struct {
 	cfg        Config
 	ctx        sdktypes.Context
 	validators []stakingtypes.Validator
-	app        *example_app.Evmos
+	app        *example_app.ExampleChain
 
 	// This is only needed for IBC chain testing setup
 	valSet     *tmtypes.ValidatorSet
@@ -242,7 +240,7 @@ func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 
 // GetChainConfig returns the network's chain config
 func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
-	params := n.app.EvmKeeper.GetParams(n.ctx)
+	params := n.app.EVMKeeper.GetParams(n.ctx)
 	return params.ChainConfig.EthereumConfig(n.cfg.eip155ChainID)
 }
 

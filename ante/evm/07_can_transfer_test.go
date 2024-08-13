@@ -9,12 +9,12 @@ import (
 	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/ante/evm"
+	"github.com/evmos/os/testutil/integration/evmos/factory"
+	"github.com/evmos/os/testutil/integration/evmos/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/evmos/keyring"
+	"github.com/evmos/os/testutil/integration/evmos/network"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestCanTransfer() {

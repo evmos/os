@@ -19,12 +19,11 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/testutil"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
 	example_app "github.com/evmos/os/example_chain"
+	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/utils"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/require"
@@ -68,7 +67,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool, chainID string) {
 	suite.app.StakingKeeper.SetValidator(suite.ctx, validator)
 
 	stakingParams := stakingtypes.DefaultParams()
-	stakingParams.BondDenom = utils.BaseDenom
+	stakingParams.BondDenom = testutil.ExampleAttoDenom
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	require.NoError(t, err)
 

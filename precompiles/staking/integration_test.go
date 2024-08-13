@@ -19,21 +19,20 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	compiledcontracts "github.com/evmos/evmos/v19/contracts"
-	"github.com/evmos/evmos/v19/crypto/ethsecp256k1"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/distribution"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/precompiles/staking/testdata"
-	"github.com/evmos/evmos/v19/precompiles/testutil"
-	"github.com/evmos/evmos/v19/precompiles/testutil/contracts"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	vestingtypes "github.com/evmos/evmos/v19/x/vesting/types"
+	compiledcontracts "github.com/evmos/os/contracts"
+	"github.com/evmos/os/crypto/ethsecp256k1"
+	"github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/distribution"
+	"github.com/evmos/os/precompiles/staking"
+	"github.com/evmos/os/precompiles/staking/testdata"
+	"github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/precompiles/testutil/contracts"
+	evmosutil "github.com/evmos/os/testutil"
+	testutiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	vestingtypes "github.com/evmos/os/x/vesting/types"
 )
 
 // General variables used for integration tests
@@ -1695,10 +1694,10 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 
 		// send some funds to the StakingCallerTwo & StakingReverter contracts to transfer to the
 		// delegator during the tx
-		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, contractTwoAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, contractTwoAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, testContractInitialBalance)))
 		Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
 
-		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, stkReverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, testContractInitialBalance)))
+		err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, stkReverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, testContractInitialBalance)))
 		Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
 
 		valAddr = s.validators[0].GetOperator()
@@ -3193,7 +3192,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance.Amount.Int64()).To(Equal(int64(0)), "expected a different delegation balance")
-			Expect(delOut.Balance.Denom).To(Equal(utils.BaseDenom), "expected a different delegation balance")
+			Expect(delOut.Balance.Denom).To(Equal(testutil.ExampleAttoDenom), "expected a different delegation balance")
 		})
 
 		It("which exists should return the delegation", func() {
@@ -3208,7 +3207,7 @@ var _ = Describe("Calling staking precompile via Solidity", func() {
 			err = s.precompile.UnpackIntoInterface(&delOut, staking.DelegationMethod, ethRes.Ret)
 			Expect(err).To(BeNil(), "error while unpacking the delegation output: %v", err)
 			Expect(delOut.Balance).To(Equal(
-				cmn.Coin{Denom: utils.BaseDenom, Amount: big.NewInt(1e18)}),
+				cmn.Coin{Denom: testutil.ExampleAttoDenom, Amount: big.NewInt(1e18)}),
 				"expected a different delegation balance",
 			)
 		})

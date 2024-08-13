@@ -15,12 +15,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/authz"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/evmos/v19/ibc"
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
+	"github.com/evmos/os/ibc"
+	auth "github.com/evmos/os/precompiles/authorization"
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 const (

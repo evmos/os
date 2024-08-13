@@ -9,7 +9,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 // EvmTxArgs encapsulates all possible params to create all EVM txs types.

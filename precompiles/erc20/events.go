@@ -11,10 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/core/vm"
 
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	auth "github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
 )
 
 const (

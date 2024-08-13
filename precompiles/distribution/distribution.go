@@ -11,10 +11,10 @@ import (
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	stakingkeeper "github.com/evmos/evmos/v19/x/staking/keeper"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	stakingkeeper "github.com/evmos/os/x/staking/keeper"
 )
 
 var _ vm.PrecompiledContract = &Precompile{}

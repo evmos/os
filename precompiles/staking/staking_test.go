@@ -8,15 +8,15 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/x/evm/core/vm"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/staking"
-	"github.com/evmos/evmos/v19/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/app"
+	"github.com/evmos/os/precompiles/authorization"
+	"github.com/evmos/os/precompiles/staking"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (s *PrecompileTestSuite) TestIsTransaction() {
@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
-				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
+				coin := sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1000))
 				err = s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
@@ -359,7 +359,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
-				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
+				coin := sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1000))
 				err := s.app.BankKeeper.SendCoinsFromModuleToModule(s.ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 

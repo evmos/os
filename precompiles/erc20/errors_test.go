@@ -1,8 +1,8 @@
 package erc20_test
 
 import (
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/precompiles/erc20"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // TODO: This is not yet producing the correct reason bytes so we skip this test for now,

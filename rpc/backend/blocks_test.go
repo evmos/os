@@ -16,10 +16,10 @@ import (
 	"github.com/ethereum/go-ethereum/trie"
 	"google.golang.org/grpc/metadata"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/rpc/backend/mocks"
 	ethrpc "github.com/evmos/os/rpc/types"
 	utiltx "github.com/evmos/os/testutil/tx"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestBlockNumber() {

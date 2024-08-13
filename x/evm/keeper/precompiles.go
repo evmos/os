@@ -6,8 +6,8 @@ package keeper
 import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	"github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/types"
 )
 
 type Precompiles struct {

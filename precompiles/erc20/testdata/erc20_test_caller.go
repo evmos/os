@@ -4,8 +4,8 @@
 package testdata
 
 import (
-	contractutils "github.com/evmos/evmos/v19/contracts/utils"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	contractutils "github.com/evmos/os/contracts/utils"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func LoadERC20TestCaller() (evmtypes.CompiledContract, error) {

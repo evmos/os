@@ -20,6 +20,7 @@ import (
 	"github.com/cosmos/ibc-go/v7/testing/mock"
 
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	"github.com/evmos/os/testutil"
 	evmostypes "github.com/evmos/os/types"
 	"github.com/evmos/os/utils"
 )
@@ -67,7 +68,7 @@ func NewTestChain(t *testing.T, coord *ibcgotesting.Coordinator, chainID string)
 
 	balance := banktypes.Balance{
 		Address: baseAcc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, amount)),
+		Coins:   sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, amount)),
 	}
 
 	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{baseAcc}, chainID, balance)

@@ -6,8 +6,8 @@ package contracts
 import (
 	_ "embed"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	contractutils "github.com/evmos/os/contracts/utils"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 var (

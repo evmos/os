@@ -7,7 +7,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	"github.com/evmos/os/utils"
+	"github.com/evmos/os/testutil"
 	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
@@ -26,7 +26,7 @@ func FundAccount(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddr
 // to fund an account with the default Evmos denomination.
 func FundAccountWithBaseDenom(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddress, amount int64) error {
 	coins := sdk.NewCoins(
-		sdk.NewCoin(utils.BaseDenom, math.NewInt(amount)),
+		sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(amount)),
 	)
 	return FundAccount(ctx, bankKeeper, addr, coins)
 }

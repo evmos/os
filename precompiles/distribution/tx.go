@@ -6,16 +6,15 @@ package distribution
 import (
 	"fmt"
 
-	"github.com/evmos/evmos/v19/utils"
-
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/testutil"
 
 	"github.com/ethereum/go-ethereum/common"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 const (
@@ -84,7 +83,7 @@ func (p *Precompile) ClaimRewards(
 	if contract.CallerAddress != origin {
 		// rewards go to the withdrawer address
 		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, delegatorAddr)
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(utils.BaseDenom).BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(testutil.ExampleAttoDenom).BigInt(), cmn.Add))
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -244,7 +243,7 @@ func (p *Precompile) FundCommunityPool(
 	// when calling the precompile from a smart contract
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, msg.Amount.AmountOf(utils.BaseDenom).BigInt(), cmn.Sub))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, msg.Amount.AmountOf(testutil.ExampleAttoDenom).BigInt(), cmn.Sub))
 	}
 
 	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {

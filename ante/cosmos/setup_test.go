@@ -20,8 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/ante"
 	evmante "github.com/evmos/os/ante/evm"
 	"github.com/evmos/os/crypto/ethsecp256k1"
@@ -32,6 +30,8 @@ import (
 	chaintestutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/statedb"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 

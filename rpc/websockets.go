@@ -29,11 +29,11 @@ import (
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
 	tmtypes "github.com/cometbft/cometbft/types"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/rpc/ethereum/pubsub"
 	rpcfilters "github.com/evmos/os/rpc/namespaces/ethereum/eth/filters"
 	"github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/server/config"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 type WebsocketsServer interface {

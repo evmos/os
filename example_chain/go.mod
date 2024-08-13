@@ -10,7 +10,7 @@ require (
 	github.com/cometbft/cometbft v0.37.9
 	github.com/cometbft/cometbft-db v0.12.0
 	github.com/cosmos/cosmos-sdk v0.47.12
-	github.com/evmos/evmos/v19 v19.0.0-20240731212153-b36241652b57
+	github.com/evmos/os v19.0.0-20240731212153-b36241652b57
 	github.com/evmos/os v0.0.0-20240806115830-ab675cc0c776
 	github.com/spf13/cast v1.6.0
 	github.com/spf13/cobra v1.8.1

@@ -12,12 +12,12 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/app"
-	auth "github.com/evmos/evmos/v19/precompiles/authorization"
-	"github.com/evmos/evmos/v19/precompiles/erc20"
-	"github.com/evmos/evmos/v19/testutil"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
-	inflationtypes "github.com/evmos/evmos/v19/x/inflation/v1/types"
+	"github.com/evmos/os/app"
+	auth "github.com/evmos/os/precompiles/authorization"
+	"github.com/evmos/os/precompiles/erc20"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/x/evm/core/vm"
+	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 )
 
 // Define useful variables for tests here.

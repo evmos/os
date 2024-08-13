@@ -6,10 +6,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/evmos/evmos/v19/precompiles/authorization"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/ics20"
-	"github.com/evmos/evmos/v19/utils"
+	"github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/ics20"
+	"github.com/evmos/os/testutil"
 )
 
 func (s *PrecompileTestSuite) TestDenomTrace() {
@@ -45,7 +45,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 			"success - denom trace not found, return empty struct",
 			func() []interface{} {
 				expTrace.Path = "transfer/channelToA/transfer/channelToB"
-				expTrace.BaseDenom = utils.BaseDenom
+				expTrace.BaseDenom = testutil.ExampleAttoDenom
 				return []interface{}{
 					expTrace.IBCDenom(),
 				}
@@ -65,7 +65,7 @@ func (s *PrecompileTestSuite) TestDenomTrace() {
 			"success - denom trace",
 			func() []interface{} {
 				expTrace.Path = "transfer/channelToA/transfer/channelToB"
-				expTrace.BaseDenom = utils.BaseDenom
+				expTrace.BaseDenom = testutil.ExampleAttoDenom
 				s.app.TransferKeeper.SetDenomTrace(s.ctx, expTrace)
 				return []interface{}{
 					expTrace.IBCDenom(),
@@ -124,9 +124,9 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 		{
 			"success - gets denom traces",
 			func() []interface{} {
-				expTraces = append(expTraces, types.DenomTrace{Path: "", BaseDenom: utils.BaseDenom})
-				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToA/transfer/channelToB", BaseDenom: utils.BaseDenom})
-				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToB", BaseDenom: utils.BaseDenom})
+				expTraces = append(expTraces, types.DenomTrace{Path: "", BaseDenom: testutil.ExampleAttoDenom})
+				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToA/transfer/channelToB", BaseDenom: testutil.ExampleAttoDenom})
+				expTraces = append(expTraces, types.DenomTrace{Path: "transfer/channelToB", BaseDenom: testutil.ExampleAttoDenom})
 
 				for _, trace := range expTraces {
 					s.app.TransferKeeper.SetDenomTrace(s.ctx, trace)
@@ -175,7 +175,7 @@ func (s *PrecompileTestSuite) TestDenomTraces() {
 func (s *PrecompileTestSuite) TestDenomHash() {
 	reqTrace := types.DenomTrace{
 		Path:      "transfer/channelToA/transfer/channelToB",
-		BaseDenom: utils.BaseDenom,
+		BaseDenom: testutil.ExampleAttoDenom,
 	}
 	method := s.precompile.Methods[ics20.DenomHashMethod]
 	testCases := []struct {

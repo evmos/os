@@ -9,12 +9,12 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
-	cmn "github.com/evmos/evmos/v19/precompiles/common"
-	"github.com/evmos/evmos/v19/precompiles/ics20"
-	evmosutil "github.com/evmos/evmos/v19/testutil"
-	testutiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/evmos/evmos/v19/x/evm/core/vm"
+	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/precompiles/ics20"
+	"github.com/evmos/os/testutil"
+	evmosutil "github.com/evmos/os/testutil"
+	testutiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/core/vm"
 )
 
 var (
@@ -52,7 +52,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(s.chainA.SenderAccount.GetAddress().Bytes()),
 					s.chainB.SenderAccount.GetAddress().String(),
@@ -73,7 +73,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					"port",
 					"channel-01",
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(s.chainA.SenderAccount.GetAddress().Bytes()),
 					s.chainB.SenderAccount.GetAddress().String(),
@@ -123,7 +123,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(2e18),
 					common.BytesToAddress(s.chainA.SenderAccount.GetAddress().Bytes()),
 					s.chainB.SenderAccount.GetAddress().String(),
@@ -152,7 +152,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(amt),
 					common.BytesToAddress(differentAddress.Bytes()),
 					receiver.String(),
@@ -168,9 +168,9 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, defaultCoins)
 
 				// the balance on other user's account should remain unchanged
-				balance := s.app.BankKeeper.GetBalance(s.ctx, differentAddress.Bytes(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, differentAddress.Bytes(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount, math.NewInt(amt))
-				s.Require().Equal(balance.Denom, utils.BaseDenom)
+				s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 			},
 			200000,
 			true,
@@ -186,7 +186,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(sender.Bytes()),
 					receiver.String(),
@@ -215,7 +215,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(sender.Bytes()),
 					receiver.String(),
@@ -229,9 +229,9 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				authz, _ := s.app.AuthzKeeper.GetAuthorization(s.ctx, callingContractAddr.Bytes(), sender, ics20.TransferMsgURL)
 				s.Require().Nil(authz)
 
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount, math.NewInt(4e18))
-				s.Require().Equal(balance.Denom, utils.BaseDenom)
+				s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 			},
 			200000,
 			false,
@@ -248,7 +248,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(sender.Bytes()),
 					receiver.String(),
@@ -263,9 +263,9 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, maxUint256Coins)
 
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount, math.NewInt(4e18))
-				s.Require().Equal(balance.Denom, utils.BaseDenom)
+				s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 			},
 			200000,
 			false,
@@ -282,7 +282,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(sender.Bytes()),
 					receiver.String(),
@@ -297,9 +297,9 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount, math.NewInt(4e18))
-				s.Require().Equal(balance.Denom, utils.BaseDenom)
+				s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 			},
 			200000,
 			false,
@@ -332,7 +332,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				return []interface{}{
 					path.EndpointA.ChannelConfig.PortID,
 					path.EndpointA.ChannelID,
-					utils.BaseDenom,
+					testutil.ExampleAttoDenom,
 					big.NewInt(1e18),
 					common.BytesToAddress(sender.Bytes()),
 					receiver.String(),
@@ -347,9 +347,9 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				transferAuthz := authz.(*transfertypes.TransferAuthorization)
 				s.Require().Equal(transferAuthz.Allocations[0].SpendLimit, atomCoins)
 
-				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), utils.BaseDenom)
+				balance := s.app.BankKeeper.GetBalance(s.ctx, s.chainA.SenderAccount.GetAddress(), testutil.ExampleAttoDenom)
 				s.Require().Equal(balance.Amount, math.NewInt(4e18))
-				s.Require().Equal(balance.Denom, utils.BaseDenom)
+				s.Require().Equal(balance.Denom, testutil.ExampleAttoDenom)
 			},
 			200000,
 			false,
