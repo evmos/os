@@ -22,7 +22,9 @@ func FundAccount(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddr
 }
 
 // FundAccountWithBaseDenom is a utility function that uses the FundAccount function
-// to fund an account with the default Evmos denomination.
+// to fund an account with the default denomination.
+//
+// TODO: as per Freddy these methods should be replaced with a bank transfer from a main account, not by minting in the process
 func FundAccountWithBaseDenom(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddress, amount int64) error {
 	coins := sdk.NewCoins(
 		sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(amount)),

@@ -16,9 +16,9 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/types"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/pkg/errors"
 )
 

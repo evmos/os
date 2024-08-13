@@ -97,9 +97,6 @@ import (
 	"github.com/evmos/evmos/v19/x/evm/core/vm"
 	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	"github.com/evmos/evmos/v19/x/feemarket"
-	feemarketkeeper "github.com/evmos/evmos/v19/x/feemarket/keeper"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
 	evmosante "github.com/evmos/os/ante"
 	evmosevmante "github.com/evmos/os/ante/evm"
 	evmosencoding "github.com/evmos/os/encoding"
@@ -108,6 +105,9 @@ import (
 	srvflags "github.com/evmos/os/server/flags"
 	evmostypes "github.com/evmos/os/types"
 	evmosutils "github.com/evmos/os/utils"
+	"github.com/evmos/os/x/feemarket"
+	feemarketkeeper "github.com/evmos/os/x/feemarket/keeper"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/spf13/cast"
 )
 

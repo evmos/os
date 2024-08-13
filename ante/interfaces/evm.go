@@ -15,7 +15,7 @@ import (
 
 	"github.com/evmos/evmos/v19/x/evm/statedb"
 	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 // EVMKeeper exposes the required EVM keeper interface required for ante handlers

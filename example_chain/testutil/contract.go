@@ -19,9 +19,9 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	evm "github.com/evmos/evmos/v19/x/evm/types"
-	app "github.com/evmos/os/example_chain"
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil/tx"
+	evm "github.com/evmos/os/x/evm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.
@@ -42,7 +42,7 @@ type ContractCallArgs struct {
 	Contract ContractArgs
 	// Nonce is the nonce to use for the transaction.
 	Nonce *big.Int
-	// Amount is the aevmos amount to send in the transaction.
+	// Amount is the amount of the native denomination to send in the transaction.
 	Amount *big.Int
 	// GasLimit to use for the transaction
 	GasLimit uint64
@@ -54,7 +54,7 @@ type ContractCallArgs struct {
 // compiled contract data and constructor arguments
 func DeployContract(
 	ctx sdk.Context,
-	app *app.ExampleChain,
+	app *example_app.ExampleChain,
 	priv cryptotypes.PrivKey,
 	queryClientEvm evm.QueryClient,
 	contract evm.CompiledContract,
@@ -102,14 +102,14 @@ func DeployContract(
 // with the provided factoryAddress
 func DeployContractWithFactory(
 	ctx sdk.Context,
-	evmosApp *app.ExampleChain,
+	exampleApp *example_app.ExampleChain,
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ResponseDeliverTx, error) {
-	chainID := evmosApp.EVMKeeper.ChainID()
+	chainID := exampleApp.EVMKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	factoryNonce := evmosApp.EVMKeeper.GetNonce(ctx, factoryAddress)
-	nonce := evmosApp.EVMKeeper.GetNonce(ctx, from)
+	factoryNonce := exampleApp.EVMKeeper.GetNonce(ctx, factoryAddress)
+	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)
 
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:  chainID,
@@ -120,12 +120,12 @@ func DeployContractWithFactory(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := DeliverEthTx(exampleApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
-	if _, err := CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
+	if _, err := CheckEthTxResponse(res, exampleApp.AppCodec()); err != nil {
 		return common.Address{}, abci.ResponseDeliverTx{}, err
 	}
 
