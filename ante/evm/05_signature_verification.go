@@ -67,7 +67,7 @@ func SignatureVerification(
 	if !allowUnprotectedTxs && !ethTx.Protected() {
 		return errorsmod.Wrapf(
 			errortypes.ErrNotSupported,
-			"rejected unprotected Ethereum transaction. Please EIP155 sign your transaction to protect it against replay-attacks")
+			"rejected unprotected ethereum transaction; please sign your transaction according to EIP-155 to protect it against replay-attacks")
 	}
 
 	sender, err := signer.Sender(ethTx)
