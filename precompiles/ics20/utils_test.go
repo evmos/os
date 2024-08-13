@@ -75,13 +75,13 @@ var (
 	}
 )
 
-// SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new evmOS app with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := example_app.SetupTestingApp(cmn.DefaultChainID)()
-	app, ok := appI.(*evmosapp.Evmos)
+	app, ok := appI.(*example_app.ExampleChain)
 	s.Require().True(ok)
 
 	// set genesis accounts
@@ -251,7 +251,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	txConfig := s.app.GetTxConfig()
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EVMKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
 
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
@@ -260,19 +260,19 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
 
-	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
+	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EVMKeeper.ChainID())
 
 	// Setting up the fee market to 0 so the transactions don't fail in IBC testing
 	s.app.FeeMarketKeeper.SetBaseFee(s.ctx, big.NewInt(0))
 	s.app.FeeMarketKeeper.SetBlockGasWanted(s.ctx, 0)
 	s.app.FeeMarketKeeper.SetTransientBlockGasWanted(s.ctx, 0)
 
-	precompile, err := ics20.NewPrecompile(s.app.StakingKeeper, s.app.TransferKeeper, s.app.IBCKeeper.ChannelKeeper, s.app.AuthzKeeper)
+	precompile, err := ics20.NewPrecompile(*s.app.StakingKeeper, s.app.TransferKeeper, s.app.IBCKeeper.ChannelKeeper, s.app.AuthzKeeper)
 	s.Require().NoError(err)
 	s.precompile = precompile
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EVMKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 
 	// create an account to send transactions from
@@ -394,9 +394,9 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.coordinator.CommitNBlocks(s.chainB, 2)
 
 	s.app = s.chainA.App.(*example_app.ExampleChain)
-	evmParams := s.app.EvmKeeper.GetParams(s.chainA.GetContext())
+	evmParams := s.app.EVMKeeper.GetParams(s.chainA.GetContext())
 	evmParams.EvmDenom = evmosutil.ExampleAttoDenom
-	err := s.app.EvmKeeper.SetParams(s.chainA.GetContext(), evmParams)
+	err := s.app.EVMKeeper.SetParams(s.chainA.GetContext(), evmParams)
 	s.Require().NoError(err)
 
 	// Set block proposer once, so its carried over on the ibc-go-testing suite
@@ -408,7 +408,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	err = s.app.StakingKeeper.SetValidatorByConsAddr(s.chainA.GetContext(), validators[0])
 	s.Require().NoError(err)
 
-	_, err = s.app.EvmKeeper.GetCoinbaseAddress(s.chainA.GetContext(), sdk.ConsAddress(s.chainA.CurrentHeader.ProposerAddress))
+	_, err = s.app.EVMKeeper.GetCoinbaseAddress(s.chainA.GetContext(), sdk.ConsAddress(s.chainA.CurrentHeader.ProposerAddress))
 	s.Require().NoError(err)
 
 	// Mint coins locked on the evmos account generated with secp.
@@ -497,21 +497,20 @@ func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 	}
 }
 
-// TODO upstream this change to evmos (adding gasPrice)
 // DeployContract deploys a contract with the provided private key,
 // compiled contract data and constructor arguments
 func DeployContract(
 	ctx sdk.Context,
-	evmosApp *example_app.ExampleChain,
+	exampleApp *example_app.ExampleChain,
 	priv cryptotypes.PrivKey,
 	gasPrice *big.Int,
 	queryClientEvm evmtypes.QueryClient,
 	contract evmtypes.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := evmosApp.EvmKeeper.ChainID()
+	chainID := exampleApp.EVMKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := evmosApp.EvmKeeper.GetNonce(ctx, from)
+	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {
@@ -528,7 +527,7 @@ func DeployContract(
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  gas,
-		GasFeeCap: evmosApp.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: exampleApp.FeeMarketKeeper.GetBaseFee(ctx),
 		GasTipCap: big.NewInt(1),
 		GasPrice:  gasPrice,
 		Input:     data,
@@ -536,12 +535,12 @@ func DeployContract(
 	})
 	msgEthereumTx.From = from.String()
 
-	res, err := chainutil.DeliverEthTx(evmosApp, priv, msgEthereumTx)
+	res, err := chainutil.DeliverEthTx(exampleApp, priv, msgEthereumTx)
 	if err != nil {
 		return common.Address{}, err
 	}
 
-	if _, err := chainutil.CheckEthTxResponse(res, evmosApp.AppCodec()); err != nil {
+	if _, err := chainutil.CheckEthTxResponse(res, exampleApp.AppCodec()); err != nil {
 		return common.Address{}, err
 	}
 

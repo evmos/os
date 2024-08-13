@@ -9,16 +9,14 @@ import (
 	"os"
 	"testing"
 
+	"cosmossdk.io/math"
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmjson "github.com/cometbft/cometbft/libs/json"
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
-	"github.com/stretchr/testify/require"
-
-	"cosmossdk.io/math"
-
+	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
@@ -33,6 +31,8 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/stretchr/testify/require"
 )
 
 // SetupOptions defines arguments that are passed into `Simapp` constructor.
@@ -247,5 +247,21 @@ func NewTestNetworkFixture() network.TestFixture {
 			TxConfig:          app.TxConfig(),
 			Amino:             app.LegacyAmino(),
 		},
+	}
+}
+
+// SetupTestingApp initializes the IBC-go testing application
+// need to keep this design to comply with the ibctesting SetupTestingApp func
+// and be able to set the chainID for the tests properly
+func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+	return func() (ibctesting.TestingApp, map[string]json.RawMessage) {
+		db := dbm.NewMemDB()
+		app := NewExampleApp(
+			log.NewNopLogger(),
+			db, nil, true,
+			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+			baseapp.SetChainID(chainID),
+		)
+		return app, NewDefaultGenesisState()
 	}
 }

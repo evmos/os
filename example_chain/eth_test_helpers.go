@@ -48,7 +48,7 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 }
 
 // EthDefaultConsensusParams defines the default Tendermint consensus params used in
-// EvmosApp testing.
+// evmOS app testing.
 var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 	Block: cmtypes.BlockParams{
 		MaxBytes: 200000,
@@ -66,7 +66,7 @@ var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 	},
 }
 
-// EthSetup initializes a new EvmosApp. A Nop logger is set in EvmosApp.
+// EthSetup initializes a new evmOS application. A Nop logger is set in ExampleChain.
 func EthSetup(isCheckTx bool, patchGenesis func(*ExampleChain, simapp.GenesisState) simapp.GenesisState) *ExampleChain {
 	return EthSetupWithDB(isCheckTx, patchGenesis, dbm.NewMemDB())
 }

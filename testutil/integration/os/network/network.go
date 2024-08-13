@@ -121,8 +121,8 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	delegations := createDelegations(valSet.Validators, genAccounts[0].GetAddress())
 
-	// Create a new EvmosApp with the following params
-	evmosApp := createExampleApp(n.cfg.chainID)
+	// Create a new evmOS app with the following params
+	exampleApp := createExampleApp(n.cfg.chainID)
 
 	stakingParams := StakingCustomGenesisState{
 		denom:       n.cfg.denom,
@@ -138,7 +138,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// Configure Genesis state
 	genesisState := newDefaultGenesisState(
-		evmosApp,
+		exampleApp,
 		defaultGenesisParams{
 			genAccounts: genAccounts,
 			staking:     stakingParams,
@@ -148,7 +148,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	// modify genesis state if there're any custom genesis state
 	// for specific modules
-	genesisState, err = customizeGenesis(evmosApp, n.cfg.customGenesisState, genesisState)
+	genesisState, err = customizeGenesis(exampleApp, n.cfg.customGenesisState, genesisState)
 	if err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	consensusParams := example_app.DefaultConsensusParams
 	now := time.Now()
-	evmosApp.InitChain(
+	exampleApp.InitChain(
 		abcitypes.RequestInitChain{
 			Time:            now,
 			ChainId:         n.cfg.chainID,
@@ -171,23 +171,23 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		},
 	)
 	// Commit genesis changes
-	evmosApp.Commit()
+	exampleApp.Commit()
 
 	header := tmproto.Header{
 		ChainID:            n.cfg.chainID,
-		Height:             evmosApp.LastBlockHeight() + 1,
+		Height:             exampleApp.LastBlockHeight() + 1,
 		Time:               now,
-		AppHash:            evmosApp.LastCommitID().Hash,
+		AppHash:            exampleApp.LastCommitID().Hash,
 		ValidatorsHash:     valSet.Hash(),
 		NextValidatorsHash: valSet.Hash(),
 		ProposerAddress:    valSet.Proposer.Address,
 	}
-	evmosApp.BeginBlock(abcitypes.RequestBeginBlock{Header: header})
+	exampleApp.BeginBlock(abcitypes.RequestBeginBlock{Header: header})
 
 	// Set networks global parameters
-	n.app = evmosApp
+	n.app = exampleApp
 	// TODO - this might not be the best way to initialize the context
-	n.ctx = evmosApp.BaseApp.NewContext(false, header)
+	n.ctx = exampleApp.BaseApp.NewContext(false, header)
 	n.ctx = n.ctx.WithConsensusParams(consensusParams)
 	n.ctx = n.ctx.WithBlockGasMeter(sdktypes.NewInfiniteGasMeter())
 
@@ -215,7 +215,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		Symbol:  "EVMOS",
 		Display: n.cfg.denom,
 	}
-	evmosApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
+	exampleApp.BankKeeper.SetDenomMetaData(n.ctx, evmosMetadata)
 
 	return nil
 }

@@ -33,13 +33,13 @@ import (
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
-// SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new evmOS application with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := example_app.SetupTestingApp(cmn.DefaultChainID)()
-	app, ok := appI.(*evmosapp.Evmos)
+	app, ok := appI.(*example_app.ExampleChain)
 	s.Require().True(ok)
 
 	// set genesis accounts
@@ -239,7 +239,7 @@ func (s *PrecompileTestSuite) prepareStakingRewards(stkRs ...stakingRewards) {
 		s.Require().NoError(err)
 
 		// end block to bond validator and increase block height
-		sdkstaking.EndBlocker(s.ctx, s.app.StakingKeeper.Keeper)
+		sdkstaking.EndBlocker(s.ctx, s.app.StakingKeeper)
 		// allocate rewards to validator (of these 50% will be paid out to the delegator)
 		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(s.bondDenom, r.RewardAmt.Mul(math.NewInt(2))))
 		s.app.DistrKeeper.AllocateTokensToValidator(s.ctx, r.Validator, allocatedRewards)

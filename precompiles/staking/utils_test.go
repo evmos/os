@@ -49,13 +49,13 @@ import (
 // stipend to pay EVM tx fees
 var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, math.NewInt(1e16)))
 
-// SetupWithGenesisValSet initializes a new EvmosApp with a validator set and genesis accounts
+// SetupWithGenesisValSet initializes a new evmOS app with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
 	appI, genesisState := example_app.SetupTestingApp(cmn.DefaultChainID)()
-	app, ok := appI.(*evmosapp.Evmos)
+	app, ok := appI.(*example_app.ExampleChain)
 	s.Require().True(ok)
 
 	// set genesis accounts
@@ -183,7 +183,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)
 
 	// Create StateDB
-	s.stateDB = statedb.New(s.ctx, s.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
+	s.stateDB = statedb.New(s.ctx, s.app.EVMKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(s.ctx.HeaderHash().Bytes())))
 
 	// bond denom
 	stakingParams := s.app.StakingKeeper.GetParams(s.ctx)
@@ -192,9 +192,9 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	err := s.app.StakingKeeper.SetParams(s.ctx, stakingParams)
 	s.Require().NoError(err)
 
-	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EvmKeeper.ChainID())
+	s.ethSigner = ethtypes.LatestSignerForChainID(s.app.EVMKeeper.ChainID())
 
-	precompile, err := staking.NewPrecompile(s.app.StakingKeeper, s.app.AuthzKeeper)
+	precompile, err := staking.NewPrecompile(*s.app.StakingKeeper, s.app.AuthzKeeper)
 	s.Require().NoError(err)
 	s.precompile = precompile
 
@@ -206,7 +206,7 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 	s.Require().NoError(err)
 
 	queryHelperEvm := baseapp.NewQueryServerTestHelper(s.ctx, s.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelperEvm, s.app.EVMKeeper)
 	s.queryClientEVM = evmtypes.NewQueryClient(queryHelperEvm)
 }
 
@@ -533,40 +533,6 @@ func (s *PrecompileTestSuite) CheckValidatorOutput(valOut staking.ValidatorInfo)
 
 	Expect(slices.Contains(validatorAddrs, operatorAddress)).To(BeTrue(), "operator address not found in test suite validators")
 	Expect(valOut.DelegatorShares).To(Equal(big.NewInt(1e18)), "expected different delegator shares")
-}
-
-// setupVestingAccount is a helper function used in integraiton tests to setup a vesting account
-// using the TestVestingSchedule. Also, funds the account with extra funds to pay for transaction fees
-func (s *PrecompileTestSuite) setupVestingAccount(funder, vestAcc sdk.AccAddress) *vestingtypes.ClawbackVestingAccount {
-	vestingAmtTotal := evmosutil.TestVestingSchedule.TotalVestingCoins
-
-	vestingStart := s.ctx.BlockTime()
-	baseAccount := authtypes.NewBaseAccountWithAddress(vestAcc.Bytes())
-	clawbackAccount := vestingtypes.NewClawbackVestingAccount(
-		baseAccount,
-		funder,
-		vestingAmtTotal,
-		vestingStart,
-		evmosutil.TestVestingSchedule.LockupPeriods,
-		evmosutil.TestVestingSchedule.VestingPeriods,
-	)
-
-	err := evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), vestingAmtTotal)
-	Expect(err).To(BeNil())
-	acc := s.app.AccountKeeper.NewAccount(s.ctx, clawbackAccount)
-	s.app.AccountKeeper.SetAccount(s.ctx, acc)
-
-	// Check all coins are locked up
-	lockedUp := clawbackAccount.GetLockedUpCoins(s.ctx.BlockTime())
-	Expect(vestingAmtTotal).To(Equal(lockedUp))
-
-	// Grant gas stipend to cover EVM fees
-	err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, clawbackAccount.GetAddress(), accountGasCoverage)
-	Expect(err).To(BeNil())
-	granteeBalance := s.app.BankKeeper.GetBalance(s.ctx, clawbackAccount.GetAddress(), s.bondDenom)
-	Expect(granteeBalance).To(Equal(accountGasCoverage[0].Add(vestingAmtTotal[0])))
-
-	return clawbackAccount
 }
 
 // Generate the Base64 encoded PubKey associated with a PrivKey generated with
