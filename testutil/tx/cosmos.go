@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	"github.com/evmos/evmos/v19/app"
+	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 )
 
@@ -41,7 +41,7 @@ type CosmosTxArgs struct {
 // It returns the signed transaction and an error
 func PrepareCosmosTx(
 	ctx sdk.Context,
-	appEvmos *app.Evmos,
+	app *app.ExampleChain,
 	args CosmosTxArgs,
 ) (authsigning.Tx, error) {
 	txBuilder := args.TxCfg.NewTxBuilder()
@@ -64,7 +64,7 @@ func PrepareCosmosTx(
 
 	return signCosmosTx(
 		ctx,
-		appEvmos,
+		app,
 		args,
 		txBuilder,
 	)
@@ -74,12 +74,12 @@ func PrepareCosmosTx(
 // the provided private key
 func signCosmosTx(
 	ctx sdk.Context,
-	appEvmos *app.Evmos,
+	app *app.ExampleChain,
 	args CosmosTxArgs,
 	txBuilder client.TxBuilder,
 ) (authsigning.Tx, error) {
 	addr := sdk.AccAddress(args.Priv.PubKey().Address().Bytes())
-	seq, err := appEvmos.AccountKeeper.GetSequence(ctx, addr)
+	seq, err := app.AccountKeeper.GetSequence(ctx, addr)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func signCosmosTx(
 	}
 
 	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := appEvmos.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
+	accNumber := app.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
 	signerData := authsigning.SignerData{
 		ChainID:       args.ChainID,
 		AccountNumber: accNumber,

@@ -8,6 +8,7 @@ This changelog was created using the `clu` binary
 
 ### Improvements
 
+- (all) [#30](https://github.com/evmos/os/pull/30) Add example chain implementation and ante handlers.
 - (ci) [#35](https://github.com/evmos/os/pull/35) Disable dependabot temporarily.
 - (contracts) [#24](https://github.com/evmos/os/pull/24) Add contracts directory and compilation script.
 - (cli) [#23](https://github.com/evmos/os/pull/23) Add client, cmd and version packages.
