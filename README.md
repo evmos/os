@@ -140,7 +140,7 @@ Our near-term roadmap looks like this:
 Of course we are always open to collaborate with our partners
 in case of mutual interests for other features.
 
-## How to become an evmOS Partner?
+## How to become an evmOS partner?
 
 evmOS operates under a Non-Commercial License,
 ensuring our partnerships are focused on building successful
