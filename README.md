@@ -103,7 +103,7 @@ Based on these powerful defaults, the feature set is easily and highly customiza
 
 - *Custom Improvement Proposals (Opcodes)*
 
-    Any evmOS partner is given the opportunity to customize bits of their EVM opcodes and add new ones.
+    Any evmOS partner is provided the opportunity to customize bits of their EVM opcodes and add new ones.
     Read more on [custom operations here](https://docs.evmos.org/develop/smart-contracts/custom-improvement-proposals).
 
 ### Forward-compatibility with Ethereum
@@ -112,14 +112,13 @@ Ethereum-equivalence describes any EVM solution,
 that is identical in transaction execution to the Ethereum client.
 It does not more, but also not less than that.  
 Ethereum-compatible means,
-that the EVM can be set up to run every transaction
-that is valid on Ethereum while the handling of the transactions
-can diverge in e.g. result or cost.
+that the EVM can be set up to run every transaction that is valid on Ethereum,
+while the handling of the transactions can diverge in e.g. result or cost.
 
 We like to coin the term **forward-compatible**
 as a description of our EVM solution,
 meaning that any evmOS chain can run any valid smart contract
-from Ethereum but is able to implement new features that are
+from Ethereum but can also implement new features that are
 not (yet) available on the standard Ethereum VM,
 thus moving the standard forward.
 
@@ -137,7 +136,7 @@ Our near-term roadmap looks like this:
 - ADR-008
 - Support for modular Blockchains - integrate with Rollchain
 
-Of course we are always open to collaborate with our partners
+Of course, we are always open to collaborate with our partners
 in case of mutual interests for other features.
 
 ## How to become an evmOS partner?
