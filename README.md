@@ -21,7 +21,7 @@ evmOS can easily be integrated into your existing chain
 or added during the development of your upcoming chain launch
 by importing evmOS as a go module library.
 The evmOS team provides you with integration guides and core protocol support depending on your needs and configurations.
-Please check [below](https://www.notion.so/evmos-os-README-ece0bf68e64c413a87bc582204d2bc85?pvs=21)
+Please check [below](#how-to-become-an-evmos-partner)
 how to become an evmOS partner.
 
 ### Configurations
@@ -37,7 +37,7 @@ evmOS’ modules come out of the box with defaults that will get you up and runn
 
 When integrating all available modules you will get a *permissionless EVM-enabled* blockchain
 that *exposes JSON-RPC* endpoints for connectivity with all EVM tooling
-like wallets ([MetaMask](https://metamask.io/), [Rabby](rabby.io), and others)
+like wallets ([MetaMask](https://metamask.io/), [Rabby](https://rabby.io/), and others)
 or block explorers ([Blockscout](https://docs.blockscout.com/) and others).
 You will have access to *all of evmOS’ EVM extensions*,
 which enable access to chain-native functionality
