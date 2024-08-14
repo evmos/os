@@ -1,5 +1,3 @@
-# evmOS
-
 <img src="evmOS_repo_header.png" />
 
 ## What is evmOS?
