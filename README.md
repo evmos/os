@@ -1,4 +1,7 @@
-<img src="evmOS_repo_header.png" />
+<img
+    src="evmOS_repo_header.png"
+    alt="evmOS - A plug-and-play solution that adds EVM compatibility and customizability to your chain"
+/>
 
 ## What is evmOS?
 
