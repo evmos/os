@@ -80,10 +80,10 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 			suite.enableFeemarket = tc.enableFeemarket
 			suite.enableLondonHF = tc.enableLondonHF
 			suite.SetupTest()
-			suite.app.EvmKeeper.BeginBlock(suite.ctx, abci.RequestBeginBlock{})
-			params := suite.app.EvmKeeper.GetParams(suite.ctx)
-			ethCfg := params.ChainConfig.EthereumConfig(suite.app.EvmKeeper.ChainID())
-			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
+			suite.app.EVMKeeper.BeginBlock(suite.ctx, abci.RequestBeginBlock{})
+			params := suite.app.EVMKeeper.GetParams(suite.ctx)
+			ethCfg := params.ChainConfig.EthereumConfig(suite.app.EVMKeeper.ChainID())
+			baseFee := suite.app.EVMKeeper.GetBaseFee(suite.ctx, ethCfg)
 			suite.Require().Equal(tc.expectBaseFee, baseFee)
 		})
 	}
@@ -134,7 +134,7 @@ func (suite *KeeperTestSuite) TestGetAccountStorage() {
 					panic(fmt.Sprintf("failed to convert %s to hex address", err))
 				}
 
-				storage := suite.app.EvmKeeper.GetAccountStorage(suite.ctx, address)
+				storage := suite.app.EVMKeeper.GetAccountStorage(suite.ctx, address)
 
 				if address == contractAddr {
 					suite.Require().NotEqual(0, len(storage),
@@ -183,7 +183,7 @@ func (suite *KeeperTestSuite) TestGetAccountOrEmpty() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			res := suite.app.EvmKeeper.GetAccountOrEmpty(suite.ctx, tc.addr)
+			res := suite.app.EVMKeeper.GetAccountOrEmpty(suite.ctx, tc.addr)
 			if tc.expEmpty {
 				suite.Require().Equal(empty, res)
 			} else {

@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	app "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/utils"
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -49,10 +49,10 @@ func TestKeeperTestSuite(t *testing.T) {
 	RunSpecs(t, "Keeper Suite")
 }
 
-// SetupTest setup test environment, it uses`require.TestingT` to support both `testing.T` and `testing.B`.
+// SetupTest setup test environment
 func (suite *KeeperTestSuite) SetupTest() {
 	checkTx := false
-	chainID := utils.TestnetChainID + "-1"
-	suite.app = app.Setup(checkTx, nil, chainID)
+	chainID := testutil.ExampleChainID
+	suite.app = app.Setup(suite.T(), checkTx, chainID)
 	suite.SetupApp(checkTx, chainID)
 }

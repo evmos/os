@@ -5,7 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/contracts"
-	"github.com/evmos/os/testutil"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -16,7 +16,7 @@ const erc20Decimals = uint8(18)
 // DeployContract deploys the ERC20MinterBurnerDecimalsContract.
 func (suite *KeeperTestSuite) DeployContract(name, symbol string, decimals uint8) (common.Address, error) {
 	suite.Commit()
-	addr, err := testutil.DeployContract(
+	addr, err := chainutil.DeployContract(
 		suite.ctx,
 		suite.app,
 		suite.priv,
@@ -53,7 +53,7 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 		suite.Require().NoError(err)
 		account := utiltx.GenerateAddress()
 
-		res, err := suite.app.EvmKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
+		res, err := suite.app.EVMKeeper.CallEVM(suite.ctx, erc20, types.ModuleAddress, contract, true, tc.method, account)
 		if tc.expPass {
 			suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 			suite.Require().NoError(err)
@@ -130,11 +130,11 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 			"fail deploy",
 			types.ModuleAddress,
 			func() ([]byte, *common.Address) {
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.app.EVMKeeper.GetParams(suite.ctx)
 				params.AccessControl.Create = evmtypes.AccessControlType{
 					AccessType: evmtypes.AccessTypeRestricted,
 				}
-				_ = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				_ = suite.app.EVMKeeper.SetParams(suite.ctx, params)
 				ctorArgs, _ := contracts.ERC20MinterBurnerDecimalsContract.ABI.Pack("", "test", "test", uint8(18))
 				data := append(contracts.ERC20MinterBurnerDecimalsContract.Bin, ctorArgs...) //nolint:gocritic
 				return data, nil
@@ -149,7 +149,7 @@ func (suite *KeeperTestSuite) TestCallEVMWithData() {
 
 			data, contract := tc.malleate()
 
-			res, err := suite.app.EvmKeeper.CallEVMWithData(suite.ctx, tc.from, contract, data, true)
+			res, err := suite.app.EVMKeeper.CallEVMWithData(suite.ctx, tc.from, contract, data, true)
 			if tc.expPass {
 				suite.Require().IsTypef(&evmtypes.MsgEthereumTxResponse{}, res, tc.name)
 				suite.Require().NoError(err)

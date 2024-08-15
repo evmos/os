@@ -138,7 +138,7 @@ func TestInitGenesis(t *testing.T) {
 
 			vmdb = statedb.New(
 				ctx,
-				ts.network.App.EvmKeeper,
+				ts.network.App.EVMKeeper,
 				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())),
 			)
 
@@ -150,7 +150,7 @@ func TestInitGenesis(t *testing.T) {
 				require.Panics(t, func() {
 					_ = evm.InitGenesis(
 						ts.network.GetContext(),
-						ts.network.App.EvmKeeper,
+						ts.network.App.EVMKeeper,
 						ts.network.App.AccountKeeper,
 						*tc.genState,
 					)
@@ -159,7 +159,7 @@ func TestInitGenesis(t *testing.T) {
 				require.NotPanics(t, func() {
 					_ = evm.InitGenesis(
 						ctx,
-						ts.network.App.EvmKeeper,
+						ts.network.App.EVMKeeper,
 						ts.network.App.AccountKeeper,
 						*tc.genState,
 					)
@@ -177,7 +177,7 @@ func TestInitGenesis(t *testing.T) {
 
 					require.Equal(t,
 						expHash.String(),
-						ts.network.App.EvmKeeper.GetCodeHash(
+						ts.network.App.EVMKeeper.GetCodeHash(
 							ts.network.GetContext(),
 							common.HexToAddress(account.Address),
 						).String(),
@@ -187,7 +187,7 @@ func TestInitGenesis(t *testing.T) {
 					require.Equal(t,
 						account.Code,
 						common.Bytes2Hex(
-							ts.network.App.EvmKeeper.GetCode(
+							ts.network.App.EVMKeeper.GetCode(
 								ts.network.GetContext(),
 								expHash,
 							),
@@ -231,7 +231,7 @@ func TestExportGenesis(t *testing.T) {
 	require.NoError(t, err, "failed to deploy contract")
 	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
 
-	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EvmKeeper)
+	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EVMKeeper)
 	require.Len(t, genState.Accounts, 2, "expected only one smart contract in the exported genesis")
 
 	genAddresses := make([]string, 0, len(genState.Accounts))

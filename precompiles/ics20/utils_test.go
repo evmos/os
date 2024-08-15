@@ -508,9 +508,9 @@ func DeployContract(
 	contract evmtypes.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := exampleApp.EVMKeeper.ChainID()
+	chainID := exampleapp.EVMKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)
+	nonce := exampleapp.EVMKeeper.GetNonce(ctx, from)
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {

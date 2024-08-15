@@ -60,11 +60,11 @@ func (suite *KeeperTestSuite) TestEthereumTx() {
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
-			signer = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+			signer = ethtypes.LatestSignerForChainID(suite.app.EVMKeeper.ChainID())
 			vmdb = suite.StateDB()
 
 			tc.malleate()
-			res, err := suite.app.EvmKeeper.EthereumTx(suite.ctx, msg)
+			res, err := suite.app.EVMKeeper.EthereumTx(suite.ctx, msg)
 			if tc.expErr {
 				suite.Require().Error(err)
 				return
@@ -100,7 +100,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run("MsgUpdateParams", func() {
-			_, err := suite.app.EvmKeeper.UpdateParams(suite.ctx, tc.request)
+			_, err := suite.app.EVMKeeper.UpdateParams(suite.ctx, tc.request)
 			if tc.expectErr {
 				suite.Require().Error(err)
 			} else {

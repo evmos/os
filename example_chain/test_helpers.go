@@ -42,14 +42,14 @@ type SetupOptions struct {
 	AppOpts servertypes.AppOptions
 }
 
-func setup(withGenesis bool, invCheckPeriod uint) (*ExampleChain, GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*ExampleChain, GenesisState) {
 	db := dbm.NewMemDB()
 
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
-	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions)
+	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, baseapp.SetChainID(chainID))
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
@@ -99,7 +99,7 @@ func NewSimappWithCustomOptions(t *testing.T, isCheckTx bool, options SetupOptio
 }
 
 // Setup initializes a new ExampleChain. A Nop logger is set in ExampleChain.
-func Setup(t *testing.T, isCheckTx bool) *ExampleChain {
+func Setup(t *testing.T, isCheckTx bool, chainID string) *ExampleChain {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -118,7 +118,7 @@ func Setup(t *testing.T, isCheckTx bool) *ExampleChain {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
 	}
 
-	app := SetupWithGenesisValSet(t, valSet, []authtypes.GenesisAccount{acc}, balance)
+	app := SetupWithGenesisValSet(t, chainID, valSet, []authtypes.GenesisAccount{acc}, balance)
 
 	return app
 }
@@ -127,10 +127,10 @@ func Setup(t *testing.T, isCheckTx bool) *ExampleChain {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default token of the simapp from first genesis
 // account. A Nop logger is set in ExampleChain.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *ExampleChain {
+func SetupWithGenesisValSet(t *testing.T, chainID string, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *ExampleChain {
 	t.Helper()
 
-	app, genesisState := setup(true, 5)
+	app, genesisState := setup(true, 5, chainID)
 	genesisState, err := simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, genAccs, balances...)
 	require.NoError(t, err)
 

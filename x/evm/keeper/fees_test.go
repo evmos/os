@@ -246,7 +246,7 @@ func (suite *KeeperTestSuite) TestCheckSenderBalance() {
 
 			txData, _ := evmtypes.UnpackTxData(tx.Data)
 
-			acct := suite.app.EvmKeeper.GetAccountOrEmpty(suite.ctx, suite.address)
+			acct := suite.app.EVMKeeper.GetAccountOrEmpty(suite.ctx, suite.address)
 			err := keeper.CheckSenderBalance(
 				sdkmath.NewIntFromBigInt(acct.Balance),
 				txData,
@@ -495,9 +495,9 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 
 			txData, _ := evmtypes.UnpackTxData(tx.Data)
 
-			evmParams := suite.app.EvmKeeper.GetParams(suite.ctx)
+			evmParams := suite.app.EVMKeeper.GetParams(suite.ctx)
 			ethCfg := evmParams.GetChainConfig().EthereumConfig(nil)
-			baseFee := suite.app.EvmKeeper.GetBaseFee(suite.ctx, ethCfg)
+			baseFee := suite.app.EVMKeeper.GetBaseFee(suite.ctx, ethCfg)
 			priority := evmtypes.GetTxPriority(txData, baseFee)
 
 			fees, err := keeper.VerifyFee(txData, evmtypes.DefaultEVMDenom, baseFee, false, false, suite.ctx.IsCheckTx())
@@ -527,7 +527,7 @@ func (suite *KeeperTestSuite) TestVerifyFeeAndDeductTxCostsFromUserBalance() {
 				suite.Require().Nil(fees, "invalid test %d passed. fees value must be nil - '%s'", i, tc.name)
 			}
 
-			err = suite.app.EvmKeeper.DeductTxCostsFromUserBalance(suite.ctx, fees, common.HexToAddress(tx.From))
+			err = suite.app.EVMKeeper.DeductTxCostsFromUserBalance(suite.ctx, fees, common.HexToAddress(tx.From))
 			if tc.expectPassDeduct {
 				suite.Require().NoError(err, "valid test %d failed - '%s'", i, tc.name)
 			} else {

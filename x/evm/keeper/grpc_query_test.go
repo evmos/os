@@ -398,7 +398,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			suite.SetupTest() // reset
 
-			vmdb := statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes()), txHash, txIndex, logIndex))
+			vmdb := statedb.New(suite.ctx, suite.app.EVMKeeper, statedb.NewTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes()), txHash, txIndex, logIndex))
 			tc.malleate(vmdb)
 			suite.Require().NoError(vmdb.Commit())
 
@@ -691,13 +691,13 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 					From: &suite.address,
 					Data: (*hexutil.Bytes)(&data),
 				}
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.app.EVMKeeper.GetParams(suite.ctx)
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
-				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EVMKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
 			false,
@@ -929,8 +929,8 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				vmdb.SetNonce(suite.address, vmdb.GetNonce(suite.address)+1)
 				suite.Require().NoError(vmdb.Commit())
 
-				chainID := suite.app.EvmKeeper.ChainID()
-				nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+				chainID := suite.app.EVMKeeper.ChainID()
+				nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
 				data := erc20Contract.Bin
 				ethTxParams := &types.EvmTxArgs{
 					ChainID:  chainID,
@@ -943,13 +943,13 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 				predecessors = append(predecessors, contractTx)
 				suite.Commit()
 
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.app.EVMKeeper.GetParams(suite.ctx)
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
-				err := suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err := suite.app.EVMKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
 			expPass:       true,
@@ -1203,7 +1203,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 
 func (suite *KeeperTestSuite) TestNonceInQuery() {
 	address := utiltx.GenerateAddress()
-	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
+	suite.Require().Equal(uint64(0), suite.app.EVMKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
 	// occupy nonce 0
@@ -1316,7 +1316,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 	var req *types.EthCallRequest
 
 	address := utiltx.GenerateAddress()
-	suite.Require().Equal(uint64(0), suite.app.EvmKeeper.GetNonce(suite.ctx, address))
+	suite.Require().Equal(uint64(0), suite.app.EVMKeeper.GetNonce(suite.ctx, address))
 	supply := sdkmath.NewIntWithDecimal(1000, 18).BigInt()
 
 	hexBigInt := hexutil.Big(*big.NewInt(1))
@@ -1368,13 +1368,13 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				suite.Require().NoError(err)
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.app.EVMKeeper.GetParams(suite.ctx)
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
 					},
 				}
-				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EVMKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
 			true,
@@ -1390,13 +1390,13 @@ func (suite *KeeperTestSuite) TestEthCall() {
 				suite.Require().NoError(err)
 				req = &types.EthCallRequest{Args: args, GasCap: config.DefaultGasCap}
 
-				params := suite.app.EvmKeeper.GetParams(suite.ctx)
+				params := suite.app.EVMKeeper.GetParams(suite.ctx)
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypePermissioned,
 					},
 				}
-				err = suite.app.EvmKeeper.SetParams(suite.ctx, params)
+				err = suite.app.EVMKeeper.SetParams(suite.ctx, params)
 				suite.Require().NoError(err)
 			},
 			true,
@@ -1419,7 +1419,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 }
 
 func (suite *KeeperTestSuite) TestEmptyRequest() {
-	k := suite.app.EvmKeeper
+	k := suite.app.EVMKeeper
 
 	testCases := []struct {
 		name      string

@@ -262,7 +262,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
+					mockBankKeeper, suite.app.EVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -285,7 +285,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
+					mockBankKeeper, suite.app.EVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -309,7 +309,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.app.Erc20Keeper = keeper.NewKeeper(
 					suite.app.GetKey("erc20"), suite.app.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-					mockBankKeeper, suite.app.EvmKeeper, suite.app.StakingKeeper,
+					mockBankKeeper, suite.app.EVMKeeper, suite.app.StakingKeeper,
 					suite.app.AuthzKeeper, &suite.app.TransferKeeper,
 				)
 
@@ -357,7 +357,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				acc := suite.app.EvmKeeper.GetAccountWithoutBalance(suite.ctx, contractAddr)
+				acc := suite.app.EVMKeeper.GetAccountWithoutBalance(suite.ctx, contractAddr)
 				if tc.selfdestructed {
 					suite.Require().Nil(acc, "expected contract to be destroyed")
 				} else {

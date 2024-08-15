@@ -28,7 +28,6 @@ import (
 	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/utils"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/require"
@@ -77,15 +76,15 @@ func TestKeeperTestSuite(t *testing.T) {
 
 func (suite *KeeperTestSuite) SetupTest() {
 	checkTx := false
-	chainID := utils.TestnetChainID + "-1"
-	suite.app = example_app.Setup(checkTx, nil, chainID)
+	chainID := testutil.ExampleChainID
+	suite.app = example_app.Setup(suite.T(), checkTx, chainID)
 	suite.SetupApp(checkTx, chainID)
 }
 
 func (suite *KeeperTestSuite) SetupTestWithT(t require.TestingT) {
 	checkTx := false
-	chainID := utils.TestnetChainID + "-1"
-	suite.app = example_app.Setup(checkTx, nil, chainID)
+	chainID := testutil.ExampleChainID
+	suite.app = example_app.Setup(t.(*testing.T), checkTx, chainID)
 	suite.SetupAppWithT(checkTx, t, chainID)
 }
 
@@ -172,7 +171,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	suite.ctx = suite.app.NewContext(checkTx, header)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelper, suite.app.EVMKeeper)
 	suite.queryClient = evmtypes.NewQueryClient(queryHelper)
 
 	acc := authtypes.NewBaseAccount(sdk.AccAddress(suite.address.Bytes()), nil, 0, 0)
@@ -194,7 +193,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 
 	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
-	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EvmKeeper.ChainID())
+	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EVMKeeper.ChainID())
 	suite.appCodec = encodingConfig.Codec
 	suite.denom = evmtypes.DefaultEVMDenom
 }

@@ -1105,11 +1105,11 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 		s.chainA.NextBlock()
 
 		// check contracts were correctly deployed
-		cAcc := s.app.EvmKeeper.GetAccount(s.chainA.GetContext(), contractAddr)
+		cAcc := s.app.EVMKeeper.GetAccount(s.chainA.GetContext(), contractAddr)
 		Expect(cAcc).ToNot(BeNil(), "contract account should exist")
 		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
 
-		cAcc = s.app.EvmKeeper.GetAccount(s.chainA.GetContext(), senderCallerContractAddr)
+		cAcc = s.app.EVMKeeper.GetAccount(s.chainA.GetContext(), senderCallerContractAddr)
 		Expect(cAcc).ToNot(BeNil(), "contract account should exist")
 		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
 

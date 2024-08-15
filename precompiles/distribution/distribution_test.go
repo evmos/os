@@ -189,7 +189,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			contractAddr := contract.Address()
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.app.EvmKeeper.ChainID(),
+				ChainID:   s.app.EVMKeeper.ChainID(),
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
@@ -207,18 +207,18 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Instantiate config
 			proposerAddress := s.ctx.BlockHeader().ProposerAddress
-			cfg, err := s.app.EvmKeeper.EVMConfig(s.ctx, proposerAddress, s.app.EvmKeeper.ChainID())
+			cfg, err := s.app.EVMKeeper.EVMConfig(s.ctx, proposerAddress, s.app.EVMKeeper.ChainID())
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
 			msg, err := msgEthereumTx.AsMessage(s.ethSigner, baseFee)
 			s.Require().NoError(err, "failed to instantiate Ethereum message")
 
 			// Instantiate EVM
-			evm := s.app.EvmKeeper.NewEVM(
+			evm := s.app.EVMKeeper.NewEVM(
 				s.ctx, msg, cfg, nil, s.stateDB,
 			)
 
-			precompiles, found, err := s.app.EvmKeeper.GetPrecompileInstance(s.ctx, contractAddr)
+			precompiles, found, err := s.app.EVMKeeper.GetPrecompileInstance(s.ctx, contractAddr)
 			s.Require().NoError(err, "failed to instantiate precompile")
 			s.Require().True(found, "not found precompile")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)

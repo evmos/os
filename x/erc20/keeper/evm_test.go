@@ -192,7 +192,7 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 	for _, tc := range testCases {
 		suite.SetupTest() // reset
 
-		// TODO: what's the reason we are using mockEVMKeeper here? Instead of just passing the suite.app.EvmKeeper?
+		// TODO: what's the reason we are using mockEVMKeeper here? Instead of just passing the suite.app.EVMKeeper?
 		mockEVMKeeper = &erc20mocks.EVMKeeper{}
 		suite.app.Erc20Keeper = keeper.NewKeeper(
 			suite.app.GetKey("erc20"), suite.app.AppCodec(),

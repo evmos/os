@@ -30,7 +30,7 @@ func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
 	network := New(opts...)
 	return &UnitTestNetwork{
 		IntegrationNetwork: *network,
-		App:                network.app,
+		App:                network.App,
 	}
 }
 
@@ -39,7 +39,7 @@ func (n *UnitTestNetwork) GetStateDB() *statedb.StateDB {
 	headerHash := n.GetContext().HeaderHash()
 	return statedb.New(
 		n.GetContext(),
-		n.App.EVMKeeper,
+		n.app.EVMKeeper,
 		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
 	)
 }

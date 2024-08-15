@@ -11,19 +11,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	example_app "github.com/evmos/os/example_chain"
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/utils"
 	"github.com/evmos/os/x/erc20"
 	"github.com/evmos/os/x/erc20/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
 
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *example_app.Evmos
+	app     *example_app.ExampleChain
 	genesis types.GenesisState
 }
 
@@ -42,8 +41,8 @@ func (suite *GenesisTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
-	chainID := utils.TestnetChainID + "-1"
-	suite.app = example_app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
+	chainID := testutil.ExampleChainID
+	suite.app = example_app.Setup(suite.T(), false, chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,

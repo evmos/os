@@ -249,7 +249,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				authtypes.NewModuleAddress(govtypes.ModuleName),
 				suite.app.AccountKeeper,
 				suite.app.BankKeeper,
-				suite.app.EvmKeeper,
+				suite.app.EVMKeeper,
 				suite.app.StakingKeeper,
 				suite.app.AuthzKeeper,
 				&suite.app.TransferKeeper,
@@ -365,7 +365,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				)
 				suite.Require().NoError(err)
 
-				_, err = suite.app.EvmKeeper.CallEVM(s.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.address, contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
+				_, err = suite.app.EVMKeeper.CallEVM(s.ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.address, contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
 				suite.Require().NoError(err)
 
 				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "", "")

@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// init app
 	chainID := evmosutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), false)
+	suite.app = example_app.Setup(suite.T(), false, chainID)
 	header := evmosutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)

@@ -32,18 +32,18 @@ func (suite *KeeperTestSuite) Commit() {
 	suite.Require().NoError(err)
 
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelper, suite.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelper, suite.app.EVMKeeper)
 	suite.queryClient = evmtypes.NewQueryClient(queryHelper)
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EvmKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+	return statedb.New(suite.ctx, suite.app.EVMKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
 }
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner common.Address, supply *big.Int) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
+	chainID := suite.app.EVMKeeper.ChainID()
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -51,7 +51,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	ctorArgs, err := erc20Contract.ABI.Pack("", owner, supply)
 	require.NoError(t, err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+	nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
 
 	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
@@ -92,7 +92,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
 	require.NoError(t, err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
+	rsp, err := suite.app.EVMKeeper.EthereumTx(ctx, erc20DeployTx)
 	require.NoError(t, err)
 	require.Empty(t, rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce)
@@ -100,7 +100,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 
 func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
+	chainID := suite.app.EVMKeeper.ChainID()
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -116,7 +116,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	})
 	require.NoError(t, err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+	nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
@@ -145,7 +145,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	ercTransferTx.From = suite.address.Hex()
 	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
 	require.NoError(t, err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, ercTransferTx)
+	rsp, err := suite.app.EVMKeeper.EthereumTx(ctx, ercTransferTx)
 	require.NoError(t, err)
 	require.Empty(t, rsp.VmError)
 	return ercTransferTx
@@ -154,7 +154,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 // DeployTestMessageCall deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.Address {
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EvmKeeper.ChainID()
+	chainID := suite.app.EVMKeeper.ChainID()
 
 	testMessageCallContract, err := testdata.LoadMessageCallContract()
 	require.NoError(t, err, "failed to load contract")
@@ -173,7 +173,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 	})
 	require.NoError(t, err)
 
-	nonce := suite.app.EvmKeeper.GetNonce(suite.ctx, suite.address)
+	nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
@@ -200,7 +200,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 	erc20DeployTx.From = suite.address.Hex()
 	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
 	require.NoError(t, err)
-	rsp, err := suite.app.EvmKeeper.EthereumTx(ctx, erc20DeployTx)
+	rsp, err := suite.app.EVMKeeper.EthereumTx(ctx, erc20DeployTx)
 	require.NoError(t, err)
 	require.Empty(t, rsp.VmError)
 	return crypto.CreateAddress(suite.address, nonce)

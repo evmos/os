@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) DoSetupTest() {
 
 	// init app
 	chainID := testutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), false)
+	suite.app = example_app.Setup(suite.T(), false, chainID)
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, consAddress, nil, nil,
 	)

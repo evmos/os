@@ -799,7 +799,7 @@ func (app *ExampleChain) GetStakingKeeper() ibctestingtypes.StakingKeeper {
 
 // GetStakingKeeperSDK implements the TestingApp interface.
 func (app *ExampleChain) GetStakingKeeperSDK() stakingkeeper.Keeper {
-	return app.StakingKeeper
+	return *app.StakingKeeper
 }
 
 // GetIBCKeeper implements the TestingApp interface.
@@ -809,7 +809,7 @@ func (app *ExampleChain) GetIBCKeeper() *ibckeeper.Keeper {
 
 // GetScopedIBCKeeper implements the TestingApp interface.
 func (app *ExampleChain) GetScopedIBCKeeper() capabilitykeeper.ScopedKeeper {
-	return app.ScopedIBCKeeper
+	return app.scopedIBCKeeper
 }
 
 // GetTxConfig implements the TestingApp interface.

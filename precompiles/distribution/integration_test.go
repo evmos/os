@@ -668,7 +668,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 		s.NextBlock()
 
 		// check contract was correctly deployed
-		cAcc := s.app.EvmKeeper.GetAccount(s.ctx, contractAddr)
+		cAcc := s.app.EVMKeeper.GetAccount(s.ctx, contractAddr)
 		Expect(cAcc).ToNot(BeNil(), "contract account should exist")
 		Expect(cAcc.IsContract()).To(BeTrue(), "account should be a contract")
 
