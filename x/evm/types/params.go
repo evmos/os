@@ -22,19 +22,11 @@ var (
 	// DefaultEVMDenom defines the default EVM denomination on Evmos.
 	//
 	// TODO: improve handling here to accept Default parameters and not have Evmos native things in OS repo
-	DefaultEVMDenom = "aevmos"
+	DefaultEVMDenom = ""
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles.
-	DefaultStaticPrecompiles = []string{
-		P256PrecompileAddress,         // P256 precompile
-		Bech32PrecompileAddress,       // Bech32 precompile
-		StakingPrecompileAddress,      // Staking precompile
-		DistributionPrecompileAddress, // Distribution precompile
-		ICS20PrecompileAddress,        // ICS20 transfer precompile
-		VestingPrecompileAddress,      // Vesting precompile
-		BankPrecompileAddress,         // Bank precompile
-	}
+	DefaultStaticPrecompiles = []string{}
 	// DefaultExtraEIPs defines the default extra EIPs to be included.
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs = []string{
