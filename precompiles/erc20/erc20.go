@@ -77,6 +77,7 @@ func NewPrecompile(
 		tokenPair:      tokenPair,
 		bankKeeper:     bankKeeper,
 		transferKeeper: transferKeeper,
+		evmKeeper:      evmKeeper,
 	}
 	// Address defines the address of the ERC-20 precompile contract.
 	p.SetAddress(p.tokenPair.GetERC20Contract())

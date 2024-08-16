@@ -20,7 +20,6 @@ import (
 
 	"cosmossdk.io/math"
 	"cosmossdk.io/simapp"
-	"cosmossdk.io/simapp/params"
 	dbm "github.com/cometbft/cometbft-db"
 	tmcfg "github.com/cometbft/cometbft/config"
 	tmflags "github.com/cometbft/cometbft/libs/cli/flags"
@@ -108,7 +107,7 @@ func DefaultConfig() Config {
 		LegacyAmino:       encCfg.Amino,
 		InterfaceRegistry: encCfg.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
-		AppConstructor:    NewAppConstructor(encCfg, chainID),
+		AppConstructor:    NewAppConstructor(chainID),
 		GenesisState:      example_app.ModuleBasics.DefaultGenesis(encCfg.Codec),
 		TimeoutCommit:     3 * time.Second,
 		ChainID:           chainID,
@@ -127,7 +126,7 @@ func DefaultConfig() Config {
 }
 
 // NewAppConstructor returns a new evmOS example application construction
-func NewAppConstructor(encodingCfg params.EncodingConfig, chainID string) AppConstructor {
+func NewAppConstructor(chainID string) AppConstructor {
 	return func(val Validator) servertypes.Application {
 		return example_app.NewExampleApp(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true,

@@ -46,9 +46,6 @@ import (
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
-// stipend to pay EVM tx fees
-var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, math.NewInt(1e16)))
-
 // SetupWithGenesisValSet initializes a new evmOS app with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
