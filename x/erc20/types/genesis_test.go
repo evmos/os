@@ -56,7 +56,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: types.WEVMOSContractMainnet,
+						Erc20Address: testutil.WEVMOSContractMainnet,
 						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
@@ -80,7 +80,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: types.WEVMOSContractMainnet,
+						Erc20Address: testutil.WEVMOSContractMainnet,
 						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
@@ -104,7 +104,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: types.WEVMOSContractMainnet,
+						Erc20Address: testutil.WEVMOSContractMainnet,
 						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
@@ -128,7 +128,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: types.WEVMOSContractMainnet,
+						Erc20Address: testutil.WEVMOSContractMainnet,
 						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
@@ -147,7 +147,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: types.WEVMOSContractMainnet,
+						Erc20Address: testutil.WEVMOSContractMainnet,
 						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},

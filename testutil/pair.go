@@ -3,11 +3,13 @@
 
 package testutil
 
-import erc20types "github.com/evmos/os/x/erc20/types"
+import (
+	erc20types "github.com/evmos/os/x/erc20/types"
+)
 
 var ExampleTokenPairs = []erc20types.TokenPair{
 	{
-		Erc20Address:  erc20types.WEVMOSContractMainnet,
+		Erc20Address:  WEVMOSContractMainnet,
 		Denom:         ExampleAttoDenom,
 		Enabled:       true,
 		ContractOwner: erc20types.OWNER_MODULE,

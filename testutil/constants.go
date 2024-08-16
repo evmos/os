@@ -18,4 +18,9 @@ const (
 
 	// DefaultGasPrice is used in testing as the default to use for transactions
 	DefaultGasPrice = 20
+
+	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
+	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
+	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
+	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
 )

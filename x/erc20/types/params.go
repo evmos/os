@@ -12,23 +12,11 @@ import (
 	"github.com/evmos/os/types"
 )
 
-const (
-	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
-	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
-	// WEVMOSContractTestnet is the WEVMOS contract address for testnet
-	WEVMOSContractTestnet = "0xcc491f589b45d4a3c679016195b3fb87d7848210"
-)
-
 // Parameter store key
 var (
 	ParamStoreKeyEnableErc20        = []byte("EnableErc20")
 	ParamStoreKeyDynamicPrecompiles = []byte("DynamicPrecompiles")
 	ParamStoreKeyNativePrecompiles  = []byte("NativePrecompiles")
-	// DefaultNativePrecompiles defines the default precompiles for the wrapped native coin
-	// NOTE: If you modify this, make sure you modify it on the local_node genesis script as well
-	DefaultNativePrecompiles = []string{WEVMOSContractMainnet}
-	// DefaultDynamicPrecompiles defines the default active dynamic precompiles
-	DefaultDynamicPrecompiles []string
 )
 
 // NewParams creates a new Params object
@@ -49,8 +37,8 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EnableErc20:        true,
-		NativePrecompiles:  DefaultNativePrecompiles,
-		DynamicPrecompiles: DefaultDynamicPrecompiles,
+		NativePrecompiles:  []string{},
+		DynamicPrecompiles: []string{},
 	}
 }
 
