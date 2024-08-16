@@ -7,17 +7,16 @@ import (
 	"embed"
 	"fmt"
 
-	cmn "github.com/evmos/os/precompiles/common"
-
-	"github.com/ethereum/go-ethereum/accounts/abi"
-	"github.com/evmos/os/x/evm/core/vm"
-
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	auth "github.com/evmos/os/precompiles/authorization"
+	cmn "github.com/evmos/os/precompiles/common"
 	erc20types "github.com/evmos/os/x/erc20/types"
+	"github.com/evmos/os/x/evm/core/vm"
+	evmkeeper "github.com/evmos/os/x/evm/keeper"
 	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
 
@@ -50,6 +49,7 @@ type Precompile struct {
 	tokenPair      erc20types.TokenPair
 	bankKeeper     bankkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
+	evmKeeper      *evmkeeper.Keeper
 }
 
 // NewPrecompile creates a new ERC-20 Precompile instance as a
@@ -59,6 +59,7 @@ func NewPrecompile(
 	bankKeeper bankkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
 	transferKeeper transferkeeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
 ) (*Precompile, error) {
 	newABI, err := cmn.LoadABI(f, abiPath)
 	if err != nil {

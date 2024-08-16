@@ -12,6 +12,7 @@ import (
 	"github.com/evmos/os/precompiles/erc20"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/evmos/os/x/evm/core/vm"
+	evmkeeper "github.com/evmos/os/x/evm/keeper"
 )
 
 // GetERC20PrecompileInstance returns the precompile instance for the given address.
@@ -43,7 +44,17 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 	if !ok {
 		return nil, fmt.Errorf("token pair not found: %s", address)
 	}
-	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
+
+	ek, ok := k.evmKeeper.(*evmkeeper.Keeper)
+	if !ok {
+		return nil, fmt.Errorf(
+			"invalid evm keeper in erc20 keeper; expected: %T; got: %T",
+			k.evmKeeper,
+			evmkeeper.Keeper{},
+		)
+	}
+
+	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper, ek)
 }
 
 // IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the

@@ -11,7 +11,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
-	evmosutils "github.com/evmos/os/utils"
 )
 
 var (
@@ -19,8 +18,6 @@ var (
 	TrueValue = []byte{0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1}
 	// DefaultExpirationDuration is the default duration for an authorization to expire.
 	DefaultExpirationDuration = time.Hour * 24 * 365
-	// DefaultChainID is the standard chain id used for testing purposes
-	DefaultChainID = evmosutils.MainnetChainID + "-1"
 )
 
 // ICS20Allocation defines the spend limit for a particular port and channel.

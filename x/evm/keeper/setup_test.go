@@ -26,6 +26,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
 	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -109,7 +110,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = example_app.EthSetup(checkTx, func(app *example_app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = chainutil.EthSetup(checkTx, chainID, func(app *example_app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
 		feemarketGenesis := feemarkettypes.DefaultGenesisState()
 		if suite.enableFeemarket {
 			feemarketGenesis.Params.EnableHeight = 1
@@ -135,7 +136,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector
 		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
-		genesisState := example_app.NewTestGenesisState(suite.app.AppCodec())
+		genesisState := chainutil.NewTestGenesisState(suite.app.AppCodec())
 		balances := []banktypes.Balance{
 			{
 				Address: suite.app.AccountKeeper.GetModuleAddress(authtypes.FeeCollectorName).String(),
@@ -158,7 +159,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 			abci.RequestInitChain{
 				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
-				ConsensusParams: example_app.DefaultConsensusParams,
+				ConsensusParams: chainutil.DefaultConsensusParams,
 				AppStateBytes:   stateBytes,
 			},
 		)

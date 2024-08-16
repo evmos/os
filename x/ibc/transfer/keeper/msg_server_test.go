@@ -281,13 +281,14 @@ func (suite *KeeperTestSuite) TestTransfer() {
 			suite.mintFeeCollector = true
 			suite.SetupTest()
 
-			_, err := suite.app.ScopedTransferKeeper.NewCapability(suite.ctx, host.ChannelCapabilityPath("transfer", "channel-0"))
+			_, err := suite.app.GetScopedIBCKeeper().NewCapability(suite.ctx, host.ChannelCapabilityPath("transfer", "channel-0"))
 			suite.Require().NoError(err)
+
 			suite.app.TransferKeeper = keeper.NewKeeper(
 				suite.app.AppCodec(), suite.app.GetKey(types.StoreKey), suite.app.GetSubspace(types.ModuleName),
 				&MockICS4Wrapper{}, // ICS4 Wrapper: claims IBC middleware
 				mockChannelKeeper, &suite.app.IBCKeeper.PortKeeper,
-				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.ScopedTransferKeeper,
+				suite.app.AccountKeeper, suite.app.BankKeeper, suite.app.GetScopedIBCKeeper(),
 				suite.app.Erc20Keeper, // Add ERC20 Keeper for ERC20 transfers
 			)
 			msg := tc.malleate()

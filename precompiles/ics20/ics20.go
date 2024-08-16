@@ -15,6 +15,7 @@ import (
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/x/evm/core/vm"
+	evmkeeper "github.com/evmos/os/x/evm/keeper"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
@@ -31,6 +32,7 @@ type Precompile struct {
 	stakingKeeper  stakingkeeper.Keeper
 	transferKeeper transferkeeper.Keeper
 	channelKeeper  channelkeeper.Keeper
+	evmKeeper      *evmkeeper.Keeper
 }
 
 // NewPrecompile creates a new ICS-20 Precompile instance as a
@@ -40,6 +42,7 @@ func NewPrecompile(
 	transferKeeper transferkeeper.Keeper,
 	channelKeeper channelkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
@@ -57,6 +60,7 @@ func NewPrecompile(
 		transferKeeper: transferKeeper,
 		channelKeeper:  channelKeeper,
 		stakingKeeper:  stakingKeeper,
+		evmKeeper:      evmKeeper,
 	}
 
 	// SetAddress defines the address of the ICS-20 compile contract.

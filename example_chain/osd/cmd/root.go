@@ -30,7 +30,6 @@ import (
 	sdkmempool "github.com/cosmos/cosmos-sdk/types/mempool"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	evmoscmd "github.com/evmos/os/client"
 	evmoscmdconfig "github.com/evmos/os/cmd/config"
@@ -38,6 +37,7 @@ import (
 	evmosencoding "github.com/evmos/os/encoding"
 	evmoseip712 "github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/example_chain"
+	cmdcfg "github.com/evmos/os/example_chain/osd/config"
 	evmosserver "github.com/evmos/os/server"
 	evmosserverconfig "github.com/evmos/os/server/config"
 	srvflags "github.com/evmos/os/server/flags"
@@ -91,7 +91,7 @@ func NewRootCmd() *cobra.Command {
 				return err
 			}
 
-			customAppTemplate, customAppConfig := InitAppConfig()
+			customAppTemplate, customAppConfig := InitAppConfig(cmdcfg.BaseDenom)
 			customTMConfig := initTendermintConfig()
 
 			return sdkserver.InterceptConfigsPreRunHandler(cmd, customAppTemplate, customAppConfig, customTMConfig)
@@ -162,7 +162,6 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(example_chain.ModuleBasics, example_chain.DefaultNodeHome),
-		NewTestnetCmd(example_chain.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
 		config.Cmd(),
 		pruning.Cmd(newApp, example_chain.DefaultNodeHome),

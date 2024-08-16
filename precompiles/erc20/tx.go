@@ -13,8 +13,8 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/core/vm"
 )
 
@@ -109,10 +109,13 @@ func (p *Precompile) transfer(
 		return nil, err
 	}
 
-	// TODO: where should we get this
-	if p.tokenPair.Denom == testutil.ExampleAttoDenom {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(testutil.ExampleAttoDenom).BigInt(), cmn.Sub),
-			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(testutil.ExampleAttoDenom).BigInt(), cmn.Add))
+	// TODO: is this the correct denom? It was hardcoded to utils.BaseDenom before..
+	// evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
+	// TODO: when using the Evm denomiation here there is an import cycle - how to handle this, we should get the EVM denom here
+	evmDenom := chainconfig.BaseDenom
+	if p.tokenPair.Denom == evmDenom {
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {

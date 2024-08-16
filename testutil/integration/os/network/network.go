@@ -19,6 +19,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gethparams "github.com/ethereum/go-ethereum/params"
 	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	commonnetwork "github.com/evmos/os/testutil/integration/common/network"
 	"github.com/evmos/os/types"
 	erc20types "github.com/evmos/os/x/erc20/types"
@@ -159,7 +160,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		return err
 	}
 
-	consensusParams := example_app.DefaultConsensusParams
+	consensusParams := chainutil.DefaultConsensusParams
 	now := time.Now()
 	exampleApp.InitChain(
 		abcitypes.RequestInitChain{

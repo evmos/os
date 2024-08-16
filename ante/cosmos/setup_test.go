@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/suite"
-
 	sdkmath "cosmossdk.io/math"
 	"cosmossdk.io/simapp"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
@@ -16,10 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
 	"github.com/evmos/os/ante"
 	evmante "github.com/evmos/os/ante/evm"
 	"github.com/evmos/os/crypto/ethsecp256k1"
@@ -33,6 +29,7 @@ import (
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
+	"github.com/stretchr/testify/suite"
 )
 
 type AnteTestSuite struct {
@@ -63,7 +60,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	suite.priv = priv
 
-	suite.app = app.EthSetup(checkTx, func(app *app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = chaintestutil.EthSetup(checkTx, testutil.ExampleChainID, func(app *app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()

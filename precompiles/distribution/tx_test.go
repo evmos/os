@@ -5,7 +5,8 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/os/precompiles/testutil"
+	precompiletestutil "github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/core/vm"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -104,7 +105,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddress() {
 			s.SetupTest()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, s.ctx = precompiletestutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
 			_, err := s.precompile.SetWithdrawAddress(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate())
 
@@ -203,7 +204,7 @@ func (s *PrecompileTestSuite) TestWithdrawDelegatorRewards() {
 			s.Require().Equal(balance.Amount.BigInt(), big.NewInt(5000000000000000000))
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, s.ctx = precompiletestutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
 			bz, err := s.precompile.WithdrawDelegatorRewards(s.ctx, s.address, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
 
@@ -292,7 +293,7 @@ func (s *PrecompileTestSuite) TestWithdrawValidatorCommission() {
 
 			validatorAddress := common.BytesToAddress(s.validators[0].GetOperator().Bytes())
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
+			contract, s.ctx = precompiletestutil.NewPrecompileContract(s.T(), s.ctx, validatorAddress, s.precompile, tc.gas)
 
 			bz, err := s.precompile.WithdrawValidatorCommission(s.ctx, validatorAddress, contract, s.stateDB, &method, tc.malleate(s.validators[0].OperatorAddress))
 
@@ -421,7 +422,7 @@ func (s *PrecompileTestSuite) TestClaimRewards() {
 			s.SetupTest()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, s.ctx = precompiletestutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
 			// Sanity check to make sure the starting balance is always 5 EVMOS
 			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)
@@ -505,7 +506,7 @@ func (s *PrecompileTestSuite) TestFundCommunityPool() {
 			s.SetupTest()
 
 			var contract *vm.Contract
-			contract, s.ctx = testutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
+			contract, s.ctx = precompiletestutil.NewPrecompileContract(s.T(), s.ctx, s.address, s.precompile, tc.gas)
 
 			// Sanity check to make sure the starting balance is always 5 EVMOS
 			balance := s.app.BankKeeper.GetBalance(s.ctx, s.address.Bytes(), testutil.ExampleAttoDenom)

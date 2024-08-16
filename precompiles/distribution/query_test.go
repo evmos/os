@@ -10,9 +10,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/x/evm/core/vm"
 
-	"github.com/evmos/os/testutil"
 	testutiltx "github.com/evmos/os/testutil/tx"
 
 	cmn "github.com/evmos/os/precompiles/common"
@@ -95,7 +95,7 @@ func (s *PrecompileTestSuite) TestValidatorDistributionInfo() {
 			func() []interface{} {
 				addr := sdk.AccAddress(s.validators[0].GetOperator())
 				// fund del account to make self-delegation
-				err := testutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
+				err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
 				s.Require().NoError(err)
 				// make a self delegation
 				_, err = s.app.StakingKeeper.Delegate(s.ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.validators[0], true)

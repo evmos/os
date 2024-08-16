@@ -1,7 +1,7 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 
-package example_chain
+package testutil
 
 import (
 	"encoding/json"
@@ -25,7 +25,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/os/testutil"
+	example_app "github.com/evmos/os/example_chain"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
@@ -49,6 +49,8 @@ var DefaultConsensusParams = &tmproto.ConsensusParams{
 
 // EthDefaultConsensusParams defines the default Tendermint consensus params used in
 // evmOS app testing.
+//
+// TODO: currently not used
 var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 	Block: cmtypes.BlockParams{
 		MaxBytes: 200000,
@@ -67,18 +69,17 @@ var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 }
 
 // EthSetup initializes a new evmOS application. A Nop logger is set in ExampleChain.
-func EthSetup(isCheckTx bool, patchGenesis func(*ExampleChain, simapp.GenesisState) simapp.GenesisState) *ExampleChain {
-	return EthSetupWithDB(isCheckTx, patchGenesis, dbm.NewMemDB())
+func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*example_app.ExampleChain, simapp.GenesisState) simapp.GenesisState) *example_app.ExampleChain {
+	return EthSetupWithDB(isCheckTx, chainID, patchGenesis, dbm.NewMemDB())
 }
 
 // EthSetupWithDB initializes a new ExampleChain. A Nop logger is set in ExampleChain.
-func EthSetupWithDB(isCheckTx bool, patchGenesis func(*ExampleChain, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *ExampleChain {
-	chainID := testutil.ExampleChainID
-	app := NewExampleApp(log.NewNopLogger(),
+func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*example_app.ExampleChain, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *example_app.ExampleChain {
+	app := example_app.NewExampleApp(log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+		simtestutil.NewAppOptionsWithFlagHome(example_app.DefaultNodeHome),
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
@@ -126,7 +127,7 @@ func NewTestGenesisState(codec codec.Codec) simapp.GenesisState {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100000000000000))),
 	}
 
-	genesisState := NewDefaultGenesisState()
+	genesisState := example_app.NewDefaultGenesisState()
 	return genesisStateWithValSet(codec, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 }
 

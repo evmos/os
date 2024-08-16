@@ -8,7 +8,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/os/cmd/config"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/distribution"
 	"github.com/evmos/os/testutil"
@@ -47,7 +47,7 @@ func (s *PrecompileTestSuite) TestSetWithdrawAddressEvent() {
 				err := cmn.UnpackLog(s.precompile.ABI, &setWithdrawerAddrEvent, distribution.EventTypeSetWithdrawAddress, *log)
 				s.Require().NoError(err)
 				s.Require().Equal(s.address, setWithdrawerAddrEvent.Caller)
-				s.Require().Equal(sdk.MustBech32ifyAddressBytes(config.Bech32Prefix, s.address.Bytes()), setWithdrawerAddrEvent.WithdrawerAddress)
+				s.Require().Equal(sdk.MustBech32ifyAddressBytes(chainconfig.Bech32Prefix, s.address.Bytes()), setWithdrawerAddrEvent.WithdrawerAddress)
 			},
 			20000,
 			false,

@@ -20,6 +20,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	evmostypes "github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
@@ -98,7 +99,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 		abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: example_app.DefaultConsensusParams,
+			ConsensusParams: chainutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)

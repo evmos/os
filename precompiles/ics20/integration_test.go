@@ -16,6 +16,7 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	evmoscontracts "github.com/evmos/os/contracts"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	evmostesting "github.com/evmos/os/ibc/testing"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
@@ -500,7 +501,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				// initialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.address.Bytes(), s.bondDenom)
 
 				// fund senders account
-				err := evmosutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, s.differentAddr.Bytes(), amt)
+				err := chainutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, s.differentAddr.Bytes(), amt)
 				Expect(err).To(BeNil())
 				senderInitialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.differentAddr.Bytes(), s.bondDenom)
 				Expect(senderInitialBalance.Amount).To(Equal(math.NewInt(amt)))
@@ -558,7 +559,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 				Expect(err).To(BeNil())
 
 				// fund the account from which funds will be sent
-				err = evmosutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, s.differentAddr.Bytes(), amt)
+				err = chainutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, s.differentAddr.Bytes(), amt)
 				Expect(err).To(BeNil())
 				senderInitialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), s.differentAddr.Bytes(), s.bondDenom)
 				Expect(senderInitialBalance.Amount).To(Equal(math.NewInt(amt)))
@@ -1303,7 +1304,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 						// Send some funds to the InterchainSender
 						// to perform internal transfers
 						initialContractBal := math.NewInt(1e18)
-						err := evmosutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, contractAddr.Bytes(), initialContractBal.Int64())
+						err := chainutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, contractAddr.Bytes(), initialContractBal.Int64())
 						Expect(err).To(BeNil(), "error while funding account")
 
 						// get initial balances
@@ -1623,7 +1624,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 			var defaultTransferEvmosArgs contracts.CallArgs
 			BeforeEach(func() {
 				// send some funds to the contract from which the funds will be sent
-				err = evmosutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, contractAddr.Bytes(), amt)
+				err = chainutil.FundAccountWithBaseDenom(s.chainA.GetContext(), s.app.BankKeeper, contractAddr.Bytes(), amt)
 				Expect(err).To(BeNil())
 				senderInitialBalance := s.app.BankKeeper.GetBalance(s.chainA.GetContext(), contractAddr.Bytes(), s.bondDenom)
 				Expect(senderInitialBalance.Amount).To(Equal(math.NewInt(amt)))

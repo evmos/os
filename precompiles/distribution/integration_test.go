@@ -13,6 +13,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/common"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/distribution"
 	"github.com/evmos/os/precompiles/testutil"
@@ -253,7 +254,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// create a validator with s.address and s.privKey because this account is
 			// used for signing txs
 			stakeAmt = math.NewInt(100)
-			testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper.Keeper, stakeAmt)
+			testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper, stakeAmt)
 
 			// set some validator commission
 			valAddr = s.address.Bytes()
@@ -409,7 +410,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		It("should get validator distribution info - validatorDistributionInfo query", func() {
 			addr := sdk.AccAddress(s.validators[0].GetOperator())
 			// fund validator account to make self-delegation
-			err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
+			err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
 			Expect(err).To(BeNil())
 			// make a self delegation
 			_, err = s.app.StakingKeeper.Delegate(s.ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.validators[0], true)
@@ -859,7 +860,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 					WithGasPrice(gasPrice)
 
 				// send some funds to the contract
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
+				err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
 				Expect(err).To(BeNil())
 			})
 
@@ -1093,7 +1094,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				Expect(err).To(BeNil(), "error while deploying the smart contract: %v", err)
 
 				// send some funds to the contract
-				err = evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
+				err = chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
 				Expect(err).To(BeNil())
 
 				// set some rewards for the delegator contract
@@ -1163,7 +1164,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			// used for signing txs
 			valAddr = s.address.Bytes()
 			stakeAmt := math.NewInt(100)
-			testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper.Keeper, stakeAmt)
+			testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper, stakeAmt)
 
 			// set some commissions to validators
 			var valAddresses []sdk.ValAddress
@@ -1263,7 +1264,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 					WithGasPrice(gasPrice)
 
 				// send some funds to the contract
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
+				err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
 				Expect(err).To(BeNil())
 			})
 
@@ -1453,7 +1454,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 					WithGasPrice(gasPrice)
 
 				// send some funds to the contract
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
+				err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, contractAddr.Bytes(), contractInitialBalance.Int64())
 				Expect(err).To(BeNil())
 			})
 
@@ -1535,7 +1536,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 				},
 			}...)
 
-			expectedBalance = sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewInt(2e18)}
+			expectedBalance = sdk.Coin{Denom: evmosutil.ExampleAttoDenom, Amount: math.NewInt(2e18)}
 			// populate default arguments
 			defaultClaimRewardsArgs = defaultCallArgs.WithMethodName(
 				"testClaimRewards",
@@ -1648,7 +1649,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 			BeforeEach(func() {
 				addr := sdk.AccAddress(s.validators[0].GetOperator())
 				// fund validator account to make self-delegation
-				err := evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
+				err := chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, addr, 10)
 				Expect(err).To(BeNil())
 				// make a self delegation
 				_, err = s.app.StakingKeeper.Delegate(s.ctx, addr, math.NewInt(1), stakingtypes.Unspecified, s.validators[0], true)
@@ -1939,7 +1940,7 @@ var _ = Describe("Calling distribution precompile from another contract", func()
 
 					// send some funds to the Reverter contracts to transfer to the
 					// delegator during the tx
-					err = evmosutil.FundAccount(s.ctx, s.app.BankKeeper, reverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, testContractInitialBalance)))
+					err = chainutil.FundAccount(s.ctx, s.app.BankKeeper, reverterAddr.Bytes(), sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, testContractInitialBalance)))
 					Expect(err).To(BeNil(), "error while funding the smart contract: %v", err)
 				})
 

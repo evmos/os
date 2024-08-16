@@ -9,10 +9,10 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/ethereum/go-ethereum/common"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/ics20"
 	"github.com/evmos/os/testutil"
-	evmosutil "github.com/evmos/os/testutil"
 	testutiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/core/vm"
 )
@@ -146,7 +146,7 @@ func (s *PrecompileTestSuite) TestTransfer() {
 				err := s.NewTransferAuthorization(s.ctx, s.app, common.BytesToAddress(sender), common.BytesToAddress(sender), path, defaultCoins, nil, []string{"memo"})
 				s.Require().NoError(err)
 				// fund another user's account
-				err = evmosutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, differentAddress.Bytes(), amt)
+				err = chainutil.FundAccountWithBaseDenom(s.ctx, s.app.BankKeeper, differentAddress.Bytes(), amt)
 				s.Require().NoError(err)
 
 				return []interface{}{

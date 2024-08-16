@@ -14,7 +14,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/core/vm"
 
 	cmn "github.com/evmos/os/precompiles/common"
@@ -69,7 +68,8 @@ func (p *Precompile) Transfer(
 		return nil, err
 	}
 
-	if contract.CallerAddress != origin && msg.Token.Denom == testutil.ExampleAttoDenom {
+	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
+	if contract.CallerAddress != origin && msg.Token.Denom == evmDenom {
 		// escrow address is also changed on this tx, and it is not a module account
 		// so we need to account for this on the UpdateDirties
 		escrowAccAddress := transfertypes.GetEscrowAddress(msg.SourcePort, msg.SourceChannel)

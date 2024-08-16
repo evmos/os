@@ -30,7 +30,7 @@ func NewUnitTestNetwork(opts ...ConfigOption) *UnitTestNetwork {
 	network := New(opts...)
 	return &UnitTestNetwork{
 		IntegrationNetwork: *network,
-		App:                network.App,
+		App:                network.app,
 	}
 }
 

@@ -21,6 +21,7 @@ import (
 	"github.com/evmos/os/ethereum/eip712"
 	app "github.com/evmos/os/example_chain"
 	chainante "github.com/evmos/os/example_chain/ante"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
@@ -45,7 +46,7 @@ const TestGasLimit uint64 = 100000
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
 
-	suite.app = app.EthSetup(checkTx, func(app *app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = chainutil.EthSetup(checkTx, testutil.ExampleChainID, func(app *app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()

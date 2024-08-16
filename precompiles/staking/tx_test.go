@@ -6,11 +6,10 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	geth "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/evmos/os/cmd/config"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
@@ -1001,7 +1000,7 @@ func (s *PrecompileTestSuite) TestUndelegate() {
 				s.Require().NotEmpty(bz)
 				tc.postCheck(bz)
 
-				bech32Addr, err := sdk.Bech32ifyAddressBytes(config.Bech32Prefix, s.address.Bytes())
+				bech32Addr, err := sdk.Bech32ifyAddressBytes(chainconfig.Bech32Prefix, s.address.Bytes())
 				s.Require().NoError(err)
 				s.Require().Equal(undelegations[0].DelegatorAddress, bech32Addr)
 				s.Require().Equal(undelegations[0].ValidatorAddress, s.validators[0].OperatorAddress)
@@ -1146,7 +1145,7 @@ func (s *PrecompileTestSuite) TestRedelegate() {
 				s.Require().NoError(err)
 				s.Require().NotEmpty(bz)
 
-				bech32Addr, err := sdk.Bech32ifyAddressBytes(config.Bech32Prefix, s.address.Bytes())
+				bech32Addr, err := sdk.Bech32ifyAddressBytes(chainconfig.Bech32Prefix, s.address.Bytes())
 				s.Require().NoError(err)
 				s.Require().Equal(redelegations[0].DelegatorAddress, bech32Addr)
 				s.Require().Equal(redelegations[0].ValidatorSrcAddress, s.validators[0].OperatorAddress)
@@ -1322,7 +1321,7 @@ func (s *PrecompileTestSuite) TestCancelUnbondingDelegation() {
 				delegation, found := s.app.StakingKeeper.GetDelegation(s.ctx, s.address.Bytes(), s.validators[0].GetOperator())
 				s.Require().True(found)
 
-				bech32Addr, err := sdk.Bech32ifyAddressBytes(config.Bech32Prefix, s.address.Bytes())
+				bech32Addr, err := sdk.Bech32ifyAddressBytes(chainconfig.Bech32Prefix, s.address.Bytes())
 				s.Require().NoError(err)
 				s.Require().Equal(delegation.DelegatorAddress, bech32Addr)
 				s.Require().Equal(delegation.ValidatorAddress, s.validators[0].OperatorAddress)

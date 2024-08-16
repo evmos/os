@@ -54,7 +54,7 @@ var accountGasCoverage = sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, ma
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := example_app.SetupTestingApp(cmn.DefaultChainID)()
+	appI, genesisState := example_app.SetupTestingApp(evmosutil.ExampleChainID)()
 	app, ok := appI.(*example_app.ExampleChain)
 	s.Require().True(ok)
 
@@ -123,7 +123,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	header := evmosutil.NewHeader(
 		2,
 		time.Now().UTC(),
-		cmn.DefaultChainID,
+		evmosutil.ExampleChainID,
 		sdk.ConsAddress(validators[0].GetOperator()),
 		tmhash.Sum([]byte("app")),
 		tmhash.Sum([]byte("validators")),
@@ -132,9 +132,9 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:         cmn.DefaultChainID,
+			ChainId:         evmosutil.ExampleChainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: example_app.DefaultConsensusParams,
+			ConsensusParams: chainutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
@@ -379,7 +379,7 @@ func (s *PrecompileTestSuite) NextBlock() {
 // NextBlock commits the current block and sets up the next block.
 func (s *PrecompileTestSuite) NextBlockAfter(t time.Duration) {
 	var err error
-	s.ctx, err = evmosutil.CommitAndCreateNewCtx(s.ctx, s.app, t, nil)
+	s.ctx, err = chainutil.CommitAndCreateNewCtx(s.ctx, s.app, t, nil)
 	Expect(err).To(BeNil(), "failed to commit block")
 }
 
@@ -506,7 +506,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 		Amount:              sdk.NewCoin(s.bondDenom, math.NewIntFromBigInt(redelAmt)),
 	}
 
-	msgSrv := stakingkeeper.NewMsgServerImpl(&s.app.StakingKeeper)
+	msgSrv := stakingkeeper.NewMsgServerImpl(s.app.StakingKeeper)
 	// create 2 entries for same redelegation
 	for i := 0; i < 2; i++ {
 		if _, err := msgSrv.BeginRedelegate(s.ctx, &msg); err != nil {
@@ -516,7 +516,7 @@ func (s *PrecompileTestSuite) setupRedelegations(redelAmt *big.Int) error {
 
 	// create a validator with s.address and s.privKey
 	// then create a redelegation from validator[0] to this new validator
-	testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper.Keeper, math.NewInt(100))
+	testutil.CreateValidator(s.ctx, s.T(), s.privKey.PubKey(), *s.app.StakingKeeper, math.NewInt(100))
 	msg.ValidatorDstAddress = sdk.ValAddress(s.address.Bytes()).String()
 	_, err := msgSrv.BeginRedelegate(s.ctx, &msg)
 	return err

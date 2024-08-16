@@ -16,8 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
-	"github.com/evmos/os/utils"
 	"github.com/evmos/os/x/erc20/types"
 )
 
@@ -85,12 +85,12 @@ var _ = Describe("ERC20:", Ordered, func() {
 			BeforeEach(func() {
 				// Mint coins to pay gas fee, gov deposit and registering coins in Bankkeeper
 				coins := sdk.NewCoins(
-					sdk.NewCoin(utils.BaseDenom, fundsAmt),
+					sdk.NewCoin(testutil.ExampleAttoDenom, fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 					sdk.NewCoin(metadataIbc.Base, math.NewInt(1)),
 					sdk.NewCoin(metadataCoin.Base, math.NewInt(1)),
 				)
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
+				err := chainutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				Expect(err).To(BeNil())
 				s.Commit()
 			})
@@ -106,10 +106,10 @@ var _ = Describe("ERC20:", Ordered, func() {
 				s.Require().NoError(err)
 
 				coins := sdk.NewCoins(
-					sdk.NewCoin(utils.BaseDenom, fundsAmt),
+					sdk.NewCoin(testutil.ExampleAttoDenom, fundsAmt),
 					sdk.NewCoin(stakingtypes.DefaultParams().BondDenom, fundsAmt),
 				)
-				err = testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
+				err = chainutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, coins)
 				s.Require().NoError(err)
 				s.Commit()
 			})
@@ -123,10 +123,10 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
+					_, err = chainutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
-					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
+					_, err = chainutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
 					s.Require().NoError(err)
 
 					// Make proposal pass in EndBlocker
@@ -155,10 +155,10 @@ var _ = Describe("ERC20:", Ordered, func() {
 					proposal, found := s.app.GovKeeper.GetProposal(s.ctx, id)
 					s.Require().True(found)
 
-					_, err = testutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(utils.BaseDenom, math.NewInt(500000000000000000)), s.validator)
+					_, err = chainutil.Delegate(s.ctx, s.app, privKey, sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(500000000000000000)), s.validator)
 					s.Require().NoError(err)
 
-					_, err = testutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
+					_, err = chainutil.Vote(s.ctx, s.app, privKey, id, govv1beta1.OptionYes)
 					s.Require().NoError(err)
 
 					// Make proposal pass in EndBlocker
@@ -189,7 +189,7 @@ var _ = Describe("ERC20:", Ordered, func() {
 				pair, _ = s.app.Erc20Keeper.GetTokenPair(s.ctx, id)
 				coin = sdk.NewCoin(pair.Denom, amt)
 
-				err := testutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(utils.BaseDenom, fundsAmt)))
+				err := chainutil.FundAccount(s.ctx, s.app.BankKeeper, accAddr, sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, fundsAmt)))
 				s.Require().NoError(err)
 
 				_ = s.MintERC20Token(contract, s.address, addr, big.NewInt(amt.Int64()))
@@ -223,13 +223,13 @@ var _ = Describe("ERC20:", Ordered, func() {
 
 func submitRegisterERC20Proposal(ctx sdk.Context, appEvmos *example_app.ExampleChain, pk *ethsecp256k1.PrivKey, addrs []string) (id uint64, err error) {
 	content := types.NewRegisterERC20Proposal("test token", "foo", addrs...)
-	return testutil.SubmitProposal(ctx, appEvmos, pk, content, 8)
+	return chainutil.SubmitProposal(ctx, appEvmos, pk, content, 8)
 }
 
 func convertERC20(ctx sdk.Context, appEvmos *example_app.ExampleChain, pk *ethsecp256k1.PrivKey, amt math.Int, contract common.Address) {
 	addrBz := pk.PubKey().Address().Bytes()
 	convertERC20Msg := types.NewMsgConvertERC20(amt, sdk.AccAddress(addrBz), contract, common.BytesToAddress(addrBz))
-	res, err := testutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
+	res, err := chainutil.DeliverTx(ctx, appEvmos, pk, nil, convertERC20Msg)
 	s.Require().NoError(err)
 	Expect(res.IsOK()).To(BeTrue(), "failed to convert ERC20: %s", res.Log)
 }

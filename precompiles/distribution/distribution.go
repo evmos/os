@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/x/evm/core/vm"
+	evmkeeper "github.com/evmos/os/x/evm/keeper"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -29,6 +30,7 @@ type Precompile struct {
 	cmn.Precompile
 	distributionKeeper distributionkeeper.Keeper
 	stakingKeeper      stakingkeeper.Keeper
+	evmKeeper          *evmkeeper.Keeper
 }
 
 // NewPrecompile creates a new distribution Precompile instance as a
@@ -37,6 +39,7 @@ func NewPrecompile(
 	distributionKeeper distributionkeeper.Keeper,
 	stakingKeeper stakingkeeper.Keeper,
 	authzKeeper authzkeeper.Keeper,
+	evmKeeper *evmkeeper.Keeper,
 ) (*Precompile, error) {
 	newAbi, err := cmn.LoadABI(f, "abi.json")
 	if err != nil {
@@ -53,6 +56,7 @@ func NewPrecompile(
 		},
 		stakingKeeper:      stakingKeeper,
 		distributionKeeper: distributionKeeper,
+		evmKeeper:          evmKeeper,
 	}
 
 	// SetAddress defines the address of the distribution compile contract.

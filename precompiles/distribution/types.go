@@ -8,15 +8,13 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/cmd/config"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/testutil"
 )
 
 // EventSetWithdrawAddress defines the event data for the SetWithdrawAddress transaction.
@@ -85,7 +83,7 @@ func NewMsgSetWithdrawAddress(args []interface{}) (*distributiontypes.MsgSetWith
 	// If the withdrawer address is a hex address, convert it to a bech32 address.
 	if common.IsHexAddress(withdrawerAddress) {
 		var err error
-		withdrawerAddress, err = sdk.Bech32ifyAddressBytes(config.Bech32Prefix, common.HexToAddress(withdrawerAddress).Bytes())
+		withdrawerAddress, err = sdk.Bech32ifyAddressBytes(chainconfig.Bech32Prefix, common.HexToAddress(withdrawerAddress).Bytes())
 		if err != nil {
 			return nil, common.Address{}, err
 		}
@@ -153,7 +151,7 @@ func NewMsgWithdrawValidatorCommission(args []interface{}) (*distributiontypes.M
 }
 
 // NewMsgFundCommunityPool creates a new NewMsgFundCommunityPool message.
-func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundCommunityPool, common.Address, error) {
+func NewMsgFundCommunityPool(denom string, args []interface{}) (*distributiontypes.MsgFundCommunityPool, common.Address, error) {
 	if len(args) != 2 {
 		return nil, common.Address{}, fmt.Errorf(cmn.ErrInvalidNumberOfArgs, 2, len(args))
 	}
@@ -170,7 +168,7 @@ func NewMsgFundCommunityPool(args []interface{}) (*distributiontypes.MsgFundComm
 
 	msg := &distributiontypes.MsgFundCommunityPool{
 		Depositor: sdk.AccAddress(depositorAddress.Bytes()).String(),
-		Amount:    sdk.Coins{sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: math.NewIntFromBigInt(amount)}},
+		Amount:    sdk.Coins{sdk.Coin{Denom: denom, Amount: math.NewIntFromBigInt(amount)}},
 	}
 
 	if err := msg.ValidateBasic(); err != nil {

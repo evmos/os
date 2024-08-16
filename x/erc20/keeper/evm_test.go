@@ -5,16 +5,14 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
 	"github.com/ethereum/go-ethereum/common"
-	utiltx "github.com/evmos/os/testutil/tx"
-	evmtypes "github.com/evmos/os/x/evm/types"
-	"github.com/stretchr/testify/mock"
-
 	"github.com/evmos/os/contracts"
+	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20/keeper"
 	"github.com/evmos/os/x/erc20/types"
 	erc20mocks "github.com/evmos/os/x/erc20/types/mocks"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/mock"
 )
 
 func (suite *KeeperTestSuite) TestQueryERC20() {
@@ -197,7 +195,7 @@ func (suite *KeeperTestSuite) TestQueryERC20ForceFail() {
 		suite.app.Erc20Keeper = keeper.NewKeeper(
 			suite.app.GetKey("erc20"), suite.app.AppCodec(),
 			authtypes.NewModuleAddress(govtypes.ModuleName), suite.app.AccountKeeper,
-			suite.app.BankKeeper, mockEVMKeeper, suite.app.StakingKeeper,
+			suite.app.BankKeeper, suite.app.EVMKeeper, suite.app.StakingKeeper,
 			s.app.AuthzKeeper, &s.app.TransferKeeper,
 		)
 

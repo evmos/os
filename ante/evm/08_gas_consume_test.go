@@ -135,7 +135,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			keepers := &evmante.ConsumeGasKeepers{
 				Bank:         unitNetwork.App.BankKeeper,
 				Distribution: unitNetwork.App.DistrKeeper,
-				Evm:          unitNetwork.app.EVMKeeper,
+				Evm:          unitNetwork.App.EVMKeeper,
 				Staking:      unitNetwork.App.StakingKeeper,
 			}
 			sender := tc.getSender()

@@ -106,10 +106,10 @@ func DeployContractWithFactory(
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ResponseDeliverTx, error) {
-	chainID := exampleapp.EVMKeeper.ChainID()
+	chainID := exampleApp.EVMKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	factoryNonce := exampleapp.EVMKeeper.GetNonce(ctx, factoryAddress)
-	nonce := exampleapp.EVMKeeper.GetNonce(ctx, from)
+	factoryNonce := exampleApp.EVMKeeper.GetNonce(ctx, factoryAddress)
+	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)
 
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:  chainID,

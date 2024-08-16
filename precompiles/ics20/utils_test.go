@@ -80,7 +80,7 @@ var (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := example_app.SetupTestingApp(cmn.DefaultChainID)()
+	appI, genesisState := example_app.SetupTestingApp(evmosutil.ExampleChainID)()
 	app, ok := appI.(*example_app.ExampleChain)
 	s.Require().True(ok)
 
@@ -149,9 +149,9 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	// init chain will set the validator set and initialize the genesis accounts
 	app.InitChain(
 		abci.RequestInitChain{
-			ChainId:         cmn.DefaultChainID,
+			ChainId:         evmosutil.ExampleChainID,
 			Validators:      []abci.ValidatorUpdate{},
-			ConsensusParams: example_app.DefaultConsensusParams,
+			ConsensusParams: chainutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
@@ -163,7 +163,7 @@ func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSe
 	header := evmosutil.NewHeader(
 		2,
 		time.Now().UTC(),
-		cmn.DefaultChainID,
+		evmosutil.ExampleChainID,
 		sdk.ConsAddress(validators[0].GetOperator()),
 		tmhash.Sum([]byte("app")),
 		tmhash.Sum([]byte("validators")),
@@ -207,14 +207,14 @@ func (s *PrecompileTestSuite) DoSetupTest() {
 		CurrentTime: time.Date(time.Now().Year()+1, 1, 2, 0, 0, 0, 0, time.UTC),
 	}
 	// Create 2 Evmos chains
-	chains[cmn.DefaultChainID] = s.NewTestChainWithValSet(s.coordinator, s.valSet, signersByAddress)
+	chains[evmosutil.ExampleChainID] = s.NewTestChainWithValSet(s.coordinator, s.valSet, signersByAddress)
 	// TODO: Figure out if we want to make the second chain keepers accessible to the tests to check the state
 	chainID2 := evmosutil.ExampleChainID + "2"
 	chains[chainID2] = ibctesting.NewTestChain(s.T(), s.coordinator, chainID2)
 	s.coordinator.Chains = chains
 
 	// Setup Chains in the testing suite
-	s.chainA = s.coordinator.GetChain(cmn.DefaultChainID)
+	s.chainA = s.coordinator.GetChain(evmosutil.ExampleChainID)
 	s.chainB = s.coordinator.GetChain(chainID2)
 
 	if s.suiteIBCTesting {
@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 
 	// create current header and call begin block
 	header := tmproto.Header{
-		ChainID: cmn.DefaultChainID,
+		ChainID: evmosutil.ExampleChainID,
 		Height:  1,
 		Time:    coord.CurrentTime.UTC(),
 	}
@@ -267,7 +267,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	s.app.FeeMarketKeeper.SetBlockGasWanted(s.ctx, 0)
 	s.app.FeeMarketKeeper.SetTransientBlockGasWanted(s.ctx, 0)
 
-	precompile, err := ics20.NewPrecompile(*s.app.StakingKeeper, s.app.TransferKeeper, s.app.IBCKeeper.ChannelKeeper, s.app.AuthzKeeper)
+	precompile, err := ics20.NewPrecompile(*s.app.StakingKeeper, s.app.TransferKeeper, s.app.IBCKeeper.ChannelKeeper, s.app.AuthzKeeper, s.app.EVMKeeper)
 	s.Require().NoError(err)
 	s.precompile = precompile
 
@@ -279,7 +279,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 	chain := &ibctesting.TestChain{
 		T:              s.T(),
 		Coordinator:    coord,
-		ChainID:        cmn.DefaultChainID,
+		ChainID:        evmosutil.ExampleChainID,
 		App:            s.app,
 		CurrentHeader:  header,
 		QueryServer:    s.app.GetIBCKeeper(),
@@ -508,9 +508,9 @@ func DeployContract(
 	contract evmtypes.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := exampleapp.EVMKeeper.ChainID()
+	chainID := exampleApp.EVMKeeper.ChainID()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-	nonce := exampleapp.EVMKeeper.GetNonce(ctx, from)
+	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)
 
 	ctorArgs, err := contract.ABI.Pack("", constructorArgs...)
 	if err != nil {

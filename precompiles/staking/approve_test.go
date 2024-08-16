@@ -12,11 +12,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkauthz "github.com/cosmos/cosmos-sdk/x/authz"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
-	evmosutil "github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/core/vm"
 )
 
@@ -218,7 +218,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 			func(_ *vm.Contract) []interface{} {
 				// Commit block (otherwise test logic will not be executed correctly, i.e. somehow unbonding does not take effect)
 				var err error
-				s.ctx, err = evmosutil.Commit(s.ctx, s.app, time.Second, nil)
+				s.ctx, err = chainutil.Commit(s.ctx, s.app, time.Second, nil)
 				s.Require().NoError(err, "failed to commit block")
 
 				// Jail a validator
@@ -234,7 +234,7 @@ func (s *PrecompileTestSuite) TestApprove() {
 				s.Require().Equal(math.NewInt(1e18), amount, "expected different amount of tokens to be unbonded")
 
 				// Commit block and update time to one year later
-				s.ctx, err = evmosutil.Commit(s.ctx, s.app, time.Hour*24*365, nil)
+				s.ctx, err = chainutil.Commit(s.ctx, s.app, time.Hour*24*365, nil)
 				s.Require().NoError(err, "failed to commit block")
 
 				return []interface{}{

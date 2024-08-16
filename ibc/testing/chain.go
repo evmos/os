@@ -6,28 +6,23 @@ package ibctesting
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmtypes "github.com/cometbft/cometbft/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
-
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/cosmos/ibc-go/v7/testing/mock"
-
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/testutil"
 	evmostypes "github.com/evmos/os/types"
-	"github.com/evmos/os/utils"
+	"github.com/stretchr/testify/require"
 )
 
 // ChainIDPrefix defines the default chain ID prefix for Evmos test chains
 var (
-	ChainIDPrefix = utils.MainnetChainID + "-"
+	ChainIDPrefix = testutil.ExampleChainID
 	ChainIDSuffix = ""
 )
 

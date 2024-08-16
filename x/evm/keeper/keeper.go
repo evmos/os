@@ -286,6 +286,7 @@ func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	evmParams := k.GetParams(ctx)
 	evmDenom := evmParams.GetEvmDenom()
 	// if node is pruned, params is empty. Return invalid value
+	// TODO: if the params are empty, why not return an error here instead of an "invalid value"?
 	if evmDenom == "" {
 		return big.NewInt(-1)
 	}

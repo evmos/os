@@ -12,9 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
-	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
-
 	"github.com/evmos/os/x/erc20/types"
+	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
 
 // Keeper of this module maintains collections of erc20.

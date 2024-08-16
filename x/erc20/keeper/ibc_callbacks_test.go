@@ -6,26 +6,21 @@ import (
 	"math/big"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/os/utils"
-	"github.com/evmos/os/x/erc20/keeper"
-
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-
-	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/testutil"
-
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	ibcmock "github.com/cosmos/ibc-go/v7/testing/mock"
-
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/contracts"
+	"github.com/evmos/os/crypto/ethsecp256k1"
+	chainutil "github.com/evmos/os/example_chain/testutil"
+	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/x/erc20/keeper"
 	"github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -58,7 +53,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 	registeredDenom := cosmosTokenBase
 	coins := sdk.NewCoins(
-		sdk.NewCoin(utils.BaseDenom, math.NewInt(1000)),
+		sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1000)),
 		sdk.NewCoin(registeredDenom, math.NewInt(1000)), // some ERC20 token
 		sdk.NewCoin(ibcBase, math.NewInt(1000)),         // some IBC coin with a registered token pair
 	)
@@ -209,7 +204,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:   ethsecpAddr,
 			expErc20s:  big.NewInt(0),
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(utils.BaseDenom, math.NewInt(1000)),
+				sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, math.NewInt(0)),
 				sdk.NewCoin(ibcBase, math.NewInt(1000)),
 			),
@@ -257,7 +252,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 			// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 			// We do this since we are interested in the conversion portion w/ OnRecvPacket
-			err = testutil.FundAccount(suite.ctx, suite.app.BankKeeper, tc.receiver, coins)
+			err = chainutil.FundAccount(suite.ctx, suite.app.BankKeeper, tc.receiver, coins)
 			suite.Require().NoError(err)
 
 			// Register Token Pair for testing
@@ -355,7 +350,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				pair, _ := suite.app.Erc20Keeper.GetTokenPair(suite.ctx, id)
 				suite.Require().NotNil(pair)
 
-				err := testutil.FundAccount(
+				err := chainutil.FundAccount(
 					suite.ctx,
 					suite.app.BankKeeper,
 					sdk.MustAccAddressFromBech32(senderAddr),
@@ -422,7 +417,7 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 				// for testing purposes we can only fund is not allowed to receive funds
 				moduleAcc := suite.app.AccountKeeper.GetModuleAccount(suite.ctx, "erc20")
 				sender = moduleAcc.GetAddress()
-				err := testutil.FundModuleAccount(
+				err := chainutil.FundModuleAccount(
 					suite.ctx,
 					suite.app.BankKeeper,
 					moduleAcc.GetName(),
@@ -451,7 +446,7 @@ func (suite *KeeperTestSuite) TestOnAcknowledgementPacket() {
 
 				// Fund receiver account with EVMOS, ERC20 coins and IBC vouchers
 				// We do this since we are interested in the conversion portion w/ OnRecvPacket
-				err := testutil.FundAccount(
+				err := chainutil.FundAccount(
 					suite.ctx,
 					suite.app.BankKeeper,
 					sender,

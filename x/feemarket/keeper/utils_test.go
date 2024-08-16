@@ -22,6 +22,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
 	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -58,7 +59,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool, chainID string) {
 	valAddr := sdk.ValAddress(suite.address.Bytes())
 	validator, err := stakingtypes.NewValidator(valAddr, priv.PubKey(), stakingtypes.Description{})
 	require.NoError(t, err)
-	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper.Keeper, suite.ctx, validator, true)
+	validator = stakingkeeper.TestingUpdateValidator(suite.app.StakingKeeper, suite.ctx, validator, true)
 	err = suite.app.StakingKeeper.Hooks().AfterValidatorCreated(suite.ctx, validator.GetOperator())
 	require.NoError(t, err)
 
@@ -86,7 +87,7 @@ func (suite *KeeperTestSuite) Commit() {
 // Commit commits a block at a given time.
 func (suite *KeeperTestSuite) CommitAfter(t time.Duration) {
 	var err error
-	suite.ctx, err = testutil.CommitAndCreateNewCtx(suite.ctx, suite.app, t, nil)
+	suite.ctx, err = chainutil.CommitAndCreateNewCtx(suite.ctx, suite.app, t, nil)
 	suite.Require().NoError(err)
 	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
 	types.RegisterQueryServer(queryHelper, suite.app.FeeMarketKeeper)
@@ -119,7 +120,7 @@ func setupTest(localMinGasPrices, chainID string) (*ethsecp256k1.PrivKey, bankty
 		Denom:  s.denom,
 		Amount: amount,
 	}}
-	err := testutil.FundAccount(s.ctx, s.app.BankKeeper, address, initBalance)
+	err := chainutil.FundAccount(s.ctx, s.app.BankKeeper, address, initBalance)
 	s.Require().NoError(err)
 
 	msg := banktypes.MsgSend{
@@ -138,21 +139,17 @@ func setupChain(localMinGasPricesStr string, chainID string) {
 	// Initialize the app, so we can use SetMinGasPrices to set the
 	// validator-specific min-gas-prices setting
 	db := dbm.NewMemDB()
-	newapp := example_app.NewEvmos(
+	newapp := example_app.NewExampleApp(
 		log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		map[int64]bool{},
-		example_app.DefaultNodeHome,
-		5,
-		encoding.MakeConfig(example_app.ModuleBasics),
 		simutils.NewAppOptionsWithFlagHome(example_app.DefaultNodeHome),
 		baseapp.SetChainID(chainID),
 		baseapp.SetMinGasPrices(localMinGasPricesStr),
 	)
 
-	genesisState := example_app.NewTestGenesisState(newapp.AppCodec())
+	genesisState := chainutil.NewTestGenesisState(newapp.AppCodec())
 	genesisState[types.ModuleName] = newapp.AppCodec().MustMarshalJSON(types.DefaultGenesisState())
 
 	stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
@@ -164,7 +161,7 @@ func setupChain(localMinGasPricesStr string, chainID string) {
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			AppStateBytes:   stateBytes,
-			ConsensusParams: example_app.DefaultConsensusParams,
+			ConsensusParams: chainutil.DefaultConsensusParams,
 		},
 	)
 

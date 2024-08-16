@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	"github.com/evmos/os/utils"
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -20,7 +20,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := types.NewGenesisState(types.DefaultParams(), types.DefaultTokenPairs)
+	newGen := types.NewGenesisState(types.DefaultParams(), testutil.ExampleTokenPairs)
 
 	testCases := []struct {
 		name     string
@@ -41,7 +41,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis",
 			genState: &types.GenesisState{
 				Params:     types.DefaultParams(),
-				TokenPairs: types.DefaultTokenPairs,
+				TokenPairs: testutil.ExampleTokenPairs,
 			},
 			expPass: true,
 		},
@@ -57,7 +57,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -81,7 +81,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -105,7 +105,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -129,7 +129,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -148,7 +148,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 					},
 					{
 						Erc20Address: types.WEVMOSContractMainnet,
-						Denom:        utils.BaseDenom,
+						Denom:        testutil.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},

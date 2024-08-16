@@ -14,17 +14,18 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/types"
 	"github.com/evmos/os/x/evm/core/vm"
 )
 
 var (
-	// DefaultEVMDenom defines the default EVM denomination on Evmos
-	DefaultEVMDenom = testutil.ExampleAttoDenom
+	// DefaultEVMDenom defines the default EVM denomination on Evmos.
+	//
+	// TODO: improve handling here to accept Default parameters and not have Evmos native things in OS repo
+	DefaultEVMDenom = "aevmos"
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
-	// DefaultStaticPrecompiles defines the default active precompiles
+	// DefaultStaticPrecompiles defines the default active precompiles.
 	DefaultStaticPrecompiles = []string{
 		P256PrecompileAddress,         // P256 precompile
 		Bech32PrecompileAddress,       // Bech32 precompile
@@ -34,14 +35,13 @@ var (
 		VestingPrecompileAddress,      // Vesting precompile
 		BankPrecompileAddress,         // Bank precompile
 	}
-	// DefaultExtraEIPs defines the default extra EIPs to be included
+	// DefaultExtraEIPs defines the default extra EIPs to be included.
 	// On v15, EIP 3855 was enabled
-	DefaultExtraEIPs   = []string{"ethereum_3855"}
-	DefaultEVMChannels = []string{
-		"channel-10", // Injective
-		"channel-31", // Cronos
-		"channel-83", // Kava
+	DefaultExtraEIPs = []string{
+		"ethereum_3855", // NOTE: we suggest to enable EIP-3855 on all chains to support new Solidity versions >=v0.8.20
 	}
+	// DefaultEVMChannels defines a list of IBC channels that connect to EVM chains like injective or cronos.
+	DefaultEVMChannels              = []string{}
 	DefaultCreateAllowlistAddresses []string
 	DefaultCallAllowlistAddresses   []string
 	DefaultAccessControl            = AccessControl{

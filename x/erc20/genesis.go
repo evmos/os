@@ -8,7 +8,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
-
 	"github.com/evmos/os/x/erc20/keeper"
 	"github.com/evmos/os/x/erc20/types"
 )
