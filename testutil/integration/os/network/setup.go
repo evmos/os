@@ -287,7 +287,6 @@ func setDefaultEVMGenesisState(exampleApp *example_app.ExampleChain, genesisStat
 
 	genesisState[evmtypes.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(evmGen)
 	return genesisState
-
 }
 
 // defaultAuthGenesisState sets the default genesis state
