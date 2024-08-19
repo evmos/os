@@ -4,14 +4,20 @@ import (
 	"testing"
 
 	ethparams "github.com/ethereum/go-ethereum/params"
-
 	"github.com/stretchr/testify/require"
 )
+
+const testDenom = "testdenom"
 
 func TestParamsValidate(t *testing.T) {
 	t.Parallel()
 
 	extraEips := []string{"ethereum_2929", "ethereum_1884", "ethereum_1344"}
+
+	defaultParams := DefaultParams()
+	defaultParamsWithEVMDenom := defaultParams
+	defaultParamsWithEVMDenom.EvmDenom = testDenom
+
 	testCases := []struct {
 		name        string
 		params      Params
@@ -19,13 +25,19 @@ func TestParamsValidate(t *testing.T) {
 		errContains string
 	}{
 		{
-			name:    "default",
-			params:  DefaultParams(),
+			name:        "default",
+			params:      DefaultParams(),
+			expPass:     false, // NOTE: it's false here because we require all customer chains to set their own EVM denom
+			errContains: "invalid denom: ",
+		},
+		{
+			name:    "default with custom EVM denom",
+			params:  defaultParamsWithEVMDenom,
 			expPass: true,
 		},
 		{
 			name:    "valid",
-			params:  NewParams(DefaultEVMDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl),
+			params:  NewParams(testDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl),
 			expPass: true,
 		},
 		{
@@ -43,7 +55,7 @@ func TestParamsValidate(t *testing.T) {
 		{
 			name: "invalid eip",
 			params: Params{
-				EvmDenom:  DefaultEVMDenom,
+				EvmDenom:  testDenom,
 				ExtraEIPs: []string{"os_1000000"},
 			},
 			errContains: "EIP os_1000000 is not activateable, valid EIPs are",
@@ -51,7 +63,7 @@ func TestParamsValidate(t *testing.T) {
 		{
 			name: "unsorted precompiles",
 			params: Params{
-				EvmDenom: DefaultEVMDenom,
+				EvmDenom: testDenom,
 				ActiveStaticPrecompiles: []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",

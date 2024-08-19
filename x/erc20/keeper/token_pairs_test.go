@@ -7,7 +7,6 @@ import (
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestGetTokenPairs() {
@@ -54,7 +53,7 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPairID() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), testutil.ExampleAttoDenom, types.OWNER_MODULE)
 	suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {
@@ -77,7 +76,7 @@ func (suite *KeeperTestSuite) TestGetTokenPairID() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPair() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), testutil.ExampleAttoDenom, types.OWNER_MODULE)
 	suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {
@@ -101,7 +100,7 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteTokenPair() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), testutil.ExampleAttoDenom, types.OWNER_MODULE)
 	id := pair.GetID()
 	suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 	suite.app.Erc20Keeper.SetERC20Map(suite.ctx, pair.GetERC20Contract(), id)
@@ -138,7 +137,7 @@ func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), evmtypes.DefaultEVMDenom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), testutil.ExampleAttoDenom, types.OWNER_MODULE)
 	suite.app.Erc20Keeper.SetTokenPair(suite.ctx, pair)
 
 	testCases := []struct {

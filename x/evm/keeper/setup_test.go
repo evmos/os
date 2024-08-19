@@ -136,7 +136,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 
 	if suite.mintFeeCollector {
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
 		genesisState := chainutil.NewTestGenesisState(suite.app.AppCodec())
 		balances := []banktypes.Balance{
 			{
@@ -197,5 +197,5 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EVMKeeper.ChainID())
 	suite.appCodec = encodingConfig.Codec
-	suite.denom = evmtypes.DefaultEVMDenom
+	suite.denom = testutil.ExampleAttoDenom
 }

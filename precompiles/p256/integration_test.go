@@ -111,7 +111,7 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 
 	When("the precompile is not enabled in the EVM params", func() {
 		BeforeEach(func() {
-			params := evmtypes.DefaultParams()
+			params := evmtypes.DefaultParamsWithEVMDenom(s.network.GetDenom())
 			addr := s.precompileAddress.String()
 			var activePrecompiles []string
 			for _, precompile := range params.ActiveStaticPrecompiles {

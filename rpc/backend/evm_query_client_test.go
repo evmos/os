@@ -8,13 +8,13 @@ import (
 	"testing"
 
 	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	grpctypes "github.com/cosmos/cosmos-sdk/types/grpc"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpc "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	mock "github.com/stretchr/testify/mock"
@@ -78,8 +78,11 @@ func RegisterParams(queryClient *mocks.EVMQueryClient, header *metadata.MD, heig
 }
 
 func RegisterParamsWithoutHeader(queryClient *mocks.EVMQueryClient, height int64) {
+	// NOTE: we need to register the EVM denomination for the example chain
+	evmParams := evmtypes.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
+
 	queryClient.On("Params", rpc.ContextWithHeight(height), &evmtypes.QueryParamsRequest{}).
-		Return(&evmtypes.QueryParamsResponse{Params: evmtypes.DefaultParams()}, nil)
+		Return(&evmtypes.QueryParamsResponse{Params: evmParams}, nil)
 }
 
 func RegisterParamsInvalidHeader(queryClient *mocks.EVMQueryClient, header *metadata.MD, height int64) {

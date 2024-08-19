@@ -705,7 +705,14 @@ func (app *ExampleChain) TxConfig() client.TxConfig {
 
 // DefaultGenesis returns a default genesis from the registered AppModuleBasic's.
 func (a *ExampleChain) DefaultGenesis() map[string]json.RawMessage {
-	return ModuleBasics.DefaultGenesis(a.appCodec)
+	genesis := ModuleBasics.DefaultGenesis(a.appCodec)
+
+	// NOTE: for the example chain implementation we need to set the default EVM denomination
+	evmGenState := evmtypes.DefaultGenesisState()
+	evmGenState.Params.EvmDenom = ExampleChainDenom
+	genesis[evmtypes.ModuleName] = a.appCodec.MustMarshalJSON(evmGenState)
+
+	return genesis
 }
 
 // GetKey returns the KVStoreKey for the provided store key.

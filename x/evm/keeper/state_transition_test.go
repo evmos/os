@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	"github.com/evmos/os/testutil"
 	"math"
 	"math/big"
 
@@ -448,7 +449,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 			refund := keeper.GasToRefund(vmdb.GetRefund(), gasUsed, tc.refundQuotient)
 			suite.Require().Equal(tc.expGasRefund, refund)
 
-			err = suite.app.EVMKeeper.RefundGas(suite.ctx, m, refund, evmtypes.DefaultEVMDenom)
+			err = suite.app.EVMKeeper.RefundGas(suite.ctx, m, refund, testutil.ExampleAttoDenom)
 			if tc.noError {
 				suite.Require().NoError(err)
 			} else {
@@ -522,11 +523,12 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	proposerAddress := suite.ctx.BlockHeader().ProposerAddress
 	cfg, err := suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(9000))
 	suite.Require().NoError(err)
-	suite.Require().Equal(evmtypes.DefaultParams(), cfg.Params)
+	defaultParams := evmtypes.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
+	suite.Require().Equal(defaultParams, cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
 	suite.Require().Equal(suite.address, cfg.CoinBase)
-	suite.Require().Equal(evmtypes.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
+	suite.Require().Equal(defaultParams.ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
 }
 
 func (suite *KeeperTestSuite) TestContractDeployment() {

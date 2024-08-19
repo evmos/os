@@ -1,13 +1,14 @@
 package keeper_test
 
 import (
+	"github.com/evmos/os/testutil"
 	"reflect"
 
 	"github.com/evmos/os/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {
-	params := types.DefaultParams()
+	params := types.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
 
 	testCases := []struct {
 		name      string
@@ -18,7 +19,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Checks if the default params are set correctly",
 			func() interface{} {
-				return types.DefaultParams()
+				return types.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
 			},
 			func() interface{} {
 				return suite.app.EVMKeeper.GetParams(suite.ctx)

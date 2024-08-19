@@ -322,7 +322,7 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		Expect(ok).To(BeTrue(), "failed to convert balance to big.Int")
 		Expect(balance.String()).To(Equal(tc.expContractERC20Balance.String()), "balance is not correct")
 	},
-		Entry("flasLoan method & expect delegation", testCase{
+		Entry("flashLoan method & expect delegation", testCase{
 			method:                  "flashLoan",
 			expDelegation:           true,
 			expSenderERC20Balance:   mintAmount,

@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"github.com/evmos/os/testutil"
 	"math/big"
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -91,7 +92,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 			name: "pass - valid Update msg",
 			request: &types.MsgUpdateParams{
 				Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-				Params:    types.DefaultParams(),
+				Params:    types.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom),
 			},
 			expectErr: false,
 		},

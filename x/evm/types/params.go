@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package types
 
 import (
@@ -26,14 +27,14 @@ var (
 	// DefaultAllowUnprotectedTxs rejects all unprotected txs (i.e false)
 	DefaultAllowUnprotectedTxs = false
 	// DefaultStaticPrecompiles defines the default active precompiles.
-	DefaultStaticPrecompiles = []string{}
+	DefaultStaticPrecompiles []string
 	// DefaultExtraEIPs defines the default extra EIPs to be included.
 	// On v15, EIP 3855 was enabled
 	DefaultExtraEIPs = []string{
 		"ethereum_3855", // NOTE: we suggest to enable EIP-3855 on all chains to support new Solidity versions >=v0.8.20
 	}
 	// DefaultEVMChannels defines a list of IBC channels that connect to EVM chains like injective or cronos.
-	DefaultEVMChannels              = []string{}
+	DefaultEVMChannels              []string
 	DefaultCreateAllowlistAddresses []string
 	DefaultCallAllowlistAddresses   []string
 	DefaultAccessControl            = AccessControl{
@@ -43,7 +44,7 @@ var (
 		},
 		Call: AccessControlType{
 			AccessType:        AccessTypePermissionless,
-			AccessControlList: DefaultCreateAllowlistAddresses,
+			AccessControlList: DefaultCallAllowlistAddresses,
 		},
 	}
 )
@@ -80,6 +81,14 @@ func DefaultParams() Params {
 		EVMChannels:             DefaultEVMChannels,
 		AccessControl:           DefaultAccessControl,
 	}
+}
+
+// DefaultParamsWithEVMDenom returns default evm parameters with the provided EVM denomination
+func DefaultParamsWithEVMDenom(evmDenom string) Params {
+	evmParams := DefaultParams()
+	evmParams.EvmDenom = evmDenom
+
+	return evmParams
 }
 
 // validateChannels checks if channels ids are valid

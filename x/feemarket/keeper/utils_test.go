@@ -76,7 +76,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool, chainID string) {
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EVMKeeper.ChainID())
 	suite.appCodec = encodingConfig.Codec
-	suite.denom = evmtypes.DefaultEVMDenom
+	suite.denom = testutil.ExampleAttoDenom
 }
 
 // Commit commits and starts a new block with an updated context.

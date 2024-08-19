@@ -82,6 +82,10 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
+	defaultGenesisWithEVMDenom := DefaultGenesisState()
+	defaultParamsWithEVMDenom := DefaultParamsWithEVMDenom(testDenom)
+	defaultGenesisWithEVMDenom.Params = defaultParamsWithEVMDenom
+
 	testCases := []struct {
 		name     string
 		genState *GenesisState
@@ -90,6 +94,11 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name:     "default",
 			genState: DefaultGenesisState(),
+			expPass:  false,
+		},
+		{
+			name:     "default with EVM denom set",
+			genState: defaultGenesisWithEVMDenom,
 			expPass:  true,
 		},
 		{
@@ -105,7 +114,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: DefaultParams(),
+				Params: defaultParamsWithEVMDenom,
 			},
 			expPass: true,
 		},
@@ -116,7 +125,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name:     "copied genesis",
-			genState: NewGenesisState(DefaultGenesisState().Params, DefaultGenesisState().Accounts),
+			genState: NewGenesisState(defaultParamsWithEVMDenom, DefaultGenesisState().Accounts),
 			expPass:  true,
 		},
 		{
@@ -143,7 +152,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: DefaultParams(),
+				Params: defaultParamsWithEVMDenom,
 			},
 			expPass: false,
 		},

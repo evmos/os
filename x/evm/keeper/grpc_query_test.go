@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/os/testutil"
 	"math/big"
 
 	"github.com/evmos/os/x/evm/keeper/testdata"
@@ -27,10 +28,10 @@ import (
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 7475
+const expGasConsumed = 6425
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 7469
+const expGasConsumedWithFeeMkt = 6419
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
@@ -60,7 +61,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 		{
 			"success",
 			func() {
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100)}
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, amt)
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, suite.address.Bytes(), amt)
@@ -201,7 +202,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 		{
 			"success",
 			func() {
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(testutil.ExampleAttoDenom, 100)}
 				err := suite.app.BankKeeper.MintCoins(suite.ctx, types.ModuleName, amt)
 				suite.Require().NoError(err)
 				err = suite.app.BankKeeper.SendCoinsFromModuleToAccount(suite.ctx, types.ModuleName, suite.address.Bytes(), amt)
@@ -410,7 +411,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	expParams := types.DefaultParams()
+	expParams := types.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
