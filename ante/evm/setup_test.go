@@ -19,7 +19,7 @@ import (
 	evmosante "github.com/evmos/os/ante"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
-	app "github.com/evmos/os/example_chain"
+	example_app "github.com/evmos/os/example_chain"
 	chainante "github.com/evmos/os/example_chain/ante"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
@@ -31,7 +31,7 @@ type AnteTestSuite struct {
 	suite.Suite
 
 	ctx                      sdk.Context
-	app                      *app.ExampleChain
+	app                      *example_app.ExampleChain
 	clientCtx                client.Context
 	anteHandler              sdk.AnteHandler
 	ethSigner                types.Signer
@@ -46,7 +46,7 @@ const TestGasLimit uint64 = 100000
 func (suite *AnteTestSuite) SetupTest() {
 	checkTx := false
 
-	suite.app = chainutil.EthSetup(checkTx, testutil.ExampleChainID, func(app *app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = chainutil.EthSetup(checkTx, testutil.ExampleChainID, func(app *example_app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
@@ -58,6 +58,7 @@ func (suite *AnteTestSuite) SetupTest() {
 			genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
 		}
 		evmGenesis := evmtypes.DefaultGenesisState()
+		evmGenesis.Params.EvmDenom = example_app.ExampleChainDenom
 		evmGenesis.Params.AllowUnprotectedTxs = false
 		if !suite.enableLondonHF {
 			maxInt := sdkmath.NewInt(math.MaxInt64)
@@ -81,7 +82,7 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	// set staking denomination to Evmos denom
 	params := suite.app.StakingKeeper.GetParams(suite.ctx)
-	params.BondDenom = testutil.ExampleAttoDenom
+	params.BondDenom = example_app.ExampleChainDenom
 	err := suite.app.StakingKeeper.SetParams(suite.ctx, params)
 	suite.Require().NoError(err)
 
@@ -89,7 +90,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	err = suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
 	suite.Require().NoError(err)
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
 	// We're using TestMsg amino encoding in some tests, so register it here.
 	encodingConfig.Amino.RegisterConcrete(&testdata.TestMsg{}, "testdata.TestMsg", nil)
 	eip712.SetEncodingConfig(encodingConfig)

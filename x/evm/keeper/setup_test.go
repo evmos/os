@@ -121,6 +121,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 		genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
 		if !suite.enableLondonHF {
 			evmGenesis := evmtypes.DefaultGenesisState()
+			evmGenesis.Params.EvmDenom = example_app.ExampleChainDenom // NOTE: use chain-specific denomination here for testing
 			maxInt := sdkmath.NewInt(math.MaxInt64)
 			evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
 			evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
