@@ -41,7 +41,7 @@ func TestBackendTestSuite(t *testing.T) {
 	suite.Run(t, new(BackendTestSuite))
 }
 
-const ChainID = testutil.ExampleChainID
+var ChainID = testutil.ExampleChainID
 
 // SetupTest is executed before every BackendTestSuite test
 func (suite *BackendTestSuite) SetupTest() {

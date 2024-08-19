@@ -264,18 +264,30 @@ func setDefaultAuthGenesisState(
 func setDefaultGovGenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
-	// set 'aevmos' as deposit denom
+
+	// set desired chain denomination as deposit denom
 	updatedParams.MinDeposit = sdktypes.NewCoins(sdktypes.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewInt(1e18)))
+
 	govGen.Params = updatedParams
 	genesisState[govtypes.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(govGen)
 	return genesisState
 }
 
-// TODO: remove Evmos specific stuff
 func setDefaultErc20GenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
 	genesisState[erc20types.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
+}
+
+func setDefaultEVMGenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
+	evmGen := evmtypes.DefaultGenesisState()
+
+	// Set the EVM denomination for the given chain
+	evmGen.Params.EvmDenom = testutil.ExampleAttoDenom
+
+	genesisState[evmtypes.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(evmGen)
+	return genesisState
+
 }
 
 // defaultAuthGenesisState sets the default genesis state
@@ -288,6 +300,7 @@ func newDefaultGenesisState(exampleApp *example_app.ExampleChain, params default
 	genesisState = setDefaultBankGenesisState(exampleApp, genesisState, params.bank)
 	genesisState = setDefaultGovGenesisState(exampleApp, genesisState)
 	genesisState = setDefaultErc20GenesisState(exampleApp, genesisState)
+	genesisState = setDefaultEVMGenesisState(exampleApp, genesisState)
 
 	return genesisState
 }

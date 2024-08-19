@@ -32,9 +32,10 @@ type CustomGenesisState map[string]interface{}
 // DefaultConfig returns the default configuration for a chain.
 func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
+
 	return Config{
 		chainID:            testutil.ExampleChainID,
-		eip155ChainID:      big.NewInt(9001),
+		eip155ChainID:      big.NewInt(testutil.ExampleEIP155ChainID),
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default
 		preFundedAccounts: []sdktypes.AccAddress{account},

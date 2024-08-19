@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package evm
 
 import (
@@ -31,6 +32,7 @@ func NewDynamicFeeChecker(k anteinterfaces.DynamicFeeEVMKeeper) authante.TxFeeCh
 		if !ok {
 			return sdk.Coins{}, 0, errorsmod.Wrap(errortypes.ErrTxDecode, "Tx must be a FeeTx")
 		}
+
 		// TODO: in the e2e test, if the fee in the genesis transaction meet the baseFee and minGasPrice in the feemarket, we can remove this code
 		if ctx.BlockHeight() == 0 {
 			// genesis transactions: fallback to min-gas-price logic

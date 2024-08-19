@@ -20,7 +20,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
-const chainID = testutil.ExampleChainID
+var chainID = testutil.ExampleChainID
 
 var _ = Describe("Feemarket", func() {
 	var (
