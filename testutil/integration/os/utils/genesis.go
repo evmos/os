@@ -6,11 +6,11 @@ package utils
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	erc20types "github.com/evmos/os/x/erc20/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const (
@@ -44,26 +44,25 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 	}
 
 	// Add token pairs to genesis
-	erc20GenesisState := erc20types.DefaultGenesisState()
-	erc20GenesisState.TokenPairs = []erc20types.TokenPair{{
-		Erc20Address:  erc20TokenPairHex,
-		Denom:         "xmpl",
-		Enabled:       true,
-		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-	}, {
-		Erc20Address:  testutil.WEVMOSContractTestnet,
-		Denom:         testutil.ExampleAttoDenom,
-		Enabled:       true,
-		ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-	}}
-
-	// Add the smart contracts to the EVM genesis
-	evmGenesisState := evmtypes.DefaultGenesisState()
+	erc20GenesisState := example_app.NewErc20GenesisState()
+	erc20GenesisState.TokenPairs = append(erc20GenesisState.TokenPairs,
+		erc20types.TokenPair{
+			Erc20Address:  erc20TokenPairHex,
+			Denom:         "xmpl",
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
+		},
+		erc20types.TokenPair{
+			Erc20Address:  testutil.WEVMOSContractTestnet,
+			Denom:         testutil.ExampleAttoDenom,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
+		},
+	)
 
 	// Combine module genesis states
 	return network.CustomGenesisState{
 		authtypes.ModuleName:  accGenesisState,
 		erc20types.ModuleName: erc20GenesisState,
-		evmtypes.ModuleName:   evmGenesisState,
 	}
 }

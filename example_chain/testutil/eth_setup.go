@@ -111,6 +111,9 @@ func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*example_a
 // NewTestGenesisState generate genesis state with single validator
 //
 // It is also setting up the EVM parameters to use sensible defaults.
+//
+// TODO: are these different genesis functions necessary or can they all be refactored into one?
+// there's also other genesis state functions; some like app.DefaultGenesis() or others in test helpers only.
 func NewTestGenesisState(codec codec.Codec) simapp.GenesisState {
 	privVal := mock.NewPV()
 	pubKey, err := privVal.GetPubKey()

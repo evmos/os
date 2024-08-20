@@ -799,16 +799,12 @@ func (app *ExampleChain) TxConfig() client.TxConfig {
 func (a *ExampleChain) DefaultGenesis() map[string]json.RawMessage {
 	genesis := ModuleBasics.DefaultGenesis(a.appCodec)
 
-	// NOTE: for the example chain implementation we need to set the default EVM denomination
-	evmGenState := evmtypes.DefaultGenesisState()
-	evmGenState.Params.EvmDenom = ExampleChainDenom
+	evmGenState := NewEVMGenesisState()
 	genesis[evmtypes.ModuleName] = a.appCodec.MustMarshalJSON(evmGenState)
 
 	// NOTE: for the example chain implementation we are also adding a default token pair,
 	// which is the base denomination of the chain (i.e. the WEVMOS contract)
-	erc20GenState := erc20types.DefaultGenesisState()
-	erc20GenState.TokenPairs = ExampleTokenPairs
-	erc20GenState.Params.NativePrecompiles = append(erc20GenState.Params.NativePrecompiles, WEVMOSContractMainnet)
+	erc20GenState := NewErc20GenesisState()
 	genesis[erc20types.ModuleName] = a.appCodec.MustMarshalJSON(erc20GenState)
 
 	return genesis

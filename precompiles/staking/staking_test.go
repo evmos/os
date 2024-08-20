@@ -449,7 +449,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			precompiles, found, err := s.app.EVMKeeper.GetPrecompileInstance(s.ctx, contractAddr)
 			s.Require().NoError(err, "failed to instantiate precompile")
-			s.Require().True(found, "not found precompile")
+			s.Require().True(found, "precompile not found")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)
 
 			// Run precompiled contract

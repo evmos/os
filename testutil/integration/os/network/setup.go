@@ -274,16 +274,16 @@ func setDefaultGovGenesisState(exampleApp *example_app.ExampleChain, genesisStat
 }
 
 func setDefaultErc20GenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
-	erc20Gen := erc20types.DefaultGenesisState()
+	// TODO: add test case to ensure that this is the same as the default genesis for the example app
+	erc20Gen := example_app.NewErc20GenesisState()
+
 	genesisState[erc20types.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
 }
 
 func setDefaultEVMGenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
-	evmGen := evmtypes.DefaultGenesisState()
-
-	// Set the EVM denomination for the given chain
-	evmGen.Params.EvmDenom = testutil.ExampleAttoDenom
+	// TODO: add test case to ensure that this is the same as the default genesis for the example app
+	evmGen := example_app.NewEVMGenesisState()
 
 	genesisState[evmtypes.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(evmGen)
 	return genesisState

@@ -228,6 +228,6 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
 			baseapp.SetChainID(chainID),
 		)
-		return app, NewDefaultGenesisState()
+		return app, app.DefaultGenesis()
 	}
 }
