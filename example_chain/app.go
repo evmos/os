@@ -450,6 +450,18 @@ func NewExampleApp(
 		app.GetSubspace(feemarkettypes.ModuleName),
 	)
 
+	// Set up EVM keeper
+	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
+
+	// NOTE: it's required to set up the EVM keeper before the ERC-20 keeper, because it is used in its instantiation.
+	app.EVMKeeper = evmkeeper.NewKeeper(
+		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
+		authtypes.NewModuleAddress(govtypes.ModuleName),
+		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
+		&app.Erc20Keeper,
+		tracer, app.GetSubspace(evmtypes.ModuleName),
+	)
+
 	app.Erc20Keeper = erc20keeper.NewKeeper(
 		keys[erc20types.StoreKey],
 		appCodec,
@@ -462,7 +474,7 @@ func NewExampleApp(
 		&app.TransferKeeper,
 	)
 
-	// instantiate IBC transfer keeper
+	// instantiate IBC transfer keeper AFTER the ERC-20 keeper to use it in the instantiation
 	app.TransferKeeper = transferkeeper.NewKeeper(
 		appCodec, keys[ibctransfertypes.StoreKey], app.GetSubspace(ibctransfertypes.ModuleName),
 		app.IBCKeeper.ChannelKeeper,
@@ -500,19 +512,8 @@ func NewExampleApp(
 
 	app.IBCKeeper.SetRouter(ibcRouter)
 
-	// Set up EVM keeper
-	tracer := cast.ToString(appOpts.Get(srvflags.EVMTracer))
-
-	app.EVMKeeper = evmkeeper.NewKeeper(
-		appCodec, keys[evmtypes.StoreKey], tkeys[evmtypes.TransientKey],
-		authtypes.NewModuleAddress(govtypes.ModuleName),
-		app.AccountKeeper, app.BankKeeper, app.StakingKeeper, app.FeeMarketKeeper,
-		&app.Erc20Keeper,
-		tracer, app.GetSubspace(evmtypes.ModuleName),
-	)
-
-	// NOTE: we are just adding the default Ethereum precompiles here.
-	// Additional precompiles could be added if desired.
+	// NOTE: we are adding all available evmOS EVM extensions.
+	// Not all of them need to be enabled, which can be configured on a per-chain basis.
 	app.EVMKeeper.WithStaticPrecompiles(
 		NewAvailableStaticPrecompiles(
 			*app.StakingKeeper,
@@ -802,6 +803,13 @@ func (a *ExampleChain) DefaultGenesis() map[string]json.RawMessage {
 	evmGenState := evmtypes.DefaultGenesisState()
 	evmGenState.Params.EvmDenom = ExampleChainDenom
 	genesis[evmtypes.ModuleName] = a.appCodec.MustMarshalJSON(evmGenState)
+
+	// NOTE: for the example chain implementation we are also adding a default token pair,
+	// which is the base denomination of the chain (i.e. the WEVMOS contract)
+	erc20GenState := erc20types.DefaultGenesisState()
+	erc20GenState.TokenPairs = ExampleTokenPairs
+	erc20GenState.Params.NativePrecompiles = append(erc20GenState.Params.NativePrecompiles, WEVMOSContractMainnet)
+	genesis[erc20types.ModuleName] = a.appCodec.MustMarshalJSON(erc20GenState)
 
 	return genesis
 }

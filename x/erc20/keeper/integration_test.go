@@ -94,6 +94,8 @@ var _ = Describe("ERC20:", Ordered, func() {
 				Expect(err).To(BeNil())
 				s.Commit()
 			})
+
+			// TODO: this context seems to not have any tests within???
 		})
 
 		Context("with deployed contracts", func() {

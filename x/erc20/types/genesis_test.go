@@ -1,6 +1,7 @@
 package types_test
 
 import (
+	example_app "github.com/evmos/os/example_chain"
 	"testing"
 
 	"github.com/evmos/os/testutil"
@@ -20,7 +21,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := types.NewGenesisState(types.DefaultParams(), testutil.ExampleTokenPairs)
+	newGen := types.NewGenesisState(types.DefaultParams(), example_app.ExampleTokenPairs)
 
 	testCases := []struct {
 		name     string
@@ -41,7 +42,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis",
 			genState: &types.GenesisState{
 				Params:     types.DefaultParams(),
-				TokenPairs: testutil.ExampleTokenPairs,
+				TokenPairs: example_app.ExampleTokenPairs,
 			},
 			expPass: true,
 		},

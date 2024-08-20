@@ -6,6 +6,9 @@ package example_chain
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/evmos/os/cmd/config"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"os"
 	"testing"
 
@@ -13,7 +16,6 @@ import (
 	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
@@ -39,6 +41,16 @@ type SetupOptions struct {
 	Logger  log.Logger
 	DB      *dbm.MemDB
 	AppOpts servertypes.AppOptions
+}
+
+func init() {
+	// we're setting the minimum gas price to 0 to simplify the tests
+	feemarkettypes.DefaultMinGasPrice = math.LegacyZeroDec()
+
+	// Set the global SDK config for the tests
+	cfg := sdk.GetConfig()
+	chainconfig.SetBech32Prefixes(cfg)
+	config.SetBip44CoinType(cfg)
 }
 
 func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*ExampleChain, GenesisState) {
@@ -105,15 +117,9 @@ func SetupWithGenesisValSet(t *testing.T, chainID string, valSet *tmtypes.Valida
 		},
 	)
 
-	// commit genesis changes
-	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		ChainID:            chainID,
-		Height:             app.LastBlockHeight() + 1,
-		AppHash:            app.LastCommitID().Hash,
-		ValidatorsHash:     valSet.Hash(),
-		NextValidatorsHash: valSet.Hash(),
-	}})
+	// NOTE: we are NOT committing the changes here as opposed to the function from simapp
+	// because that would already adjust e.g. the base fee in the params.
+	// We want to keep the genesis state as is for the tests unless we commit the changes manually.
 
 	return app
 }

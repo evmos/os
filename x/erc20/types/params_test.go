@@ -159,9 +159,11 @@ func (suite *ParamsTestSuite) TestIsNativePrecompile() {
 		expRes   bool
 	}{
 		{
-			"default",
-			types.DefaultParams,
-			common.HexToAddress(testutil.WEVMOSContractMainnet),
+			"native precompile",
+			func() types.Params {
+				return types.NewParams(true, []string{testutil.WEVMOSContractTestnet}, nil)
+			},
+			common.HexToAddress(testutil.WEVMOSContractTestnet),
 			true,
 		},
 		{
