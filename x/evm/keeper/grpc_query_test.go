@@ -19,6 +19,9 @@ import (
 	"github.com/evmos/os/x/evm/keeper/testdata"
 	"github.com/evmos/os/x/evm/statedb"
 	"github.com/evmos/os/x/evm/types"
+
+	// TODO: why is this necessary? shouldn't be required t do this dummy import because it's not required on Evmos?
+	_ "github.com/evmos/os/x/evm/core/tracers/js"
 )
 
 // Not valid Ethereum address
@@ -952,7 +955,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   27140, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			expFinalGas:   14738, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",

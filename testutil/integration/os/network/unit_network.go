@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package network
 
 import (
@@ -48,7 +49,6 @@ func (n *UnitTestNetwork) GetStateDB() *statedb.StateDB {
 func (n *UnitTestNetwork) FundAccount(addr sdktypes.AccAddress, coins sdktypes.Coins) error {
 	ctx := n.GetContext()
 
-	// TODO: remove Evmos native namespaces (inflation)
 	if err := n.app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins); err != nil {
 		return err
 	}
