@@ -19,6 +19,11 @@ var (
 	ParamStoreKeyNativePrecompiles  = []byte("NativePrecompiles")
 )
 
+var (
+	DefaultNativePrecompiles  []string
+	DefaultDynamicPrecompiles []string
+)
+
 // NewParams creates a new Params object
 func NewParams(
 	enableErc20 bool,
@@ -37,8 +42,8 @@ func NewParams(
 func DefaultParams() Params {
 	return Params{
 		EnableErc20:        true,
-		NativePrecompiles:  []string{},
-		DynamicPrecompiles: []string{},
+		NativePrecompiles:  DefaultNativePrecompiles,
+		DynamicPrecompiles: DefaultDynamicPrecompiles,
 	}
 }
 
