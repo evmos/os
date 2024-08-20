@@ -5,7 +5,6 @@ package example_chain
 
 import (
 	"encoding/json"
-	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	"io"
 	"maps"
 	"os"
@@ -94,6 +93,7 @@ import (
 	ibcclient "github.com/cosmos/ibc-go/v7/modules/core/02-client"
 	ibcclientclient "github.com/cosmos/ibc-go/v7/modules/core/02-client/client"
 	ibcclienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
+	porttypes "github.com/cosmos/ibc-go/v7/modules/core/05-port/types"
 	ibcexported "github.com/cosmos/ibc-go/v7/modules/core/exported"
 	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
@@ -513,10 +513,17 @@ func NewExampleApp(
 
 	// NOTE: we are just adding the default Ethereum precompiles here.
 	// Additional precompiles could be added if desired.
-	//
-	// TODO: add all precompiles from evmOS
 	app.EVMKeeper.WithStaticPrecompiles(
-		vm.PrecompiledContractsBerlin,
+		NewAvailableStaticPrecompiles(
+			*app.StakingKeeper,
+			app.DistrKeeper,
+			app.BankKeeper,
+			app.Erc20Keeper,
+			app.AuthzKeeper,
+			app.TransferKeeper,
+			app.IBCKeeper.ChannelKeeper,
+			app.EVMKeeper,
+		),
 	)
 
 	/****  Module Options ****/
