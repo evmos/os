@@ -2,6 +2,7 @@ package keeper_test
 
 import (
 	"fmt"
+	example_app "github.com/evmos/os/example_chain"
 	"math"
 	"math/big"
 
@@ -521,14 +522,18 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 
 func (suite *KeeperTestSuite) TestEVMConfig() {
 	proposerAddress := suite.ctx.BlockHeader().ProposerAddress
-	cfg, err := suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(9000))
+	cfg, err := suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(testutil.ExampleEIP155ChainID))
 	suite.Require().NoError(err)
-	defaultParams := evmtypes.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
+
+	// NOTE: since we are using different defaults for the app and the evmOS in general, we are getting the
+	// default parameters from the EVM genesis state for the example app here.
+	defaultParams := example_app.NewEVMGenesisState().Params
 	suite.Require().Equal(defaultParams, cfg.Params)
+
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
 	suite.Require().Equal(suite.address, cfg.CoinBase)
-	suite.Require().Equal(defaultParams.ChainConfig.EthereumConfig(big.NewInt(9000)), cfg.ChainConfig)
+	suite.Require().Equal(defaultParams.ChainConfig.EthereumConfig(big.NewInt(testutil.ExampleEIP155ChainID)), cfg.ChainConfig)
 }
 
 func (suite *KeeperTestSuite) TestContractDeployment() {
@@ -542,7 +547,7 @@ func (suite *KeeperTestSuite) TestApplyMessage() {
 	var msg core.Message
 
 	proposerAddress := suite.ctx.BlockHeader().ProposerAddress
-	config, err := suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(9000))
+	config, err := suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(testutil.ExampleEIP155ChainID))
 	suite.Require().NoError(err)
 
 	keeperParams := suite.app.EVMKeeper.GetParams(suite.ctx)
@@ -678,7 +683,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			expectedGasUsed = params.TxGas
 
 			proposerAddress := suite.ctx.BlockHeader().ProposerAddress
-			config, err = suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(9000))
+			config, err = suite.app.EVMKeeper.EVMConfig(suite.ctx, proposerAddress, big.NewInt(testutil.ExampleEIP155ChainID))
 			suite.Require().NoError(err)
 
 			keeperParams = suite.app.EVMKeeper.GetParams(suite.ctx)

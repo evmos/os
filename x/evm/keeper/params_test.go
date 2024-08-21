@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	example_app "github.com/evmos/os/example_chain"
 	"reflect"
 
 	"github.com/evmos/os/testutil"
@@ -19,7 +20,9 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Checks if the default params are set correctly",
 			func() interface{} {
-				return types.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
+				// NOTE: we are using the EVM genesis state for the example app here, because
+				// we have different assumptions for the evmOS offering and the example chain.
+				return example_app.NewEVMGenesisState().Params
 			},
 			func() interface{} {
 				return suite.app.EVMKeeper.GetParams(suite.ctx)

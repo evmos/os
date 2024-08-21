@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
+	example_app "github.com/evmos/os/example_chain"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -28,10 +29,10 @@ import (
 const invalidAddress = "0x0000"
 
 // expGasConsumed is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee)
-const expGasConsumed = 6422
+const expGasConsumed = 7346
 
 // expGasConsumedWithFeeMkt is the gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) with enabled feemarket
-const expGasConsumedWithFeeMkt = 6416
+const expGasConsumedWithFeeMkt = 7340
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
 	var (
@@ -411,7 +412,10 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := sdk.WrapSDKContext(suite.ctx)
-	expParams := types.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
+
+	// NOTE: we are using the EVM genesis state for the example app here, because
+	// we have different assumptions for the evmOS offering and the example chain.
+	expParams := example_app.NewEVMGenesisState().Params
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
@@ -955,7 +959,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			},
 			expPass:       true,
 			traceResponse: "{\"gas\":34828,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
-			expFinalGas:   14735, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
+			expFinalGas:   25823, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
 		{
 			msg: "invalid chain id",
