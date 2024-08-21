@@ -1,9 +1,9 @@
 package keeper_test
 
 import (
-	example_app "github.com/evmos/os/example_chain"
 	"reflect"
 
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/types"
 )

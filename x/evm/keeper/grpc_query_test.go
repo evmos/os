@@ -3,7 +3,6 @@ package keeper_test
 import (
 	"encoding/json"
 	"fmt"
-	example_app "github.com/evmos/os/example_chain"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -12,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"

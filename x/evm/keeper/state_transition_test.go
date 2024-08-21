@@ -2,7 +2,6 @@ package keeper_test
 
 import (
 	"fmt"
-	example_app "github.com/evmos/os/example_chain"
 	"math"
 	"math/big"
 
@@ -18,6 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/keeper"
