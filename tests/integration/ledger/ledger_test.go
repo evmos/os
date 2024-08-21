@@ -9,20 +9,17 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/crypto/hd"
-	"github.com/evmos/evmos/v19/encoding"
-	"github.com/evmos/evmos/v19/tests/integration/ledger/mocks"
-	"github.com/evmos/evmos/v19/testutil"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-
-	"github.com/spf13/cobra"
-
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
+	"github.com/evmos/os/crypto/hd"
+	"github.com/evmos/os/encoding"
+	example_app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
+	"github.com/evmos/os/tests/integration/ledger/mocks"
+	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/spf13/cobra"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -59,7 +56,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	Describe("Adding a key from ledger using the CLI", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
-			encCfg = encoding.MakeConfig(app.ModuleBasics)
+			encCfg = encoding.MakeConfig(example_app.ModuleBasics)
 
 			cmd = s.evmosAddKeyCmd()
 
@@ -104,7 +101,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	Describe("Singing a transactions", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
-			encCfg = encoding.MakeConfig(app.ModuleBasics)
+			encCfg = encoding.MakeConfig(example_app.ModuleBasics)
 
 			var err error
 
@@ -171,7 +168,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 				BeforeEach(func() {
 					s.ledger = mocks.NewSECP256K1(s.T())
 
-					err := testutil.FundAccount(
+					err := chainutil.FundAccount(
 						s.ctx,
 						s.app.BankKeeper,
 						s.accAddr,

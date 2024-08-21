@@ -9,32 +9,29 @@ import (
 	"time"
 
 	"cosmossdk.io/simapp/params"
+	"github.com/cometbft/cometbft/crypto/tmhash"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
+	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
+	"github.com/cometbft/cometbft/version"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/spf13/cobra"
-
-	"github.com/cometbft/cometbft/crypto/tmhash"
-	"github.com/cometbft/cometbft/version"
-	"github.com/evmos/evmos/v19/app"
-	"github.com/evmos/evmos/v19/crypto/hd"
-	"github.com/evmos/evmos/v19/tests/integration/ledger/mocks"
-	utiltx "github.com/evmos/evmos/v19/testutil/tx"
-	"github.com/evmos/evmos/v19/utils"
-	"github.com/stretchr/testify/suite"
-
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
-	rpcclientmock "github.com/cometbft/cometbft/rpc/client/mock"
-	cosmosledger "github.com/cosmos/cosmos-sdk/crypto/ledger"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	clientkeys "github.com/evmos/evmos/v19/client/keys"
-	evmoskeyring "github.com/evmos/evmos/v19/crypto/keyring"
-	feemarkettypes "github.com/evmos/evmos/v19/x/feemarket/types"
+	"github.com/ethereum/go-ethereum/common"
+	clientkeys "github.com/evmos/os/client/keys"
+	"github.com/evmos/os/crypto/hd"
+	evmoskeyring "github.com/evmos/os/crypto/keyring"
+	example_app "github.com/evmos/os/example_chain"
+	"github.com/evmos/os/tests/integration/ledger/mocks"
+	"github.com/evmos/os/testutil"
+	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/spf13/cobra"
+	"github.com/stretchr/testify/suite"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
@@ -47,7 +44,7 @@ var s *LedgerTestSuite
 type LedgerTestSuite struct {
 	suite.Suite
 
-	app *app.Evmos
+	app *example_app.ExampleChain
 	ctx sdk.Context
 
 	ledger       *mocks.SECP256K1
@@ -87,8 +84,8 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
-	chainID := utils.MainnetChainID + "-1"
-	suite.app = app.Setup(false, feemarkettypes.DefaultGenesisState(), chainID)
+	chainID := testutil.ExampleChainID
+	suite.app = example_app.Setup(suite.T(), false, chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
@@ -136,7 +133,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithUseLedger(true).
 		WithKeyring(kr).
 		WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
-		WithChainID(utils.TestnetChainID + "-13")
+		WithChainID(testutil.ExampleChainIDPrefix + "-13")
 
 	srvCtx := server.NewDefaultContext()
 	ctx := context.Background()
