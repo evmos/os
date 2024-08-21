@@ -6,9 +6,6 @@ package example_chain
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/os/cmd/config"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"os"
 	"testing"
 
@@ -33,6 +30,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	"github.com/evmos/os/cmd/config"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
+	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/require"
 )
 

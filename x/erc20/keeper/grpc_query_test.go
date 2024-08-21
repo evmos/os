@@ -2,12 +2,11 @@ package keeper_test
 
 import (
 	"fmt"
-	example_app "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-
+	example_app "github.com/evmos/os/example_chain"
+	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20/types"
 )

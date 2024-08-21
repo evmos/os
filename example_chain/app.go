@@ -125,6 +125,11 @@ import (
 	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
 
+func init() {
+	// manually update the power reduction by replacing micro (u) -> atto (a) evmos
+	sdk.DefaultPowerReduction = evmostypes.AttoPowerReduction
+}
+
 const appName = "os"
 
 var (

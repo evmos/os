@@ -1,10 +1,10 @@
 package testutil_test
 
 import (
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"testing"
 
 	"github.com/evmos/os/example_chain"
+	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"github.com/evmos/os/testutil"
 	"github.com/stretchr/testify/require"
 )

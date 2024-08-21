@@ -239,7 +239,7 @@ func (s *PrecompileTestSuite) NewTestChainWithValSet(coord *ibctesting.Coordinat
 		Coins:   sdk.NewCoins(sdk.NewCoin(evmosutil.ExampleAttoDenom, amount)),
 	}
 
-	s.SetupWithGenesisValSet(s.valSet, []authtypes.GenesisAccount{baseAcc}, balance)
+	s.SetupWithGenesisValSet(valSet, []authtypes.GenesisAccount{baseAcc}, balance)
 
 	// create current header and call begin block
 	header := tmproto.Header{

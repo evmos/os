@@ -1,9 +1,9 @@
 package keeper_test
 
 import (
-	"github.com/evmos/os/testutil"
 	"reflect"
 
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/erc20/types"
 )
 

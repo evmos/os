@@ -1,9 +1,9 @@
 package types_test
 
 import (
-	example_app "github.com/evmos/os/example_chain"
 	"testing"
 
+	example_app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/suite"
