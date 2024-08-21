@@ -99,14 +99,14 @@ func (tf *IntegrationTxFactory) calculateFees(gasPrice *sdkmath.Int, gasLimit ui
 	denom := tf.network.GetDenom()
 	var fees sdktypes.Coins
 	if gasPrice != nil {
-		fees = sdktypes.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(gasLimit))}}
+		fees = sdktypes.Coins{{Denom: denom, Amount: gasPrice.MulRaw(int64(gasLimit))}} //#nosec G115 -- int overflow is not a concern here -- block number is not likely to exceed int64 max value
 	} else {
 		baseFee, err := tf.grpcHandler.GetBaseFee()
 		if err != nil {
 			return sdktypes.Coins{}, errorsmod.Wrap(err, "failed to get base fee")
 		}
 		price := baseFee.BaseFee
-		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}}
+		fees = sdktypes.Coins{{Denom: denom, Amount: price.MulRaw(int64(gasLimit))}} //#nosec G115 -- int overflow is not a concern here -- gas limit is not going to exceed int64 max value
 	}
 	return fees, nil
 }

@@ -432,7 +432,7 @@ func (e *PublicAPI) GetTransactionLogs(txHash common.Hash) ([]*ethtypes.Log, err
 	}
 
 	// parse tx logs from events
-	index := int(res.MsgIndex) // #nosec G701
+	index := int(res.MsgIndex) // #nosec G115
 	return backend.TxLogsFromEvents(resBlockResult.TxsResults[res.TxIndex].Events, index)
 }
 

@@ -59,7 +59,7 @@ func EthHeaderFromTendermint(header tmtypes.Header, bloom ethtypes.Bloom, baseFe
 		txHash = common.BytesToHash(header.DataHash)
 	}
 
-	time := uint64(header.Time.UTC().Unix()) // #nosec G701
+	time := uint64(header.Time.UTC().Unix()) // #nosec G115
 	return &ethtypes.Header{
 		ParentHash:  common.BytesToHash(header.LastBlockID.Hash.Bytes()),
 		UncleHash:   ethtypes.EmptyUncleHash,
@@ -87,7 +87,7 @@ func BlockMaxGasFromConsensusParams(goCtx context.Context, clientCtx client.Cont
 		panic("incorrect tm rpc client")
 	}
 	resConsParams, err := tmrpcClient.ConsensusParams(goCtx, &blockHeight)
-	defaultGasLimit := int64(^uint32(0)) // #nosec G701
+	defaultGasLimit := int64(^uint32(0)) // #nosec G115
 	if err != nil {
 		return defaultGasLimit, err
 	}

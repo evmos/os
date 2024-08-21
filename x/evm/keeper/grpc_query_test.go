@@ -767,7 +767,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			rsp, err := suite.queryClient.EstimateGas(sdk.WrapSDKContext(suite.ctx), &req)
 			if tc.expPass {
 				suite.Require().NoError(err)
-				suite.Require().Equal(int64(tc.expGas), int64(rsp.Gas))
+				suite.Require().Equal(int64(tc.expGas), int64(rsp.Gas)) //#nosec G115 -- int overflow is not a concern here -- gas is not going to exceed int64 max value
 			} else {
 				suite.Require().Error(err)
 			}
@@ -1013,7 +1013,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(int(tc.expFinalGas), int(suite.ctx.GasMeter().GasConsumed()), "expected different gas consumption")
+			suite.Require().Equal(int(tc.expFinalGas), int(suite.ctx.GasMeter().GasConsumed()), "expected different gas consumption") //#nosec G115 -- int overflow is not a concern here
 			// Reset for next test case
 			chainID = nil
 		})
@@ -1197,7 +1197,7 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			} else {
 				suite.Require().Error(err)
 			}
-			suite.Require().Equal(int64(tc.expFinalGas), int64(suite.ctx.GasMeter().GasConsumed()), "expected different gas consumption")
+			suite.Require().Equal(int64(tc.expFinalGas), int64(suite.ctx.GasMeter().GasConsumed()), "expected different gas consumption") //#nosec G115 -- int overflow is not a concern here -- gas is not going to exceed int64 max value
 			// Reset for next case
 			chainID = nil
 		})
