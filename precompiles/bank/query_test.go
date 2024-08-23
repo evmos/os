@@ -86,8 +86,6 @@ func (s *PrecompileTestSuite) TestBalances() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -138,8 +136,6 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -231,8 +227,6 @@ func (s *PrecompileTestSuite) TestSupplyOf() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
