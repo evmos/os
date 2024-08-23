@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/suite"
@@ -21,7 +21,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := types.NewGenesisState(types.DefaultParams(), example_app.ExampleTokenPairs)
+	newGen := types.NewGenesisState(types.DefaultParams(), exampleapp.ExampleTokenPairs)
 
 	testCases := []struct {
 		name     string
@@ -42,7 +42,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis",
 			genState: &types.GenesisState{
 				Params:     types.DefaultParams(),
-				TokenPairs: example_app.ExampleTokenPairs,
+				TokenPairs: exampleapp.ExampleTokenPairs,
 			},
 			expPass: true,
 		},

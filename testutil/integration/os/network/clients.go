@@ -12,14 +12,14 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/evmos/os/encoding"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 func getQueryHelper(ctx sdktypes.Context) *baseapp.QueryServiceTestHelper {
-	encCfg := encoding.MakeConfig(example_app.ModuleBasics)
+	encCfg := encoding.MakeConfig(exampleapp.ModuleBasics)
 	interfaceRegistry := encCfg.InterfaceRegistry
 	// This is needed so that state changes are not committed in precompiles
 	// simulations.

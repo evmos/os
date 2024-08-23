@@ -21,7 +21,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) SetupApp(checkTx bool, chainID string) {
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	require.NoError(t, err)
 
-	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig(exampleapp.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EVMKeeper.ChainID())
 	suite.appCodec = encodingConfig.Codec
@@ -137,12 +137,12 @@ func setupChain(localMinGasPricesStr string, chainID string) {
 	// Initialize the app, so we can use SetMinGasPrices to set the
 	// validator-specific min-gas-prices setting
 	db := dbm.NewMemDB()
-	newapp := example_app.NewExampleApp(
+	newapp := exampleapp.NewExampleApp(
 		log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		simutils.NewAppOptionsWithFlagHome(example_app.DefaultNodeHome),
+		simutils.NewAppOptionsWithFlagHome(exampleapp.DefaultNodeHome),
 		baseapp.SetChainID(chainID),
 		baseapp.SetMinGasPrices(localMinGasPricesStr),
 	)

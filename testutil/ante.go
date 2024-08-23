@@ -5,7 +5,7 @@ package testutil
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/os/encoding"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 )
 
 // NoOpNextFn is a no-op function that returns the context and no error in order to mock
@@ -21,7 +21,7 @@ func NoOpNextFn(ctx sdk.Context, _ sdk.Tx, _ bool) (sdk.Context, error) {
 // more messages, builds a transaction containing these messages, and returns any error that
 // the AnteHandler might return.
 func ValidateAnteForMsgs(ctx sdk.Context, dec sdk.AnteDecorator, msgs ...sdk.Msg) error {
-	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig(exampleapp.ModuleBasics)
 	txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 	err := txBuilder.SetMsgs(msgs...)
 	if err != nil {

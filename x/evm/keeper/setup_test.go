@@ -25,7 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
@@ -39,7 +39,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx         sdk.Context
-	app         *example_app.ExampleChain
+	app         *exampleapp.ExampleChain
 	priv        cryptotypes.PrivKey
 	queryClient evmtypes.QueryClient
 	address     common.Address
@@ -78,14 +78,14 @@ func TestKeeperTestSuite(t *testing.T) {
 func (suite *KeeperTestSuite) SetupTest() {
 	checkTx := false
 	chainID := testutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), checkTx, chainID)
+	suite.app = exampleapp.Setup(suite.T(), checkTx, chainID)
 	suite.SetupApp(checkTx, chainID)
 }
 
 func (suite *KeeperTestSuite) SetupTestWithT(t require.TestingT) {
 	checkTx := false
 	chainID := testutil.ExampleChainID
-	suite.app = example_app.Setup(t.(*testing.T), checkTx, chainID)
+	suite.app = exampleapp.Setup(t.(*testing.T), checkTx, chainID)
 	suite.SetupAppWithT(checkTx, t, chainID)
 }
 
@@ -110,7 +110,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	require.NoError(t, err)
 	suite.consAddress = sdk.ConsAddress(priv.PubKey().Address())
 
-	suite.app = chainutil.EthSetup(checkTx, chainID, func(app *example_app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = chainutil.EthSetup(checkTx, chainID, func(app *exampleapp.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
 		feemarketGenesis := feemarkettypes.DefaultGenesisState()
 		if suite.enableFeemarket {
 			feemarketGenesis.Params.EnableHeight = 1
@@ -121,7 +121,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 		genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
 		if !suite.enableLondonHF {
 			evmGenesis := evmtypes.DefaultGenesisState()
-			evmGenesis.Params.EvmDenom = example_app.ExampleChainDenom // NOTE: use chain-specific denomination here for testing
+			evmGenesis.Params.EvmDenom = exampleapp.ExampleChainDenom // NOTE: use chain-specific denomination here for testing
 			maxInt := sdkmath.NewInt(math.MaxInt64)
 			evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
 			evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
@@ -193,7 +193,7 @@ func (suite *KeeperTestSuite) SetupAppWithT(checkTx bool, t require.TestingT, ch
 	err = suite.app.StakingKeeper.SetParams(suite.ctx, stakingParams)
 	require.NoError(t, err)
 
-	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig(exampleapp.ModuleBasics)
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
 	suite.ethSigner = ethtypes.LatestSignerForChainID(suite.app.EVMKeeper.ChainID())
 	suite.appCodec = encodingConfig.Codec

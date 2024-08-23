@@ -3,7 +3,7 @@ package keeper_test
 import (
 	"reflect"
 
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/x/evm/types"
 )
@@ -22,7 +22,7 @@ func (suite *KeeperTestSuite) TestParams() {
 			func() interface{} {
 				// NOTE: we are using the EVM genesis state for the example app here, because
 				// we have different assumptions for the evmOS offering and the example chain.
-				return example_app.NewEVMGenesisState().Params
+				return exampleapp.NewEVMGenesisState().Params
 			},
 			func() interface{} {
 				return suite.app.EVMKeeper.GetParams(suite.ctx)

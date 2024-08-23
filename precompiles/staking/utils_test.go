@@ -32,7 +32,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
@@ -51,8 +51,8 @@ import (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := example_app.SetupTestingApp(evmosutil.ExampleChainID)()
-	app, ok := appI.(*example_app.ExampleChain)
+	appI, genesisState := exampleapp.SetupTestingApp(evmosutil.ExampleChainID)()
+	app, ok := appI.(*exampleapp.ExampleChain)
 	s.Require().True(ok)
 
 	// set genesis accounts

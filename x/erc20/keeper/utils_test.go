@@ -23,7 +23,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/contracts"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	ibctesting "github.com/evmos/os/ibc/testing"
 	precompiletestutil "github.com/evmos/os/precompiles/testutil"
@@ -72,7 +72,7 @@ func (suite *KeeperTestSuite) DoSetupTest() {
 
 	// init app
 	chainID := testutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), false, chainID)
+	suite.app = exampleapp.Setup(suite.T(), false, chainID)
 	header := testutil.NewHeader(
 		1, time.Now().UTC(), chainID, consAddress, nil, nil,
 	)
@@ -144,7 +144,7 @@ func (suite *KeeperTestSuite) SetupIBCTest() {
 	suite.coordinator.CommitNBlocks(suite.IBCOsmosisChain, 2)
 	suite.coordinator.CommitNBlocks(suite.IBCCosmosChain, 2)
 
-	s.app = suite.EvmosChain.App.(*example_app.ExampleChain)
+	s.app = suite.EvmosChain.App.(*exampleapp.ExampleChain)
 	evmParams := s.app.EVMKeeper.GetParams(s.EvmosChain.GetContext())
 	evmParams.EvmDenom = testutil.ExampleAttoDenom
 	err := s.app.EVMKeeper.SetParams(s.EvmosChain.GetContext(), evmParams)
@@ -361,7 +361,7 @@ func (suite *KeeperTestSuite) DeployContractDirectBalanceManipulation() (common.
 func (suite *KeeperTestSuite) DeployContractToChain(name, symbol string, decimals uint8) (common.Address, error) {
 	return chainutil.DeployContract(
 		s.EvmosChain.GetContext(),
-		s.EvmosChain.App.(*example_app.ExampleChain),
+		s.EvmosChain.App.(*exampleapp.ExampleChain),
 		suite.EvmosChain.SenderPrivKey,
 		suite.queryClientEvm,
 		contracts.ERC20MinterBurnerDecimalsContract,

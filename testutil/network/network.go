@@ -48,7 +48,7 @@ import (
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/evmos/os/crypto/hd"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chaincmd "github.com/evmos/os/example_chain/osd/cmd"
 	"github.com/evmos/os/testutil"
 	"github.com/spf13/cobra"
@@ -99,7 +99,7 @@ type Config struct {
 // DefaultConfig returns a sane default configuration suitable for nearly all
 // testing requirements.
 func DefaultConfig() Config {
-	encCfg := encoding.MakeConfig(example_app.ModuleBasics)
+	encCfg := encoding.MakeConfig(exampleapp.ModuleBasics)
 	chainID := fmt.Sprintf("evmos_%d-1", tmrand.Int63n(9999999999999)+1)
 	return Config{
 		Codec:             encCfg.Codec,
@@ -108,7 +108,7 @@ func DefaultConfig() Config {
 		InterfaceRegistry: encCfg.InterfaceRegistry,
 		AccountRetriever:  authtypes.AccountRetriever{},
 		AppConstructor:    NewAppConstructor(chainID),
-		GenesisState:      example_app.ModuleBasics.DefaultGenesis(encCfg.Codec),
+		GenesisState:      exampleapp.ModuleBasics.DefaultGenesis(encCfg.Codec),
 		TimeoutCommit:     3 * time.Second,
 		ChainID:           chainID,
 		NumValidators:     4,
@@ -128,7 +128,7 @@ func DefaultConfig() Config {
 // NewAppConstructor returns a new evmOS example application construction
 func NewAppConstructor(chainID string) AppConstructor {
 	return func(val Validator) servertypes.Application {
-		return example_app.NewExampleApp(
+		return exampleapp.NewExampleApp(
 			val.Ctx.Logger, dbm.NewMemDB(), nil, true,
 			simutils.NewAppOptionsWithFlagHome(val.Ctx.Config.RootDir),
 			baseapp.SetPruning(pruningtypes.NewPruningOptionsFromString(val.AppConfig.Pruning)),

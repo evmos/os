@@ -21,7 +21,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainante "github.com/evmos/os/example_chain/ante"
 	chaintestutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
@@ -36,7 +36,7 @@ type AnteTestSuite struct {
 	suite.Suite
 
 	ctx             sdk.Context
-	app             *example_app.ExampleChain
+	app             *exampleapp.ExampleChain
 	clientCtx       client.Context
 	anteHandler     sdk.AnteHandler
 	ethSigner       ethtypes.Signer
@@ -60,7 +60,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	suite.Require().NoError(err)
 	suite.priv = priv
 
-	suite.app = chaintestutil.EthSetup(checkTx, testutil.ExampleChainID, func(app *example_app.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
+	suite.app = chaintestutil.EthSetup(checkTx, testutil.ExampleChainID, func(app *exampleapp.ExampleChain, genesis simapp.GenesisState) simapp.GenesisState {
 		if suite.enableFeemarket {
 			// setup feemarketGenesis params
 			feemarketGenesis := feemarkettypes.DefaultGenesisState()
@@ -72,7 +72,7 @@ func (suite *AnteTestSuite) SetupTest() {
 			genesis[feemarkettypes.ModuleName] = app.AppCodec().MustMarshalJSON(feemarketGenesis)
 		}
 		evmGenesis := evmtypes.DefaultGenesisState()
-		evmGenesis.Params.EvmDenom = example_app.ExampleChainDenom // NOTE: use chain-specific denomination here for testing
+		evmGenesis.Params.EvmDenom = exampleapp.ExampleChainDenom // NOTE: use chain-specific denomination here for testing
 		evmGenesis.Params.AllowUnprotectedTxs = false
 		if !suite.enableLondonHF {
 			maxInt := sdkmath.NewInt(math.MaxInt64)
@@ -103,7 +103,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	err = suite.app.AccountKeeper.SetParams(infCtx, authtypes.DefaultParams())
 	suite.Require().NoError(err)
 
-	encodingConfig := encoding.MakeConfig(example_app.ModuleBasics)
+	encodingConfig := encoding.MakeConfig(exampleapp.ModuleBasics)
 	// We're using TestMsg amino encoding in some tests, so register it here.
 	encodingConfig.Amino.RegisterConcrete(&testdata.TestMsg{}, "testdata.TestMsg", nil)
 	eip712.SetEncodingConfig(encodingConfig)

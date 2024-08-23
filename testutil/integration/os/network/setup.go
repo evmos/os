@@ -25,7 +25,7 @@ import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/gogoproto/proto"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -89,15 +89,15 @@ func createBalances(accounts []sdktypes.AccAddress, coin sdktypes.Coin) []bankty
 }
 
 // createExampleApp creates an exemplary evmOS based application
-func createExampleApp(chainID string) *example_app.ExampleChain {
+func createExampleApp(chainID string) *exampleapp.ExampleChain {
 	// Create evmos app
 	db := dbm.NewMemDB()
 	logger := log.NewNopLogger()
 	loadLatest := true
-	appOptions := simutils.NewAppOptionsWithFlagHome(example_app.DefaultNodeHome)
+	appOptions := simutils.NewAppOptionsWithFlagHome(exampleapp.DefaultNodeHome)
 	baseAppOptions := []func(*baseapp.BaseApp){baseapp.SetChainID(chainID)}
 
-	return example_app.NewExampleApp(
+	return exampleapp.NewExampleApp(
 		logger,
 		db,
 		nil,
@@ -171,7 +171,7 @@ type StakingCustomGenesisState struct {
 }
 
 // setDefaultStakingGenesisState sets the staking genesis state
-func setDefaultStakingGenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
+func setDefaultStakingGenesisState(exampleApp *exampleapp.ExampleChain, genesisState simapp.GenesisState, overwriteParams StakingCustomGenesisState) simapp.GenesisState {
 	// Set staking params
 	stakingParams := stakingtypes.DefaultParams()
 	stakingParams.BondDenom = overwriteParams.denom
@@ -192,7 +192,7 @@ type BankCustomGenesisState struct {
 
 // setDefaultBankGenesisState sets the bank genesis state
 func setDefaultBankGenesisState(
-	exampleApp *example_app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	genesisState simapp.GenesisState,
 	overwriteParams BankCustomGenesisState,
 ) simapp.GenesisState {
@@ -209,7 +209,7 @@ func setDefaultBankGenesisState(
 
 // genSetupFn is the type for the module genesis setup functions
 type genSetupFn func(
-	exampleApp *example_app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	genesisState simapp.GenesisState,
 	customGenesis interface{},
 ) (simapp.GenesisState, error)
@@ -225,7 +225,7 @@ type defaultGenesisParams struct {
 // genStateSetter is a generic function to set module-specific genesis state
 func genStateSetter[T proto.Message](moduleName string) genSetupFn {
 	return func(
-		exampleApp *example_app.ExampleChain,
+		exampleApp *exampleapp.ExampleChain,
 		genesisState simapp.GenesisState,
 		customGenesis interface{},
 	) (simapp.GenesisState, error) {
@@ -251,7 +251,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 
 // setDefaultAuthGenesisState sets the default auth genesis state
 func setDefaultAuthGenesisState(
-	exampleApp *example_app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	genesisState simapp.GenesisState,
 	genAccs []authtypes.GenesisAccount,
 ) simapp.GenesisState {
@@ -261,7 +261,7 @@ func setDefaultAuthGenesisState(
 }
 
 // setDefaultGovGenesisState sets the default gov genesis state
-func setDefaultGovGenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
+func setDefaultGovGenesisState(exampleApp *exampleapp.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	govGen := govtypesv1.DefaultGenesisState()
 	updatedParams := govGen.Params
 
@@ -273,17 +273,17 @@ func setDefaultGovGenesisState(exampleApp *example_app.ExampleChain, genesisStat
 	return genesisState
 }
 
-func setDefaultErc20GenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
+func setDefaultErc20GenesisState(exampleApp *exampleapp.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	// TODO: add test case to ensure that this is the same as the default genesis for the example app
-	erc20Gen := example_app.NewErc20GenesisState()
+	erc20Gen := exampleapp.NewErc20GenesisState()
 
 	genesisState[erc20types.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
 }
 
-func setDefaultEVMGenesisState(exampleApp *example_app.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
+func setDefaultEVMGenesisState(exampleApp *exampleapp.ExampleChain, genesisState simapp.GenesisState) simapp.GenesisState {
 	// TODO: add test case to ensure that this is the same as the default genesis for the example app
-	evmGen := example_app.NewEVMGenesisState()
+	evmGen := exampleapp.NewEVMGenesisState()
 
 	genesisState[evmtypes.ModuleName] = exampleApp.AppCodec().MustMarshalJSON(evmGen)
 	return genesisState
@@ -291,8 +291,8 @@ func setDefaultEVMGenesisState(exampleApp *example_app.ExampleChain, genesisStat
 
 // defaultAuthGenesisState sets the default genesis state
 // for the testing setup
-func newDefaultGenesisState(exampleApp *example_app.ExampleChain, params defaultGenesisParams) simapp.GenesisState {
-	genesisState := example_app.NewDefaultGenesisState()
+func newDefaultGenesisState(exampleApp *exampleapp.ExampleChain, params defaultGenesisParams) simapp.GenesisState {
+	genesisState := exampleapp.NewDefaultGenesisState()
 
 	genesisState = setDefaultAuthGenesisState(exampleApp, genesisState, params.genAccounts)
 	genesisState = setDefaultStakingGenesisState(exampleApp, genesisState, params.staking)
@@ -307,7 +307,7 @@ func newDefaultGenesisState(exampleApp *example_app.ExampleChain, params default
 // customizeGenesis modifies genesis state if there're any custom genesis state
 // for specific modules
 func customizeGenesis(
-	exampleApp *example_app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	customGen CustomGenesisState,
 	genesisState simapp.GenesisState,
 ) (simapp.GenesisState, error) {

@@ -14,7 +14,7 @@ import (
 	ibctesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	evmosibc "github.com/evmos/os/ibc/testing"
 	"github.com/evmos/os/precompiles/ics20"
 	"github.com/evmos/os/x/evm/statedb"
@@ -34,7 +34,7 @@ type PrecompileTestSuite struct {
 	suite.Suite
 
 	ctx           sdk.Context
-	app           *example_app.ExampleChain
+	app           *exampleapp.ExampleChain
 	address       common.Address
 	differentAddr common.Address
 	validators    []stakingtypes.Validator

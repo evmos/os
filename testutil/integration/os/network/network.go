@@ -18,7 +18,7 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gethparams "github.com/ethereum/go-ethereum/params"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	commonnetwork "github.com/evmos/os/testutil/integration/common/network"
 	"github.com/evmos/os/types"
@@ -57,7 +57,7 @@ type IntegrationNetwork struct {
 	cfg        Config
 	ctx        sdktypes.Context
 	validators []stakingtypes.Validator
-	app        *example_app.ExampleChain
+	app        *exampleapp.ExampleChain
 
 	// This is only needed for IBC chain testing setup
 	valSet     *tmtypes.ValidatorSet

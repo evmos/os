@@ -31,7 +31,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	evmoscontracts "github.com/evmos/os/contracts"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	evmosibc "github.com/evmos/os/ibc/testing"
 	"github.com/evmos/os/precompiles/authorization"
@@ -80,8 +80,8 @@ var (
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
 func (s *PrecompileTestSuite) SetupWithGenesisValSet(valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) {
-	appI, genesisState := example_app.SetupTestingApp(evmosutil.ExampleChainID)()
-	app, ok := appI.(*example_app.ExampleChain)
+	appI, genesisState := exampleapp.SetupTestingApp(evmosutil.ExampleChainID)()
+	app, ok := appI.(*exampleapp.ExampleChain)
 	s.Require().True(ok)
 
 	// set genesis accounts
@@ -310,7 +310,7 @@ func (s *PrecompileTestSuite) NewPrecompileContract(gas uint64) *vm.Contract {
 }
 
 // NewTransferAuthorizationWithAllocations creates a new allocation for the given grantee and granter and the given coins
-func (s *PrecompileTestSuite) NewTransferAuthorizationWithAllocations(ctx sdk.Context, app *example_app.ExampleChain, grantee, granter common.Address, allocations []transfertypes.Allocation) error {
+func (s *PrecompileTestSuite) NewTransferAuthorizationWithAllocations(ctx sdk.Context, app *exampleapp.ExampleChain, grantee, granter common.Address, allocations []transfertypes.Allocation) error {
 	transferAuthz := &transfertypes.TransferAuthorization{Allocations: allocations}
 	if err := transferAuthz.ValidateBasic(); err != nil {
 		return err
@@ -321,7 +321,7 @@ func (s *PrecompileTestSuite) NewTransferAuthorizationWithAllocations(ctx sdk.Co
 }
 
 // NewTransferAuthorization creates a new transfer authorization for the given grantee and granter and the given coins
-func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *example_app.ExampleChain, grantee, granter common.Address, path *ibctesting.Path, coins sdk.Coins, allowList []string, allowedPacketData []string) error {
+func (s *PrecompileTestSuite) NewTransferAuthorization(ctx sdk.Context, app *exampleapp.ExampleChain, grantee, granter common.Address, path *ibctesting.Path, coins sdk.Coins, allowList []string, allowedPacketData []string) error {
 	allocations := []transfertypes.Allocation{
 		{
 			SourcePort:        path.EndpointA.ChannelConfig.PortID,
@@ -393,7 +393,7 @@ func (s *PrecompileTestSuite) setupIBCTest() {
 	s.coordinator.CommitNBlocks(s.chainA, 2)
 	s.coordinator.CommitNBlocks(s.chainB, 2)
 
-	s.app = s.chainA.App.(*example_app.ExampleChain)
+	s.app = s.chainA.App.(*exampleapp.ExampleChain)
 	evmParams := s.app.EVMKeeper.GetParams(s.chainA.GetContext())
 	evmParams.EvmDenom = evmosutil.ExampleAttoDenom
 	err := s.app.EVMKeeper.SetParams(s.chainA.GetContext(), evmParams)
@@ -501,7 +501,7 @@ func (s *PrecompileTestSuite) setupAllocationsForTesting() {
 // compiled contract data and constructor arguments
 func DeployContract(
 	ctx sdk.Context,
-	exampleApp *example_app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	priv cryptotypes.PrivKey,
 	gasPrice *big.Int,
 	queryClientEvm evmtypes.QueryClient,

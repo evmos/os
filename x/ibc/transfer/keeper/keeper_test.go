@@ -32,7 +32,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/contracts"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/server/config"
 	evmosutil "github.com/evmos/os/testutil"
@@ -49,7 +49,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx              sdk.Context
-	app              *example_app.ExampleChain
+	app              *exampleapp.ExampleChain
 	queryClientEvm   evm.QueryClient
 	queryClient      types.QueryClient
 	address          common.Address
@@ -93,7 +93,7 @@ func (suite *KeeperTestSuite) DoSetupTest(t require.TestingT) {
 
 	// init app
 	chainID := evmosutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), false, chainID)
+	suite.app = exampleapp.Setup(suite.T(), false, chainID)
 	header := evmosutil.NewHeader(
 		1, time.Now().UTC(), chainID, suite.consAddress, nil, nil,
 	)

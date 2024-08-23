@@ -16,7 +16,7 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	ibctesting "github.com/evmos/os/ibc/testing"
 	"github.com/evmos/os/x/erc20/types"
 	evm "github.com/evmos/os/x/evm/types"
@@ -27,7 +27,7 @@ type KeeperTestSuite struct {
 	suite.Suite
 
 	ctx              sdk.Context
-	app              *example_app.ExampleChain
+	app              *exampleapp.ExampleChain
 	queryClientEvm   evm.QueryClient
 	queryClient      types.QueryClient
 	address          common.Address

@@ -6,7 +6,7 @@ package utils
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
@@ -44,7 +44,7 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 	}
 
 	// Add token pairs to genesis
-	erc20GenesisState := example_app.NewErc20GenesisState()
+	erc20GenesisState := exampleapp.NewErc20GenesisState()
 	erc20GenesisState.TokenPairs = append(erc20GenesisState.TokenPairs,
 		erc20types.TokenPair{
 			Erc20Address:  erc20TokenPairHex,

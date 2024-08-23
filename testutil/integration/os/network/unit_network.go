@@ -7,7 +7,7 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/x/evm/statedb"
 )
 
@@ -16,7 +16,7 @@ import (
 // makes the App public for easier testing.
 type UnitTestNetwork struct {
 	IntegrationNetwork
-	App *example_app.ExampleChain
+	App *exampleapp.ExampleChain
 }
 
 var _ Network = (*UnitTestNetwork)(nil)

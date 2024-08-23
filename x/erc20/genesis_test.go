@@ -10,7 +10,7 @@ import (
 	"github.com/cometbft/cometbft/version"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
@@ -22,7 +22,7 @@ import (
 type GenesisTestSuite struct {
 	suite.Suite
 	ctx     sdk.Context
-	app     *example_app.ExampleChain
+	app     *exampleapp.ExampleChain
 	genesis types.GenesisState
 }
 
@@ -42,7 +42,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	chainID := testutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), false, chainID)
+	suite.app = exampleapp.Setup(suite.T(), false, chainID)
 	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,

@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/precompiles/testutil"
 	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
@@ -83,7 +83,7 @@ func New(
 	network network.Network,
 	grpcHandler grpc.Handler,
 ) TxFactory {
-	ec := makeConfig(example_app.ModuleBasics)
+	ec := makeConfig(exampleapp.ModuleBasics)
 	return &IntegrationTxFactory{
 		IntegrationTxFactory: commonfactory.New(network, grpcHandler, &ec),
 		grpcHandler:          grpcHandler,

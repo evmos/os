@@ -19,7 +19,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil"
 	evmostypes "github.com/evmos/os/types"
@@ -29,7 +29,7 @@ import (
 // DefaultTestingAppInit is a test helper function used to initialize an App
 // on the ibc testing pkg
 // need this design to make it compatible with the SetupTestinApp func on ibctesting pkg
-var DefaultTestingAppInit func(chainID string) func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = example_app.SetupTestingApp
+var DefaultTestingAppInit func(chainID string) func() (ibcgotesting.TestingApp, map[string]json.RawMessage) = exampleapp.SetupTestingApp
 
 // SetupWithGenesisValSet initializes a new SimApp with a validator set and genesis accounts
 // that also act as delegators. For simplicity, each validator is bonded with a delegation

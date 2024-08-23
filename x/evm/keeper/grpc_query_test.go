@@ -11,7 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
@@ -415,7 +415,7 @@ func (suite *KeeperTestSuite) TestQueryParams() {
 
 	// NOTE: we are using the EVM genesis state for the example app here, because
 	// we have different assumptions for the evmOS offering and the example chain.
-	expParams := example_app.NewEVMGenesisState().Params
+	expParams := exampleapp.NewEVMGenesisState().Params
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)

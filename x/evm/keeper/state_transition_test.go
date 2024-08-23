@@ -17,7 +17,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/keeper"
@@ -527,7 +527,7 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 
 	// NOTE: since we are using different defaults for the app and the evmOS in general, we are getting the
 	// default parameters from the EVM genesis state for the example app here.
-	defaultParams := example_app.NewEVMGenesisState().Params
+	defaultParams := exampleapp.NewEVMGenesisState().Params
 	suite.Require().Equal(defaultParams, cfg.Params)
 
 	// london hardfork is enabled by default

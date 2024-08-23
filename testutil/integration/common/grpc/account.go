@@ -7,7 +7,7 @@ import (
 
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/os/encoding"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 )
 
 // GetAccount returns the account for the given address.
@@ -20,7 +20,7 @@ func (gqh *IntegrationHandler) GetAccount(address string) (authtypes.AccountI, e
 		return nil, err
 	}
 
-	encodingCgf := encoding.MakeConfig(example_app.ModuleBasics)
+	encodingCgf := encoding.MakeConfig(exampleapp.ModuleBasics)
 	var acc authtypes.AccountI
 	if err = encodingCgf.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
 		return nil, err

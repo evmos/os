@@ -25,7 +25,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 )
 
 // DefaultConsensusParams defines the default Tendermint consensus params used in
@@ -69,17 +69,17 @@ var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 }
 
 // EthSetup initializes a new evmOS application. A Nop logger is set in ExampleChain.
-func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*example_app.ExampleChain, simapp.GenesisState) simapp.GenesisState) *example_app.ExampleChain {
+func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, simapp.GenesisState) simapp.GenesisState) *exampleapp.ExampleChain {
 	return EthSetupWithDB(isCheckTx, chainID, patchGenesis, dbm.NewMemDB())
 }
 
 // EthSetupWithDB initializes a new ExampleChain. A Nop logger is set in ExampleChain.
-func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*example_app.ExampleChain, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *example_app.ExampleChain {
-	app := example_app.NewExampleApp(log.NewNopLogger(),
+func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *exampleapp.ExampleChain {
+	app := exampleapp.NewExampleApp(log.NewNopLogger(),
 		db,
 		nil,
 		true,
-		simtestutil.NewAppOptionsWithFlagHome(example_app.DefaultNodeHome),
+		simtestutil.NewAppOptionsWithFlagHome(exampleapp.DefaultNodeHome),
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
@@ -132,7 +132,7 @@ func NewTestGenesisState(codec codec.Codec) simapp.GenesisState {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100000000000000))),
 	}
 
-	genesisState := example_app.NewDefaultGenesisState()
+	genesisState := exampleapp.NewDefaultGenesisState()
 	return genesisStateWithValSet(codec, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 }
 
