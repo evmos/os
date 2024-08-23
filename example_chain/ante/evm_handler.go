@@ -13,10 +13,10 @@ import (
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmkeeper "github.com/evmos/evmos/v19/x/evm/keeper"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	evmante "github.com/evmos/os/ante/evm"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	evmkeeper "github.com/evmos/os/x/evm/keeper"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // newMonoEVMAnteHandler creates the sdk.AnteHandler implementation for the EVM transactions.
@@ -248,7 +248,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 12. emit events
-		txIdx := uint64(i) // nosec: G701
+		txIdx := uint64(i) // nosec: G115
 		evmante.EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
 	}
 

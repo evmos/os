@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package evm
 
 import (
@@ -12,9 +13,9 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/params"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
 	evmostypes "github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // NewDynamicFeeChecker returns a `TxFeeChecker` that applies a dynamic fee to
@@ -31,6 +32,7 @@ func NewDynamicFeeChecker(k anteinterfaces.DynamicFeeEVMKeeper) authante.TxFeeCh
 		if !ok {
 			return sdk.Coins{}, 0, errorsmod.Wrap(errortypes.ErrTxDecode, "Tx must be a FeeTx")
 		}
+
 		// TODO: in the e2e test, if the fee in the genesis transaction meet the baseFee and minGasPrice in the feemarket, we can remove this code
 		if ctx.BlockHeight() == 0 {
 			// genesis transactions: fallback to min-gas-price logic
@@ -113,7 +115,7 @@ func FeeChecker(
 func checkTxFeeWithValidatorMinGasPrices(ctx sdk.Context, tx sdk.FeeTx) (sdk.Coins, int64, error) {
 	feeCoins := tx.GetFee()
 	minGasPrices := ctx.MinGasPrices()
-	gas := int64(tx.GetGas()) //#nosec G701 -- checked for int overflow on ValidateBasic()
+	gas := int64(tx.GetGas()) //#nosec G115 -- checked for int overflow on ValidateBasic()
 
 	// Ensure that the provided fees meet a minimum threshold for the validator,
 	// if this is a CheckTx. This is only for local mempool purposes, and thus

@@ -1,12 +1,10 @@
-package evm
+package evm_test
 
 import (
 	"math/big"
 	"testing"
 
 	"cosmossdk.io/math"
-	"github.com/stretchr/testify/require"
-
 	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
@@ -14,10 +12,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/ethereum/go-ethereum/params"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	evmante "github.com/evmos/os/ante/evm"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
 	"github.com/evmos/os/encoding"
+	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
 var _ anteinterfaces.DynamicFeeEVMKeeper = MockEVMKeeper{}
@@ -35,7 +36,8 @@ func (m MockEVMKeeper) GetBaseFee(_ sdk.Context, _ *params.ChainConfig) *big.Int
 }
 
 func (m MockEVMKeeper) GetParams(_ sdk.Context) evmtypes.Params {
-	return evmtypes.DefaultParams()
+	// NOTE: it's important to set the evm denomination here
+	return evmtypes.DefaultParamsWithEVMDenom(testutil.ExampleAttoDenom)
 }
 
 func (m MockEVMKeeper) ChainID() *big.Int {
@@ -53,7 +55,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	//      without extension option
 	//      london hardfork enableness
 	encodingConfig := encoding.MakeConfig(module.NewBasicManager())
-	minGasPrices := sdk.NewDecCoins(sdk.NewDecCoin(evmtypes.DefaultEVMDenom, math.NewInt(10)))
+	minGasPrices := sdk.NewDecCoins(sdk.NewDecCoin(testutil.ExampleAttoDenom, math.NewInt(10)))
 
 	genesisCtx := sdk.NewContext(nil, tmproto.Header{}, false, log.NewNopLogger())
 	checkTxCtx := sdk.NewContext(nil, tmproto.Header{Height: 1}, true, log.NewNopLogger()).WithMinGasPrices(minGasPrices)
@@ -97,7 +99,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 				txBuilder.SetGasLimit(1)
-				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10))))
+				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(10))))
 				return txBuilder.GetTx()
 			},
 			"10aevmos",
@@ -139,7 +141,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 				txBuilder.SetGasLimit(1)
-				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10))))
+				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(10))))
 				return txBuilder.GetTx()
 			},
 			"10aevmos",
@@ -155,7 +157,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder()
 				txBuilder.SetGasLimit(1)
-				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
+				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
 				return txBuilder.GetTx()
 			},
 			"10000010aevmos",
@@ -171,7 +173,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
 				txBuilder.SetGasLimit(1)
-				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction))))
+				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction))))
 
 				option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionDynamicFeeTx{})
 				require.NoError(t, err)
@@ -191,7 +193,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
 				txBuilder.SetGasLimit(1)
-				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
+				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
 
 				option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionDynamicFeeTx{
 					MaxPriorityPrice: math.NewInt(5).Mul(evmtypes.DefaultPriorityReduction),
@@ -213,7 +215,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 			func() sdk.FeeTx {
 				txBuilder := encodingConfig.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
 				txBuilder.SetGasLimit(1)
-				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
+				txBuilder.SetFeeAmount(sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(10).Mul(evmtypes.DefaultPriorityReduction).Add(math.NewInt(10)))))
 
 				// set negative priority fee
 				option, err := codectypes.NewAnyWithValue(&types.ExtensionOptionDynamicFeeTx{
@@ -231,7 +233,7 @@ func TestSDKTxFeeChecker(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			fees, priority, err := NewDynamicFeeChecker(tc.keeper)(tc.ctx, tc.buildTx())
+			fees, priority, err := evmante.NewDynamicFeeChecker(tc.keeper)(tc.ctx, tc.buildTx())
 			if tc.expSuccess {
 				require.Equal(t, tc.expFees, fees.String())
 				require.Equal(t, tc.expPriority, priority)

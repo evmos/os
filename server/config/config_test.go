@@ -1,28 +1,28 @@
-package config
+package config_test
 
 import (
 	"fmt"
 	"reflect"
 	"testing"
 
+	serverconfig "github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil"
-
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDefaultConfig(t *testing.T) {
-	cfg := DefaultConfig()
+	cfg := serverconfig.DefaultConfig()
 	require.False(t, cfg.JSONRPC.Enable)
-	require.Equal(t, cfg.JSONRPC.Address, DefaultJSONRPCAddress)
-	require.Equal(t, cfg.JSONRPC.WsAddress, DefaultJSONRPCWsAddress)
+	require.Equal(t, cfg.JSONRPC.Address, serverconfig.DefaultJSONRPCAddress)
+	require.Equal(t, cfg.JSONRPC.WsAddress, serverconfig.DefaultJSONRPCWsAddress)
 }
 
 func TestGetConfig(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    func() *viper.Viper
-		want    func() Config
+		want    func() serverconfig.Config
 		wantErr bool
 	}{
 		{
@@ -32,8 +32,8 @@ func TestGetConfig(t *testing.T) {
 				v.Set("minimum-gas-prices", fmt.Sprintf("100%s", testutil.ExampleAttoDenom))
 				return v
 			},
-			func() Config {
-				cfg := DefaultConfig()
+			func() serverconfig.Config {
+				cfg := serverconfig.DefaultConfig()
 				cfg.MinGasPrices = fmt.Sprintf("100%s", testutil.ExampleAttoDenom)
 				return *cfg
 			},
@@ -46,8 +46,8 @@ func TestGetConfig(t *testing.T) {
 				v.Set("evm.tracer", "struct")
 				return v
 			},
-			func() Config {
-				cfg := DefaultConfig()
+			func() serverconfig.Config {
+				cfg := serverconfig.DefaultConfig()
 				require.NotEqual(t, "struct", cfg.EVM.Tracer)
 				cfg.EVM.Tracer = "struct"
 				return *cfg
@@ -57,7 +57,7 @@ func TestGetConfig(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetConfig(tt.args())
+			got, err := serverconfig.GetConfig(tt.args())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetConfig() error = %v, wantErr %v", err, tt.wantErr)
 				return

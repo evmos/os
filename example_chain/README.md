@@ -11,14 +11,15 @@ as well as to provide a chain object for testing purposes within the repository.
 
 By default, this chain has the following configuration:
 
-| Option              | Value          |
-|---------------------|----------------|
-| Binary              | `osd`          |
-| Chain ID            | `os_9005-1`    |
-| Denomination        | `aos`          |
-| EVM flavor          | permissionless |
-| Enabled Precompiles | all            |
-| Custom Opcodes      | -              |
+| Option              | Value                  |
+|---------------------|------------------------|
+| Binary              | `osd`                  |
+| Chain ID            | `os_9005-1`            |
+| Custom Opcodes      | -                      |
+| Default Token Pairs | 1 for the native token |
+| Denomination        | `aevmos`               |
+| EVM flavor          | permissionless         |
+| Enabled Precompiles | all                    |
 
 ## Running The Chain
 

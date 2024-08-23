@@ -34,7 +34,7 @@ func BlockGasLimit(ctx sdk.Context) uint64 {
 	}
 
 	if maxGas > 0 {
-		return uint64(maxGas) // #nosec G701 -- maxGas is int64 type. It can never be greater than math.MaxUint64
+		return uint64(maxGas) // #nosec G115 -- maxGas is int64 type. It can never be greater than math.MaxUint64
 	}
 
 	return 0

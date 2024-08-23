@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/encoding"
 	app "github.com/evmos/os/example_chain"
 	utiltx "github.com/evmos/os/testutil/tx"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 

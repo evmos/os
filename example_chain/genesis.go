@@ -5,6 +5,11 @@ package example_chain
 
 import (
 	"encoding/json"
+
+	"cosmossdk.io/simapp"
+	"github.com/evmos/os/encoding"
+	erc20types "github.com/evmos/os/x/erc20/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // GenesisState of the blockchain is represented here as a map of raw json
@@ -15,3 +20,42 @@ import (
 // the ModuleBasicManager which populates json from each BasicModule
 // object provided to it during init.
 type GenesisState map[string]json.RawMessage
+
+// NewDefaultGenesisState generates the default state for the application.
+func NewDefaultGenesisState() simapp.GenesisState {
+	encCfg := encoding.MakeConfig(ModuleBasics)
+
+	genesisState := ModuleBasics.DefaultGenesis(encCfg.Codec)
+
+	evmGenState := NewEVMGenesisState()
+	genesisState[evmtypes.ModuleName] = encCfg.Codec.MustMarshalJSON(evmGenState)
+
+	erc20GenState := NewErc20GenesisState()
+	genesisState[erc20types.ModuleName] = encCfg.Codec.MustMarshalJSON(erc20GenState)
+
+	return genesisState
+}
+
+// NewEVMGenesisState returns the default genesis state for the EVM module.
+//
+// NOTE: for the example chain implementation we need to set the default EVM denomination
+// and enable ALL precompiles.
+func NewEVMGenesisState() *evmtypes.GenesisState {
+	evmGenState := evmtypes.DefaultGenesisState()
+	evmGenState.Params.EvmDenom = ExampleChainDenom
+	evmGenState.Params.ActiveStaticPrecompiles = evmtypes.AvailableStaticPrecompiles
+
+	return evmGenState
+}
+
+// NewErc20GenesisState returns the default genesis state for the ERC20 module.
+//
+// NOTE: for the example chain implementation we are also adding a default token pair,
+// which is the base denomination of the chain (i.e. the WEVMOS contract).
+func NewErc20GenesisState() *erc20types.GenesisState {
+	erc20GenState := erc20types.DefaultGenesisState()
+	erc20GenState.TokenPairs = ExampleTokenPairs
+	erc20GenState.Params.NativePrecompiles = append(erc20GenState.Params.NativePrecompiles, WEVMOSContractMainnet)
+
+	return erc20GenState
+}

@@ -13,10 +13,10 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/rpc/backend"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // The Ethereum API allows applications to connect to an node of any evmOS based blockchain.
@@ -432,7 +432,7 @@ func (e *PublicAPI) GetTransactionLogs(txHash common.Hash) ([]*ethtypes.Log, err
 	}
 
 	// parse tx logs from events
-	index := int(res.MsgIndex) // #nosec G701
+	index := int(res.MsgIndex) // #nosec G115
 	return backend.TxLogsFromEvents(resBlockResult.TxsResults[res.TxIndex].Events, index)
 }
 

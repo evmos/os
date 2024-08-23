@@ -18,10 +18,10 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // PrepareEthTx creates an ethereum tx and signs it with the provided messages and private key.

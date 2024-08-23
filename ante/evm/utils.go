@@ -12,8 +12,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // DecoratorUtils contain a bunch of relevant variables used for a variety of checks

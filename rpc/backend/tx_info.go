@@ -16,9 +16,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/pkg/errors"
 )
 
@@ -61,7 +61,7 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 				if i > math.MaxInt32 {
 					return nil, errors.New("tx index overflow")
 				}
-				res.EthTxIndex = int32(i) //#nosec G701 -- checked for int overflow already
+				res.EthTxIndex = int32(i) //#nosec G115 -- checked for int overflow already
 				break
 			}
 		}
@@ -77,8 +77,8 @@ func (b *Backend) GetTransactionByHash(txHash common.Hash) (*rpctypes.RPCTransac
 		b.logger.Error("failed to fetch Base Fee from prunned block. Check node prunning configuration", "height", blockRes.Height, "error", err)
 	}
 
-	height := uint64(res.Height)    //#nosec G701 -- checked for int overflow already
-	index := uint64(res.EthTxIndex) //#nosec G701 -- checked for int overflow already
+	height := uint64(res.Height)    //#nosec G115 -- checked for int overflow already
+	index := uint64(res.EthTxIndex) //#nosec G115 -- checked for int overflow already
 	return rpctypes.NewTransactionFromMsg(
 		msg,
 		common.BytesToHash(block.BlockID.Hash.Bytes()),
@@ -173,7 +173,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		return nil, nil
 	}
 	for _, txResult := range blockRes.TxsResults[0:res.TxIndex] {
-		cumulativeGasUsed += uint64(txResult.GasUsed) // #nosec G701 -- checked for int overflow already
+		cumulativeGasUsed += uint64(txResult.GasUsed) // #nosec G115 -- checked for int overflow already
 	}
 	cumulativeGasUsed += res.CumulativeGasUsed
 
@@ -194,7 +194,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	}
 
 	// parse tx logs from events
-	msgIndex := int(res.MsgIndex) // #nosec G701 -- checked for int overflow already
+	msgIndex := int(res.MsgIndex) // #nosec G115 -- checked for int overflow already
 	logs, err := TxLogsFromEvents(blockRes.TxsResults[res.TxIndex].Events, msgIndex)
 	if err != nil {
 		b.logger.Debug("failed to parse logs", "hash", hexTx, "error", err.Error())
@@ -205,7 +205,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 		msgs := b.EthMsgsFromTendermintBlock(resBlock, blockRes)
 		for i := range msgs {
 			if msgs[i].Hash == hexTx {
-				res.EthTxIndex = int32(i) // #nosec G701
+				res.EthTxIndex = int32(i) // #nosec G115
 				break
 			}
 		}
@@ -323,7 +323,7 @@ func (b *Backend) GetTxByEthHash(hash common.Hash) (*types.TxResult, error) {
 
 // GetTxByTxIndex uses `/tx_query` to find transaction by tx index of valid ethereum txs
 func (b *Backend) GetTxByTxIndex(height int64, index uint) (*types.TxResult, error) {
-	int32Index := int32(index) // #nosec G701 -- checked for int overflow already
+	int32Index := int32(index) //#nosec G115 -- checked for int overflow already
 	if b.indexer != nil {
 		return b.indexer.GetByBlockAndIndex(height, int32Index)
 	}
@@ -334,7 +334,7 @@ func (b *Backend) GetTxByTxIndex(height int64, index uint) (*types.TxResult, err
 		evmtypes.AttributeKeyTxIndex, index,
 	)
 	txResult, err := b.queryTendermintTxIndexer(query, func(txs *rpctypes.ParsedTxs) *rpctypes.ParsedTx {
-		return txs.GetTxByTxIndex(int(index)) // #nosec G701 -- checked for int overflow already
+		return txs.GetTxByTxIndex(int(index)) // #nosec G115 -- checked for int overflow already
 	})
 	if err != nil {
 		return nil, errorsmod.Wrapf(err, "GetTxByTxIndex %d %d", height, index)
@@ -393,7 +393,7 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 			return nil, nil
 		}
 	} else {
-		i := int(idx) // #nosec G701
+		i := int(idx) // #nosec G115
 		ethMsgs := b.EthMsgsFromTendermintBlock(block, blockRes)
 		if i >= len(ethMsgs) {
 			b.logger.Debug("block txs index out of bound", "index", i)
@@ -409,8 +409,8 @@ func (b *Backend) GetTransactionByBlockAndIndex(block *tmrpctypes.ResultBlock, i
 		b.logger.Error("failed to fetch Base Fee from prunned block. Check node prunning configuration", "height", block.Block.Height, "error", err)
 	}
 
-	height := uint64(block.Block.Height) // #nosec G701 -- checked for int overflow already
-	index := uint64(idx)                 // #nosec G701 -- checked for int overflow already
+	height := uint64(block.Block.Height) // #nosec G115 -- checked for int overflow already
+	index := uint64(idx)                 // #nosec G115 -- checked for int overflow already
 	return rpctypes.NewTransactionFromMsg(
 		msg,
 		common.BytesToHash(block.Block.Hash()),

@@ -14,26 +14,23 @@ import (
 	"strconv"
 	"sync"
 
+	"github.com/cometbft/cometbft/libs/log"
+	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
+	tmtypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
-	"github.com/pkg/errors"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
-
-	"github.com/cometbft/cometbft/libs/log"
-	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
-	tmtypes "github.com/cometbft/cometbft/types"
-
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/rpc/ethereum/pubsub"
 	rpcfilters "github.com/evmos/os/rpc/namespaces/ethereum/eth/filters"
 	"github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/server/config"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	"github.com/pkg/errors"
 )
 
 type WebsocketsServer interface {

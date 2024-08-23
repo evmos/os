@@ -3,12 +3,16 @@
 package evm_test
 
 import (
+	sdkmath "cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	evmante "github.com/evmos/os/ante/evm"
+	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
+	testfactory "github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
 )
 
 func (suite *EvmAnteTestSuite) TestUpdateCumulativeGasWanted() {
@@ -89,6 +93,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 	)
 	grpcHandler := grpc.NewIntegrationHandler(unitNetwork)
+	factory := testfactory.New(unitNetwork, grpcHandler)
 
 	testCases := []struct {
 		name          string
@@ -118,14 +123,26 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		},
 		{
 			name:          "fail: insufficient user balance, event is NOT emitted",
-			expectedError: sdkerrors.ErrInsufficientFee,
+			expectedError: sdkerrors.ErrInsufficientFunds,
 			fees: sdktypes.Coins{
 				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
 			},
 			getSender: func() sdktypes.AccAddress {
-				// Return unfunded account
+				// Set up account with too little balance (but not zero)
 				index := keyring.AddKey()
-				return keyring.GetKey(index).AccAddr
+				acc := keyring.GetKey(index)
+
+				sender := keyring.GetKey(0)
+				_, err := factory.ExecuteCosmosTx(sender.Priv, commonfactory.CosmosTxArgs{
+					Msgs: []sdktypes.Msg{&banktypes.MsgSend{
+						FromAddress: sender.AccAddr.String(),
+						ToAddress:   acc.AccAddr.String(),
+						Amount:      sdktypes.Coins{sdktypes.NewCoin(unitNetwork.GetDenom(), sdkmath.NewInt(500))},
+					}},
+				})
+				suite.Require().NoError(err, "failed to send funds to new key")
+
+				return acc.AccAddr
 			},
 		},
 	}
@@ -135,7 +152,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			keepers := &evmante.ConsumeGasKeepers{
 				Bank:         unitNetwork.App.BankKeeper,
 				Distribution: unitNetwork.App.DistrKeeper,
-				Evm:          unitNetwork.App.EvmKeeper,
+				Evm:          unitNetwork.App.EVMKeeper,
 				Staking:      unitNetwork.App.StakingKeeper,
 			}
 			sender := tc.getSender()

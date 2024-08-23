@@ -8,6 +8,7 @@ This changelog was created using the `clu` binary
 
 ### Improvements
 
+- (all) [#37](https://github.com/evmos/os/pull/37) Add EVM, feemarket and precompiles from evmOS.
 - (all) [#38](https://github.com/evmos/os/pull/38) Add readme.
 - (all) [#30](https://github.com/evmos/os/pull/30) Add example chain implementation and ante handlers.
 - (ci) [#35](https://github.com/evmos/os/pull/35) Disable dependabot temporarily.

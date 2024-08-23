@@ -10,8 +10,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // EthSigVerificationDecorator validates an ethereum signatures

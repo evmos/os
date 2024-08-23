@@ -16,9 +16,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	rpctypes "github.com/evmos/os/rpc/types"
 	evmostypes "github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const (
@@ -85,8 +85,8 @@ func (kv *KVIndexer) IndexBlock(block *tmtypes.Block, txResults []*abci.Response
 
 			txResult := evmostypes.TxResult{
 				Height:     height,
-				TxIndex:    uint32(txIndex),
-				MsgIndex:   uint32(msgIndex),
+				TxIndex:    uint32(txIndex),  //#nosec G115 -- int overflow is not a concern here
+				MsgIndex:   uint32(msgIndex), //#nosec G115 -- int overflow is not a concern here
 				EthTxIndex: ethTxIndex,
 			}
 			if result.Code != abci.CodeTypeOK {
@@ -228,5 +228,5 @@ func parseBlockNumberFromKey(key []byte) (int64, error) {
 		return 0, fmt.Errorf("wrong tx index key length, expect: %d, got: %d", TxIndexKeyLength, len(key))
 	}
 
-	return int64(sdk.BigEndianToUint64(key[1:9])), nil
+	return int64(sdk.BigEndianToUint64(key[1:9])), nil //#nosec G115 -- int overflow is not a concern here, block number is unlikely to exceed 9,223,372,036,854,775,807
 }

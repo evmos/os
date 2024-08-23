@@ -16,8 +16,8 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/trie"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	rpctypes "github.com/evmos/os/rpc/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
@@ -171,7 +171,7 @@ func (b *Backend) TendermintBlockByNumber(blockNum rpctypes.BlockNumber) (*tmrpc
 		if err != nil {
 			return nil, err
 		}
-		height = int64(n) //#nosec G701 -- checked for int overflow already
+		height = int64(n) //#nosec G115 -- checked for int overflow already
 	}
 	resBlock, err := b.clientCtx.Client.Block(b.ctx, &height)
 	if err != nil {
@@ -391,8 +391,8 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 		}
 
 		tx := ethMsg.AsTransaction()
-		height := uint64(block.Height) //#nosec G701 -- checked for int overflow already
-		index := uint64(txIndex)       //#nosec G701 -- checked for int overflow already
+		height := uint64(block.Height) //#nosec G115 -- checked for int overflow already
+		index := uint64(txIndex)       //#nosec G115 -- checked for int overflow already
 		rpcTx, err := rpctypes.NewRPCTransaction(
 			tx,
 			common.BytesToHash(block.Hash()),
@@ -452,7 +452,7 @@ func (b *Backend) RPCBlockFromTendermintBlock(
 			// block gas limit has exceeded, other txs must have failed with same reason.
 			break
 		}
-		gasUsed += uint64(txsResult.GetGasUsed()) // #nosec G701 -- checked for int overflow already
+		gasUsed += uint64(txsResult.GetGasUsed()) // #nosec G115 -- checked for int overflow already
 	}
 
 	formattedBlock := rpctypes.FormatBlock(

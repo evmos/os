@@ -7,13 +7,13 @@ import (
 	"cosmossdk.io/math"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/ante/evm"
+	"github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
+	"github.com/evmos/os/x/evm/statedb"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *EvmAnteTestSuite) TestVerifyAccountBalance() {

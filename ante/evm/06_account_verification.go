@@ -9,9 +9,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/evmos/v19/x/evm/keeper"
-	"github.com/evmos/evmos/v19/x/evm/statedb"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	"github.com/evmos/os/x/evm/keeper"
+	"github.com/evmos/os/x/evm/statedb"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // VerifyAccountBalance checks that the account balance is greater than the total transaction cost.

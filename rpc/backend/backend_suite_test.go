@@ -16,7 +16,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/hd"
 	"github.com/evmos/os/encoding"
 	app "github.com/evmos/os/example_chain"
@@ -25,6 +24,7 @@ import (
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -41,7 +41,7 @@ func TestBackendTestSuite(t *testing.T) {
 	suite.Run(t, new(BackendTestSuite))
 }
 
-const ChainID = testutil.ExampleChainID
+var ChainID = testutil.ExampleChainID
 
 // SetupTest is executed before every BackendTestSuite test
 func (suite *BackendTestSuite) SetupTest() {

@@ -50,7 +50,7 @@ func PrepareCosmosTx(
 
 	var fees sdk.Coins
 	if args.GasPrice != nil {
-		fees = sdk.Coins{{Denom: testutil.ExampleAttoDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}}
+		fees = sdk.Coins{{Denom: testutil.ExampleAttoDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}} //#nosec G115 -- int overflow is not a concern here
 	} else {
 		fees = sdk.Coins{DefaultFee}
 	}

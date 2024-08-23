@@ -6,11 +6,11 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/factory"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/grpc"
-	testkeyring "github.com/evmos/evmos/v19/testutil/integration/evmos/keyring"
-	"github.com/evmos/evmos/v19/testutil/integration/evmos/network"
 	"github.com/evmos/os/ante/evm"
+	"github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
 )
 
 func (suite *EvmAnteTestSuite) TestCheckGasWanted() {

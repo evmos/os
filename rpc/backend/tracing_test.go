@@ -11,10 +11,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
+	"github.com/evmos/os/testutil"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *BackendTestSuite) TestTraceTransaction() {
@@ -40,13 +41,13 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 	msgEthereumTx.From = from.String()
 	_ = msgEthereumTx.Sign(ethSigner, suite.signer)
 
-	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmtypes.DefaultEVMDenom)
+	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), testutil.ExampleAttoDenom)
 	txBz, _ := txEncoder(tx)
 
 	msgEthereumTx2.From = from.String()
 	_ = msgEthereumTx2.Sign(ethSigner, suite.signer)
 
-	tx2, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmtypes.DefaultEVMDenom)
+	tx2, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), testutil.ExampleAttoDenom)
 	txBz2, _ := txEncoder(tx2)
 
 	testCases := []struct {

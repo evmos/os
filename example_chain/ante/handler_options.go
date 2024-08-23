@@ -12,8 +12,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
+	ibckeeper "github.com/cosmos/ibc-go/v7/modules/core/keeper"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
@@ -23,6 +24,7 @@ type HandlerOptions struct {
 	AccountKeeper          evmtypes.AccountKeeper
 	BankKeeper             evmtypes.BankKeeper
 	DistributionKeeper     anteinterfaces.DistributionKeeper
+	IBCKeeper              *ibckeeper.Keeper
 	StakingKeeper          anteinterfaces.StakingKeeper
 	FeeMarketKeeper        anteinterfaces.FeeMarketKeeper
 	EvmKeeper              anteinterfaces.EVMKeeper
@@ -47,6 +49,9 @@ func (options HandlerOptions) Validate() error {
 	}
 	if options.StakingKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "staking keeper is required for AnteHandler")
+	}
+	if options.IBCKeeper == nil {
+		return errorsmod.Wrap(errortypes.ErrLogic, "ibc keeper is required for AnteHandler")
 	}
 	if options.FeeMarketKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "fee market keeper is required for AnteHandler")

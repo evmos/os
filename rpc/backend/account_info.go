@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package backend
 
 import (
@@ -8,15 +9,14 @@ import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	evmtypes "github.com/evmos/evmos/v19/x/evm/types"
 	rpctypes "github.com/evmos/os/rpc/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/pkg/errors"
 )
 
@@ -66,7 +66,7 @@ func (b *Backend) GetProof(address common.Address, storageKeys []string, blockNr
 			return nil, fmt.Errorf("not able to query block number greater than MaxInt64")
 		}
 
-		height = int64(bn) //#nosec G701 -- checked for int overflow already
+		height = int64(bn) //#nosec G115 -- checked for int overflow already
 	}
 
 	clientCtx := b.clientCtx.WithHeight(height)
@@ -185,7 +185,7 @@ func (b *Backend) GetTransactionCount(address common.Address, blockNum rpctypes.
 	}
 	height := blockNum.Int64()
 
-	currentHeight := int64(bn) //#nosec G701 -- checked for int overflow already
+	currentHeight := int64(bn) //#nosec G115 -- checked for int overflow already
 	if height > currentHeight {
 		return &n, errorsmod.Wrapf(
 			sdkerrors.ErrInvalidHeight,
