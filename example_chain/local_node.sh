@@ -199,7 +199,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 fi
 
 # Start the node
-osd start \
+osd start "$TRACE" \
 	--log_level $LOGLEVEL \
 	--minimum-gas-prices=0.0001aevmos \
 	--home "$HOMEDIR" \
