@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keys
 
 import (
@@ -259,7 +260,7 @@ func printCreate(cmd *cobra.Command, k *keyring.Record, showMnemonic bool, mnemo
 	switch outputFormat {
 	case OutputFormatText:
 		cmd.PrintErrln()
-		if err := printKeyringRecord(cmd.OutOrStdout(), k, keyring.MkAccKeyOutput, outputFormat); err != nil {
+		if err := printKeyringRecord(cmd.OutOrStdout(), k, keys.MkAccKeyOutput, outputFormat); err != nil {
 			return err
 		}
 
@@ -272,7 +273,7 @@ func printCreate(cmd *cobra.Command, k *keyring.Record, showMnemonic bool, mnemo
 			}
 		}
 	case OutputFormatJSON:
-		out, err := keyring.MkAccKeyOutput(k)
+		out, err := keys.MkAccKeyOutput(k)
 		if err != nil {
 			return err
 		}
