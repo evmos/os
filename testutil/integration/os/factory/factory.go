@@ -16,12 +16,10 @@ import (
 	"github.com/cosmos/gogoproto/proto"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
-	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/precompiles/testutil"
 	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -29,12 +27,14 @@ import (
 // network.
 // Methods are organized by build sign and broadcast type methods.
 type TxFactory interface {
-	commonfactory.TxFactory
+	commonfactory.CoreTxFactory
 
 	// GenerateDefaultTxTypeArgs generates a default ETH tx args for the desired tx type
 	GenerateDefaultTxTypeArgs(sender common.Address, txType int) (evmtypes.EvmTxArgs, error)
 	// GenerateSignedEthTx generates an Ethereum tx with the provided private key and txArgs but does not broadcast it.
 	GenerateSignedEthTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (signing.Tx, error)
+	// GenerateSignedMsgEthereumTx generates an MsgEthereumTx signed with the provided private key and txArgs.
+	GenerateSignedMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
 
 	// SignMsgEthereumTx signs a MsgEthereumTx with the provided private key.
 	SignMsgEthereumTx(privKey cryptotypes.PrivKey, msgEthereumTx evmtypes.MsgEthereumTx) (evmtypes.MsgEthereumTx, error)
@@ -61,10 +61,10 @@ type TxFactory interface {
 	GenerateMsgEthereumTx(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (evmtypes.MsgEthereumTx, error)
 	// GenerateGethCoreMsg creates a new GethCoreMsg with the provided arguments.
 	GenerateGethCoreMsg(privKey cryptotypes.PrivKey, txArgs evmtypes.EvmTxArgs) (core.Message, error)
-	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs.
+	// EstimateGasLimit estimates the gas limit for a tx with the provided address and txArgs
 	EstimateGasLimit(from *common.Address, txArgs *evmtypes.EvmTxArgs) (uint64, error)
-	// GetEvmTxResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
-	GetEvmTxResponseFromTxResult(txResult abcitypes.ExecTxResult) (*evmtypes.MsgEthereumTxResponse, error)
+	// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult
+	GetEvmTransactionResponseFromTxResult(txResult abcitypes.ExecTxResult) (*evmtypes.MsgEthereumTxResponse, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -72,10 +72,11 @@ var _ TxFactory = (*IntegrationTxFactory)(nil)
 // IntegrationTxFactory is a helper struct to build and broadcast transactions
 // to the network on integration tests. This is to simulate the behavior of a real user.
 type IntegrationTxFactory struct {
-	*commonfactory.IntegrationTxFactory
+	commonfactory.CoreTxFactory
+
 	grpcHandler grpc.Handler
 	network     network.Network
-	ec          *testutiltypes.TestEncodingConfig
+	ec          testutiltypes.TestEncodingConfig
 }
 
 // New creates a new IntegrationTxFactory instance
@@ -83,20 +84,34 @@ func New(
 	network network.Network,
 	grpcHandler grpc.Handler,
 ) TxFactory {
-	ec := makeConfig(exampleapp.ModuleBasics)
+	cf := commonfactory.New(network, grpcHandler)
 	return &IntegrationTxFactory{
-		IntegrationTxFactory: commonfactory.New(network, grpcHandler, &ec),
-		grpcHandler:          grpcHandler,
-		network:              network,
-		ec:                   &ec,
+		CoreTxFactory: cf,
+		grpcHandler:   grpcHandler,
+		network:       network,
+		ec:            network.GetEncodingConfig(),
 	}
 }
 
-// GetEvmTxResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
-func (tf *IntegrationTxFactory) GetEvmTxResponseFromTxResult(
+// GetEvmTransactionResponseFromTxResult returns the MsgEthereumTxResponse from the provided txResult.
+func (tf *IntegrationTxFactory) GetEvmTransactionResponseFromTxResult(
 	txResult abcitypes.ExecTxResult,
 ) (*evmtypes.MsgEthereumTxResponse, error) {
-	return evmtypes.DecodeTxResponse(txResult.Data)
+	var txData sdktypes.TxMsgData
+	if err := tf.ec.Codec.Unmarshal(txResult.Data, &txData); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal tx data")
+	}
+
+	if len(txData.MsgResponses) != 1 {
+		return nil, fmt.Errorf("expected 1 message response, got %d", len(txData.MsgResponses))
+	}
+
+	var evmRes evmtypes.MsgEthereumTxResponse
+	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
+		return nil, errorsmod.Wrap(err, "failed to unmarshal evm tx response")
+	}
+
+	return &evmRes, nil
 }
 
 // populateEvmTxArgsWithDefault populates the missing fields in the provided EvmTxArgs with default values.
@@ -106,11 +121,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 	txArgs evmtypes.EvmTxArgs,
 ) (evmtypes.EvmTxArgs, error) {
 	if txArgs.ChainID == nil {
-		ethChainID, err := types.ParseChainID(tf.network.GetChainID())
-		if err != nil {
-			return evmtypes.EvmTxArgs{}, errorsmod.Wrapf(err, "failed to parse chain id: %v", tf.network.GetChainID())
-		}
-		txArgs.ChainID = ethChainID
+		txArgs.ChainID = tf.network.GetEIP155ChainID()
 	}
 
 	if txArgs.Nonce == 0 {

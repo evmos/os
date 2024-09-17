@@ -1,19 +1,21 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package chain
 
 import (
 	"time"
 
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
-	capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
-	clienttypes "github.com/cosmos/ibc-go/v7/modules/core/02-client/types"
-	commitmenttypes "github.com/cosmos/ibc-go/v7/modules/core/23-commitment/types"
-	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-	ibctm "github.com/cosmos/ibc-go/v7/modules/light-clients/07-tendermint"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
-	"github.com/cosmos/ibc-go/v7/testing/simapp"
+	capabilitytypes "github.com/cosmos/ibc-go/modules/capability/types"
+	// For now, we'll keep this. Pending to review if we can remove it.
+	clienttypes "github.com/cosmos/ibc-go/v8/modules/core/02-client/types"
+	commitmenttypes "github.com/cosmos/ibc-go/v8/modules/core/23-commitment/types"
+	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	ibctm "github.com/cosmos/ibc-go/v8/modules/light-clients/07-tendermint"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	"github.com/cosmos/ibc-go/v8/testing/simapp"
 )
 
 // Chain defines the required methods needed for a testing IBC chain that complies
@@ -54,7 +56,7 @@ type Chain interface {
 	GetConsensusState(clientID string, height exported.Height) (exported.ConsensusState, bool)
 	// GetValsAtHeight will return the trusted validator set of the chain for the given trusted height. It will return
 	// a success boolean depending on if the validator set exists or not at that height.
-	GetValsAtHeight(trustedHeight int64) (*tmtypes.ValidatorSet, bool)
+	GetValsAtHeight(trustedHeight int64) (*cmttypes.ValidatorSet, bool)
 	// GetAcknowledgement retrieves an acknowledgement for the provided packet. If the
 	// acknowledgement does not exist then testing will fail.
 	GetAcknowledgement(packet exported.PacketI) []byte
@@ -74,7 +76,7 @@ type Chain interface {
 	// GetChannelCapability returns the channel capability for the given portID and channelID.
 	// The capability must exist, otherwise testing will fail.
 	GetChannelCapability(portID, channelID string) *capabilitytypes.Capability
-	// GetTimeoutHeight is a convenience function which returns a IBC packet timeout height
+	// GetTimeoutHeight is a convenience function which returns an IBC packet timeout height
 	// to be used for testing. It returns the current IBC height + 100 blocks
 	GetTimeoutHeight() clienttypes.Height
 }

@@ -1,38 +1,57 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package encoding
 
 import (
-	"cosmossdk.io/simapp/params"
+	"cosmossdk.io/x/tx/signing"
 	amino "github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
-
-	evmoscodec "github.com/evmos/os/encoding/codec"
+	"github.com/cosmos/gogoproto/proto"
+	enccodec "github.com/evmos/os/encoding/codec"
+	"github.com/evmos/os/ethereum/eip712"
+	erc20types "github.com/evmos/os/x/erc20/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// MakeConfig creates an EncodingConfig for the given basic module manager.
-//
-// It registers the evmOS codec for Ethereum compatibility as well as
-// the module's interfaces.
-func MakeConfig(mb module.BasicManager) params.EncodingConfig {
+// MakeConfig creates a new EncodingConfig and returns it
+func MakeConfig() sdktestutil.TestEncodingConfig {
 	cdc := amino.NewLegacyAmino()
-	interfaceRegistry := types.NewInterfaceRegistry()
-	codec := amino.NewProtoCodec(interfaceRegistry)
+	signingOptions := signing.Options{
+		AddressCodec: address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
+		},
+		ValidatorAddressCodec: address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32ValidatorAddrPrefix(),
+		},
+		CustomGetSigners: map[protoreflect.FullName]signing.GetSignersFunc{
+			evmtypes.MsgEthereumTxCustomGetSigner.MsgType:     evmtypes.MsgEthereumTxCustomGetSigner.Fn,
+			erc20types.MsgConvertERC20CustomGetSigner.MsgType: erc20types.MsgConvertERC20CustomGetSigner.Fn,
+		},
+	}
 
-	encodingConfig := params.EncodingConfig{
+	interfaceRegistry, _ := types.NewInterfaceRegistryWithOptions(types.InterfaceRegistryOptions{
+		ProtoFiles:     proto.HybridResolver,
+		SigningOptions: signingOptions,
+	})
+	codec := amino.NewProtoCodec(interfaceRegistry)
+	enccodec.RegisterLegacyAminoCodec(cdc)
+	enccodec.RegisterInterfaces(interfaceRegistry)
+
+	// This is needed for the EIP712 txs because currently is using
+	// the deprecated method legacytx.StdSignBytes
+	legacytx.RegressionTestingAminoCodec = cdc
+	eip712.SetEncodingConfig(cdc, interfaceRegistry)
+
+	return sdktestutil.TestEncodingConfig{
 		InterfaceRegistry: interfaceRegistry,
 		Codec:             codec,
 		TxConfig:          tx.NewTxConfig(codec, tx.DefaultSignModes),
 		Amino:             cdc,
 	}
-
-	evmoscodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	evmoscodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-
-	return encodingConfig
 }

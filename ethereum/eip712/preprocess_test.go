@@ -8,16 +8,15 @@ import (
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
-	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
@@ -29,9 +28,8 @@ var (
 	// chainID is used in EIP-712 tests.
 	chainID = testutil.ExampleChainID
 
-	// ctx is the default context used in EIP-712 tests.
 	ctx = client.Context{}.WithTxConfig(
-		encoding.MakeConfig(app.ModuleBasics).TxConfig,
+		encoding.MakeConfig().TxConfig,
 	)
 
 	// feePayerAddress is the address of the fee payer used in EIP-712 tests.
@@ -101,7 +99,14 @@ func TestLedgerPreprocessing(t *testing.T) {
 		// Verify tx fields are unchanged
 		tx := tc.txBuilder.GetTx()
 
-		require.Equal(t, tx.FeePayer().String(), tc.expectedFeePayer)
+		addrCodec := address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
+		}
+
+		txFeePayer, err := addrCodec.BytesToString(tx.FeePayer())
+		require.NoError(t, err)
+
+		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
 		require.Equal(t, tx.GetFee().AmountOf(testutil.ExampleAttoDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)

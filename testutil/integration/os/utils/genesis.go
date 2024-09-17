@@ -18,20 +18,29 @@ const (
 	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials #gitleaks:allow
 )
 
-func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
+// CreateGenesisWithTokenPairs creates a genesis that includes
+// the WEVMOS and the provided denoms.
+// If no denoms provided, creates only one dynamic precompile with the 'xmpl' denom.
+func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) network.CustomGenesisState {
 	// Add all keys from the keyring to the genesis accounts as well.
 	//
 	// NOTE: This is necessary to enable the account to send EVM transactions,
 	// because the Mono ante handler checks the account balance by querying the
 	// account from the account keeper first. If these accounts are not in the genesis
 	// state, the ante handler finds a zero balance because of the missing account.
+
+	// if denom not provided, defaults to create only one dynamic erc20
+	// precompile with the 'xmpl' denom
+	if len(denoms) == 0 {
+		denoms = []string{"xmpl"}
+	}
 	accs := keyring.GetAllAccAddrs()
 	genesisAccounts := make([]*authtypes.BaseAccount, len(accs))
 	for i, addr := range accs {
 		genesisAccounts[i] = &authtypes.BaseAccount{
 			Address:       addr.String(),
 			PubKey:        nil,
-			AccountNumber: uint64(i + 1), //nolint:gosec // G115 // won't exceed uint64
+			AccountNumber: uint64(i + 1),
 			Sequence:      1,
 		}
 	}

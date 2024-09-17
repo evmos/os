@@ -5,19 +5,19 @@ import (
 	"context"
 
 	"cosmossdk.io/math"
-	"cosmossdk.io/simapp/params"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdktestutil "github.com/cosmos/cosmos-sdk/testutil"
 	sdktestutilcli "github.com/cosmos/cosmos-sdk/testutil/cli"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktestutilmod "github.com/cosmos/cosmos-sdk/types/module/testutil"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	bankcli "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/evmos/os/crypto/hd"
 	"github.com/evmos/os/encoding"
-	example_app "github.com/evmos/os/example_chain"
-	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/tests/integration/ledger/mocks"
+	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/spf13/cobra"
 
@@ -38,7 +38,7 @@ var (
 var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	var (
 		receiverAccAddr sdk.AccAddress
-		encCfg          params.EncodingConfig
+		encCfg          sdktestutilmod.TestEncodingConfig
 		kr              keyring.Keyring
 		mockedIn        sdktestutil.BufferReader
 		clientCtx       client.Context
@@ -56,7 +56,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	Describe("Adding a key from ledger using the CLI", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
-			encCfg = encoding.MakeConfig(example_app.ModuleBasics)
+			encCfg = encoding.MakeConfig()
 
 			cmd = s.evmosAddKeyCmd()
 
@@ -101,7 +101,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 	Describe("Singing a transactions", func() {
 		BeforeEach(func() {
 			krHome = s.T().TempDir()
-			encCfg = encoding.MakeConfig(example_app.ModuleBasics)
+			encCfg = encoding.MakeConfig()
 
 			var err error
 
@@ -143,7 +143,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					msg := []byte("test message")
 
-					signed, _, err := kr.SignByAddress(ledgerAddr, msg)
+					signed, _, err := kr.SignByAddress(ledgerAddr, msg, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 					s.Require().NoError(err, "failed to sign message")
 
 					valid := s.pubKey.VerifySignature(msg, signed)
@@ -157,7 +157,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					msg := []byte("test message")
 
-					_, _, err = kr.SignByAddress(ledgerAddr, msg)
+					_, _, err = kr.SignByAddress(ledgerAddr, msg, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 
 					s.Require().Error(err, "false positive result, error expected")
 
@@ -168,7 +168,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 				BeforeEach(func() {
 					s.ledger = mocks.NewSECP256K1(s.T())
 
-					err := chainutil.FundAccount(
+					err := testutil.FundAccount(
 						s.ctx,
 						s.app.BankKeeper,
 						s.accAddr,
@@ -180,7 +180,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 					receiverAccAddr = sdk.AccAddress(utiltx.GenerateAddress().Bytes())
 
-					cmd = bankcli.NewSendTxCmd()
+					cmd = bankcli.NewSendTxCmd(s.app.AccountKeeper.AddressCodec())
 					mockedIn = sdktestutil.ApplyMockIODiscardOutErr(cmd)
 
 					kr, clientCtx, ctx = s.NewKeyringAndCtxs(krHome, mockedIn, encCfg)

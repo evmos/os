@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package factory
 
 import (
@@ -87,12 +88,12 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	if err != nil {
 		// NOTE: here we are still passing the response to the log check function,
 		// because we want to check the logs and expected error in case of a VM error.
-		return abcitypes.ExecTxResult{}, nil, CheckError(err, logCheckArgs)
+		return res, nil, CheckError(err, logCheckArgs)
 	}
 
 	ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
-		return abcitypes.ExecTxResult{}, nil, err
+		return res, nil, err
 	}
 
 	return res, ethRes, testutil.CheckLogs(logCheckArgs)
