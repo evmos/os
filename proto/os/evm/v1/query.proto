@@ -3,6 +3,7 @@
 syntax = "proto3";
 package os.evm.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -16,13 +17,13 @@ option go_package = "github.com/evmos/os/x/evm/types";
 service Query {
   // Account queries an Ethereum account.
   rpc Account(QueryAccountRequest) returns (QueryAccountResponse) {
-    option (google.api.http).get = "/os/evm/v1/account/{address}";
+    option (google.api.http).get = "/evmos/evm/v1/account/{address}";
   }
 
   // CosmosAccount queries an Ethereum account's Cosmos Address.
   rpc CosmosAccount(QueryCosmosAccountRequest)
       returns (QueryCosmosAccountResponse) {
-    option (google.api.http).get = "/os/evm/v1/cosmos_account/{address}";
+    option (google.api.http).get = "/evmos/evm/v1/cosmos_account/{address}";
   }
 
   // ValidatorAccount queries an Ethereum account's from a validator consensus
@@ -30,56 +31,56 @@ service Query {
   rpc ValidatorAccount(QueryValidatorAccountRequest)
       returns (QueryValidatorAccountResponse) {
     option (google.api.http).get =
-        "/os/evm/v1/validator_account/{cons_address}";
+        "/evmos/evm/v1/validator_account/{cons_address}";
   }
 
   // Balance queries the balance of a the EVM denomination for a single
   // account.
   rpc Balance(QueryBalanceRequest) returns (QueryBalanceResponse) {
-    option (google.api.http).get = "/os/evm/v1/balances/{address}";
+    option (google.api.http).get = "/evmos/evm/v1/balances/{address}";
   }
 
   // Storage queries the balance of all coins for a single account.
   rpc Storage(QueryStorageRequest) returns (QueryStorageResponse) {
-    option (google.api.http).get = "/os/evm/v1/storage/{address}/{key}";
+    option (google.api.http).get = "/evmos/evm/v1/storage/{address}/{key}";
   }
 
   // Code queries the balance of all coins for a single account.
   rpc Code(QueryCodeRequest) returns (QueryCodeResponse) {
-    option (google.api.http).get = "/os/evm/v1/codes/{address}";
+    option (google.api.http).get = "/evmos/evm/v1/codes/{address}";
   }
 
   // Params queries the parameters of x/evm module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/os/evm/v1/params";
+    option (google.api.http).get = "/evmos/evm/v1/params";
   }
 
   // EthCall implements the `eth_call` rpc api
   rpc EthCall(EthCallRequest) returns (MsgEthereumTxResponse) {
-    option (google.api.http).get = "/os/evm/v1/eth_call";
+    option (google.api.http).get = "/evmos/evm/v1/eth_call";
   }
 
   // EstimateGas implements the `eth_estimateGas` rpc api
   rpc EstimateGas(EthCallRequest) returns (EstimateGasResponse) {
-    option (google.api.http).get = "/os/evm/v1/estimate_gas";
+    option (google.api.http).get = "/evmos/evm/v1/estimate_gas";
   }
 
   // TraceTx implements the `debug_traceTransaction` rpc api
   rpc TraceTx(QueryTraceTxRequest) returns (QueryTraceTxResponse) {
-    option (google.api.http).get = "/os/evm/v1/trace_tx";
+    option (google.api.http).get = "/evmos/evm/v1/trace_tx";
   }
 
   // TraceBlock implements the `debug_traceBlockByNumber` and
   // `debug_traceBlockByHash` rpc api
   rpc TraceBlock(QueryTraceBlockRequest) returns (QueryTraceBlockResponse) {
-    option (google.api.http).get = "/os/evm/v1/trace_block";
+    option (google.api.http).get = "/evmos/evm/v1/trace_block";
   }
 
   // BaseFee queries the base fee of the parent block of the current block,
   // it's similar to feemarket module's method, but also checks london hardfork
   // status.
   rpc BaseFee(QueryBaseFeeRequest) returns (QueryBaseFeeResponse) {
-    option (google.api.http).get = "/os/evm/v1/base_fee";
+    option (google.api.http).get = "/evmos/evm/v1/base_fee";
   }
 }
 
@@ -219,7 +220,8 @@ message QueryParamsRequest {}
 // QueryParamsResponse defines the response type for querying x/evm parameters.
 message QueryParamsResponse {
   // params define the evm module parameters.
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }
 
 // EthCallRequest defines EthCall request
@@ -259,8 +261,11 @@ message QueryTraceTxRequest {
   // block_hash of requested transaction
   string block_hash = 6;
   // block_time of requested transaction
-  google.protobuf.Timestamp block_time = 7
-      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp block_time = 7 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.stdtime) = true
+  ];
   // proposer_address is the proposer of the requested block
   bytes proposer_address = 8
       [ (gogoproto.casttype) =
@@ -288,8 +293,11 @@ message QueryTraceBlockRequest {
   // block_hash (hex) of the traced block
   string block_hash = 6;
   // block_time of the traced block
-  google.protobuf.Timestamp block_time = 7
-      [ (gogoproto.nullable) = false, (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp block_time = 7 [
+    (gogoproto.nullable) = false,
+    (amino.dont_omitempty) = true,
+    (gogoproto.stdtime) = true
+  ];
   // proposer_address is the address of the requested block
   bytes proposer_address = 8
       [ (gogoproto.casttype) =
