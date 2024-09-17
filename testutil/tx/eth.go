@@ -103,7 +103,7 @@ func CreateEthTx(
 	chainID := app.EVMKeeper.ChainID()
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
-	nonce := app.EVMKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement)
+	nonce := app.EVMKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //nolint:gosec // G115 // increment won't exceed uint64
 	evmTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,

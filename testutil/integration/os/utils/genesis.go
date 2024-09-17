@@ -31,7 +31,7 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 		genesisAccounts[i] = &authtypes.BaseAccount{
 			Address:       addr.String(),
 			PubKey:        nil,
-			AccountNumber: uint64(i + 1),
+			AccountNumber: uint64(i + 1), //nolint:gosec // G115 // won't exceed uint64
 			Sequence:      1,
 		}
 	}

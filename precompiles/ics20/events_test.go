@@ -49,7 +49,7 @@ func (s *PrecompileTestSuite) TestTransferEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[ics20.EventTypeIBCTransfer]
 				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight())) //nolint:gosec // G115 // won't exceed uint64
 
 				var ibcTransferEvent ics20.EventIBCTransfer
 				err := cmn.UnpackLog(s.precompile.ABI, &ibcTransferEvent, ics20.EventTypeIBCTransfer, *log)
@@ -119,7 +119,7 @@ func (s *PrecompileTestSuite) TestApproveTransferAuthorizationEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[authorization.EventTypeIBCTransferAuthorization]
 				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight())) //nolint:gosec // G115 // won't exceed uint64
 
 				var transferAuthorizationEvent ics20.EventTransferAuthorization
 				err := cmn.UnpackLog(s.precompile.ABI, &transferAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
@@ -179,7 +179,7 @@ func (s *PrecompileTestSuite) TestRevokeTransferAuthorizationEvent() {
 				// Check event signature matches the one emitted
 				event := s.precompile.ABI.Events[authorization.EventTypeIBCTransferAuthorization]
 				s.Require().Equal(event.ID, common.HexToHash(log.Topics[0].Hex()))
-				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight()))
+				s.Require().Equal(log.BlockNumber, uint64(s.ctx.BlockHeight())) //nolint:gosec // G115 // won't exceed uint64
 
 				var transferRevokeAuthorizationEvent ics20.EventTransferAuthorization
 				err := cmn.UnpackLog(s.precompile.ABI, &transferRevokeAuthorizationEvent, authorization.EventTypeIBCTransferAuthorization, *log)
