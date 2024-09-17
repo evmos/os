@@ -74,7 +74,7 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 			Expect(err).To(BeNil())
 			Expect(resDeliverTx.IsOK()).To(Equal(true), "transaction should have succeeded", resDeliverTx.GetLog())
 
-			res, err := utils.DecodeResponseDeliverTx(resDeliverTx)
+			res, err := utils.DecodeExecTxResult(resDeliverTx)
 			Expect(err).To(BeNil())
 			Expect(res.VmError).To(Equal(expErr), "expected different vm error")
 			Expect(res.Ret).To(Equal(expOutput))

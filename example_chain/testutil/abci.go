@@ -64,7 +64,7 @@ func DeliverTx(
 	priv cryptotypes.PrivKey,
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
-) (abci.ResponseDeliverTx, error) {
+) (abci.ExecTxResult, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
@@ -79,7 +79,7 @@ func DeliverTx(
 		},
 	)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return abci.ExecTxResult{}, err
 	}
 	return BroadcastTxBytes(exampleApp, txConfig.TxEncoder(), tx)
 }
@@ -91,12 +91,12 @@ func DeliverEthTx(
 	exampleApp *app.ExampleChain,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
-) (abci.ResponseDeliverTx, error) {
+) (abci.ExecTxResult, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
 	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return abci.ExecTxResult{}, err
 	}
 	res, err := BroadcastTxBytes(exampleApp, txConfig.TxEncoder(), tx)
 	if err != nil {
@@ -118,17 +118,17 @@ func DeliverEthTxWithoutCheck(
 	exampleApp *app.ExampleChain,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
-) (abci.ResponseDeliverTx, error) {
+) (abci.ExecTxResult, error) {
 	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
 
 	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return abci.ExecTxResult{}, err
 	}
 
 	res, err := BroadcastTxBytes(exampleApp, txConfig.TxEncoder(), tx)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return abci.ExecTxResult{}, err
 	}
 
 	return res, nil
@@ -178,17 +178,17 @@ func CheckEthTx(
 }
 
 // BroadcastTxBytes encodes a transaction and calls DeliverTx on the app.
-func BroadcastTxBytes(app *app.ExampleChain, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ResponseDeliverTx, error) {
+func BroadcastTxBytes(app *app.ExampleChain, txEncoder sdk.TxEncoder, tx sdk.Tx) (abci.ExecTxResult, error) {
 	// bz are bytes to be broadcasted over the network
 	bz, err := txEncoder(tx)
 	if err != nil {
-		return abci.ResponseDeliverTx{}, err
+		return abci.ExecTxResult{}, err
 	}
 
 	req := abci.RequestDeliverTx{Tx: bz}
 	res := app.BaseApp.DeliverTx(req)
 	if res.Code != 0 {
-		return abci.ResponseDeliverTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+		return abci.ExecTxResult{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
 	}
 
 	return res, nil

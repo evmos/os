@@ -5,8 +5,8 @@ package network
 import (
 	"time"
 
+	sdktypes "cosmossdk.io/store/types/types"
 	abci "github.com/cometbft/cometbft/abci/types"
-	sdktypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 // NextBlock is a private helper function that runs the EndBlocker logic, commits the changes,

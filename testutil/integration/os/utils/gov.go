@@ -87,7 +87,7 @@ func VoteOnProposal(tf factory.TxFactory, voterPriv cryptotypes.PrivKey, proposa
 }
 
 // getProposalIDFromEvents returns the proposal ID from the events in
-// the ResponseDeliverTx.
+// the ExecTxResult.
 func getProposalIDFromEvents(events []abcitypes.Event) (uint64, error) {
 	var (
 		err        error

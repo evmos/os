@@ -24,7 +24,7 @@ type TxFactory interface {
 	// BuildCosmosTx builds a Cosmos tx with the provided private key and txArgs
 	BuildCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (signing.Tx, error)
 	// ExecuteCosmosTx builds, signs and broadcasts a Cosmos tx with the provided private key and txArgs
-	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error)
+	ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error)
 }
 
 var _ TxFactory = (*IntegrationTxFactory)(nil)
@@ -59,15 +59,15 @@ func (tf *IntegrationTxFactory) BuildCosmosTx(privKey cryptotypes.PrivKey, txArg
 }
 
 // ExecuteCosmosTx creates, signs and broadcasts a Cosmos transaction
-func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ResponseDeliverTx, error) {
+func (tf *IntegrationTxFactory) ExecuteCosmosTx(privKey cryptotypes.PrivKey, txArgs CosmosTxArgs) (abcitypes.ExecTxResult, error) {
 	signedTx, err := tf.BuildCosmosTx(privKey, txArgs)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to generate tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to generate tx")
 	}
 
 	txBytes, err := tf.encodeTx(signedTx)
 	if err != nil {
-		return abcitypes.ResponseDeliverTx{}, errorsmod.Wrap(err, "failed to encode tx")
+		return abcitypes.ExecTxResult{}, errorsmod.Wrap(err, "failed to encode tx")
 	}
 
 	return tf.network.BroadcastTxSync(txBytes)

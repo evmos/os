@@ -3,8 +3,8 @@ package keeper_test
 import (
 	"fmt"
 
+	storetypes "cosmossdk.io/store/types/types"
 	"github.com/cometbft/cometbft/abci/types"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 )
 
 func (suite *KeeperTestSuite) TestEndBlock() {

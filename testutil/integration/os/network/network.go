@@ -254,7 +254,7 @@ func (n *IntegrationNetwork) GetValidators() []stakingtypes.Validator {
 
 // BroadcastTxSync broadcasts the given txBytes to the network and returns the response.
 // TODO - this should be change to gRPC
-func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ResponseDeliverTx, error) {
+func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxResult, error) {
 	req := abcitypes.RequestDeliverTx{Tx: txBytes}
 	return n.app.BaseApp.DeliverTx(req), nil
 }

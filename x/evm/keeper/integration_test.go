@@ -283,7 +283,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 			Expect(err).NotTo(BeNil())
 			Expect(err.Error()).To(ContainSubstring("invalid chain id"))
 			// Transaction fails before being broadcasted
-			Expect(res).To(Equal(abcitypes.ResponseDeliverTx{}))
+			Expect(res).To(Equal(abcitypes.ExecTxResult{}))
 		})
 	})
 
@@ -643,7 +643,7 @@ type PermissionsTableTest struct {
 	SignerIndex int
 }
 
-func checkMintTopics(res abcitypes.ResponseDeliverTx) error {
+func checkMintTopics(res abcitypes.ExecTxResult) error {
 	// Check contract call response has the expected topics for a mint
 	// call within an ERC20 contract
 	expectedTopics := []string{
