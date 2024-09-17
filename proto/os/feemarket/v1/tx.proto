@@ -10,7 +10,7 @@ import "os/feemarket/v1/feemarket.proto";
 
 option go_package = "github.com/evmos/os/x/feemarket/types";
 
-// Msg defines the erc20 Msg service.
+// Msg defines the feemarket Msg service.
 service Msg {
   // UpdateParams defined a governance operation for updating the x/feemarket
   // module parameters. The authority is hard-coded to the Cosmos SDK x/gov

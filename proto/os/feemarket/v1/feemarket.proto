@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 
 option go_package = "github.com/evmos/os/x/feemarket/types";
 
-// Params defines the EVM module parameters
+// Params defines the feemarket module parameters
 message Params {
   // no_base_fee forces the EIP-1559 base fee to 0 (needed for 0 price calls)
   bool no_base_fee = 1;
