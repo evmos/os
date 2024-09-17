@@ -41,7 +41,7 @@ require (
 	github.com/zondax/hid v0.9.2
 	golang.org/x/crypto v0.27.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
-	golang.org/x/net v0.28.0
+	golang.org/x/net v0.29.0
 	golang.org/x/text v0.18.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20240604185151-ef581f913117
 	google.golang.org/grpc v1.66.0
