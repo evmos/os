@@ -7,7 +7,7 @@ import (
 	"math/big"
 	"time"
 
-	storetypes "cosmossdk.io/store/types/types"
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	"github.com/ethereum/go-ethereum/accounts/abi"

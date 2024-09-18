@@ -7,7 +7,7 @@ import (
 	"embed"
 	"fmt"
 
-	storetypes "cosmossdk.io/store/types/types"
+	storetypes "cosmossdk.io/store/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/os/precompiles/common"

@@ -10,7 +10,7 @@ import (
 	"github.com/armon/go-metrics"
 	"github.com/ethereum/go-ethereum/common"
 
-	storetypes "cosmossdk.io/store/types/types"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 

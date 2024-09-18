@@ -4,7 +4,7 @@
 package ante_test
 
 import (
-	storetypes "cosmossdk.io/store/types/types"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/evmos/os/testutil/integration/os/network"
 	evmante "github.com/evmos/os/x/evm/ante"
 )

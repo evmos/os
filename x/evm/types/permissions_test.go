@@ -35,7 +35,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should allow call and create with default accessControl",
 			getAccessControl: func() types.AccessControl {
-				return types.DefaultAccessControl
+				return types.DefaultParams().AccessControl
 			},
 			canCall:   true,
 			canCreate: true,
@@ -46,7 +46,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow call and create with nobody accessControl",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypeRestricted
 				p.Call.AccessType = types.AccessTypeRestricted
 				return p
@@ -60,7 +60,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow call with permissionless policy and signer in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissionless
 				p.Call.AccessControlList = []string{keyring.GetAddr(0).String()}
 				return p
@@ -74,7 +74,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow call with permissionless policy and signer not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissionless
 				p.Call.AccessControlList = []string{keyring.GetAddr(0).String()}
 				return p
@@ -88,7 +88,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should allow call with permissionless policy while caller nor signer are in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissionless
 				p.Call.AccessControlList = []string{keyring.GetAddr(0).String()}
 				return p
@@ -102,7 +102,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should allow call with permissionless policy and caller not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissionless
 				p.Call.AccessControlList = []string{keyring.GetAddr(1).String()}
 				return p
@@ -116,7 +116,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow create with permissionless policy and signer in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissionless
 				p.Create.AccessControlList = []string{keyring.GetAddr(0).String()}
 				return p
@@ -130,7 +130,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow create with permissionless policy and signer not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissionless
 				p.Create.AccessControlList = []string{keyring.GetAddr(0).String()}
 				return p
@@ -144,7 +144,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should allow create with permissionless policy while caller nor signer are in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissionless
 				p.Create.AccessControlList = []string{keyring.GetAddr(0).String()}
 				return p
@@ -158,7 +158,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should allow create with permissionless policy and caller not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissionless
 				p.Create.AccessControlList = []string{keyring.GetAddr(1).String()}
 				return p
@@ -172,7 +172,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow call with permissioned policy and not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Call.AccessType = types.AccessTypePermissioned
 				p.Call.AccessControlList = []string{keyring.GetAddr(1).String()}
 				return p
@@ -186,7 +186,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should not allow create with permissioned policy and not in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissioned
 				p.Create.AccessControlList = []string{keyring.GetAddr(1).String()}
 				return p
@@ -200,7 +200,7 @@ func (suite *UnitTestSuite) TestAccessControl() {
 		{
 			name: "should allow call and create with permissioned policy and address in AccessControlList",
 			getAccessControl: func() types.AccessControl {
-				p := types.DefaultAccessControl
+				p := types.DefaultParams().AccessControl
 				p.Create.AccessType = types.AccessTypePermissioned
 				p.Create.AccessControlList = []string{keyring.GetAddr(0).String()}
 				p.Call.AccessType = types.AccessTypePermissioned

@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"math/big"
 	"testing"
 
@@ -51,7 +52,10 @@ func TestInitGenesis(t *testing.T) {
 	defaultGenesisWithEVMDenom := types.DefaultGenesisState()
 	defaultGenesisWithEVMDenom.Params.EvmDenom = testutil.ExampleAttoDenom
 
-	var vmdb *statedb.StateDB
+	var (
+		vmdb *statedb.StateDB
+		ctx  sdk.Context
+	)
 
 	testCases := []struct {
 		name     string
@@ -106,7 +110,6 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "ignore empty account code checking",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ctx := network.GetContext()
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
@@ -124,7 +127,6 @@ func TestInitGenesis(t *testing.T) {
 		{
 			name: "valid account with code",
 			malleate: func(network *testnetwork.UnitTestNetwork) {
-				ctx := network.GetContext()
 				acc := network.App.AccountKeeper.NewAccountWithAddress(ctx, address.Bytes())
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
@@ -144,12 +146,12 @@ func TestInitGenesis(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ts := SetupTest()
-			ctx := ts.network.GetContext()
+			ctx = ts.network.GetContext()
 
 			vmdb = statedb.New(
 				ctx,
 				ts.network.App.EVMKeeper,
-				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash().Bytes())),
+				statedb.NewEmptyTxConfig(common.BytesToHash(ctx.HeaderHash())),
 			)
 
 			tc.malleate(ts.network)

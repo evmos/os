@@ -4,8 +4,9 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/evmos/os/crypto/ethsecp256k1"
 )
 
 type GenesisTestSuite struct {
@@ -82,10 +83,6 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	defaultGenesisWithEVMDenom := DefaultGenesisState()
-	defaultParamsWithEVMDenom := DefaultParamsWithEVMDenom(testDenom)
-	defaultGenesisWithEVMDenom.Params = defaultParamsWithEVMDenom
-
 	testCases := []struct {
 		name     string
 		genState *GenesisState
@@ -94,11 +91,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name:     "default",
 			genState: DefaultGenesisState(),
-			expPass:  false,
-		},
-		{
-			name:     "default with EVM denom set",
-			genState: defaultGenesisWithEVMDenom,
 			expPass:  true,
 		},
 		{
@@ -114,7 +106,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: defaultParamsWithEVMDenom,
+				Params: DefaultParams(),
 			},
 			expPass: true,
 		},
@@ -125,7 +117,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name:     "copied genesis",
-			genState: NewGenesisState(defaultParamsWithEVMDenom, DefaultGenesisState().Accounts),
+			genState: NewGenesisState(DefaultGenesisState().Params, DefaultGenesisState().Accounts),
 			expPass:  true,
 		},
 		{
@@ -152,7 +144,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: defaultParamsWithEVMDenom,
+				Params: DefaultParams(),
 			},
 			expPass: false,
 		},
