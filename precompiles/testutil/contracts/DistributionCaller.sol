@@ -2,9 +2,11 @@
 pragma solidity >=0.8.17;
 
 import "../../distribution/DistributionI.sol" as distribution;
+import "../../staking/StakingI.sol" as staking;
 import "../../common/Types.sol" as types;
 
 contract DistributionCaller {
+    string[] private delegateMethod = [staking.MSG_DELEGATE];
     int64 public counter;
 
     function testSetWithdrawAddressFromContract(
@@ -12,9 +14,9 @@ contract DistributionCaller {
     ) public returns (bool) {
         return
             distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
-                address(this),
-                _withdrawAddr
-            );
+            address(this),
+            _withdrawAddr
+        );
     }
 
     function testWithdrawDelegatorRewardsFromContract(
@@ -22,9 +24,9 @@ contract DistributionCaller {
     ) public returns (types.Coin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
-                address(this),
-                _valAddr
-            );
+            address(this),
+            _valAddr
+        );
     }
 
     function testSetWithdrawAddress(
@@ -33,9 +35,9 @@ contract DistributionCaller {
     ) public returns (bool) {
         return
             distribution.DISTRIBUTION_CONTRACT.setWithdrawAddress(
-                _delAddr,
-                _withdrawAddr
-            );
+            _delAddr,
+            _withdrawAddr
+        );
     }
 
     function testWithdrawDelegatorRewardsWithTransfer(
@@ -68,10 +70,10 @@ contract DistributionCaller {
         bool _after
     ) public {
         try
-            DistributionCaller(address(this)).withdrawDelegatorRewardsAndRevert(
-                _delAddr,
-                _valAddr
-            )
+        DistributionCaller(address(this)).withdrawDelegatorRewardsAndRevert(
+            _delAddr,
+            _valAddr
+        )
         {} catch {}
         if (_after) {
             counter++;
@@ -86,9 +88,9 @@ contract DistributionCaller {
     ) public returns (types.Coin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
-                _delAddr,
-                _valAddr
-            );
+            _delAddr,
+            _valAddr
+        );
     }
 
     function withdrawDelegatorRewardsAndRevert(
@@ -107,8 +109,8 @@ contract DistributionCaller {
     ) public returns (types.Coin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawValidatorCommission(
-                _valAddr
-            );
+            _valAddr
+        );
     }
 
     function testWithdrawValidatorCommissionWithTransfer(
@@ -143,9 +145,9 @@ contract DistributionCaller {
     ) public returns (bool success) {
         return
             distribution.DISTRIBUTION_CONTRACT.claimRewards(
-                _delAddr,
-                _maxRetrieve
-            );
+            _delAddr,
+            _maxRetrieve
+        );
     }
 
     /// @dev testFundCommunityPool defines a method to allow an account to directly
@@ -222,13 +224,34 @@ contract DistributionCaller {
         }
     }
 
+    /// @dev This function calls the staking precompile's delegate method.
+    /// @param _validatorAddr The validator address to delegate to.
+    /// @param _amount The amount to delegate.
+    function testDelegateFromContract(
+        string memory _validatorAddr,
+        uint256 _amount
+    ) public {
+        // Create approval
+        bool success = staking.STAKING_CONTRACT.approve(
+            address(this),
+            _amount,
+            delegateMethod
+        );
+        require(success, "Failed to approve staking methods");
+        staking.STAKING_CONTRACT.delegate(
+            address(this),
+            _validatorAddr,
+            _amount
+        );
+    }
+
     function getValidatorDistributionInfo(
         string memory _valAddr
     ) public view returns (distribution.ValidatorDistributionInfo memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.validatorDistributionInfo(
-                _valAddr
-            );
+            _valAddr
+        );
     }
 
     function getValidatorOutstandingRewards(
@@ -236,8 +259,8 @@ contract DistributionCaller {
     ) public view returns (types.DecCoin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.validatorOutstandingRewards(
-                _valAddr
-            );
+            _valAddr
+        );
     }
 
     function getValidatorCommission(
@@ -252,20 +275,20 @@ contract DistributionCaller {
         uint64 _endingHeight,
         types.PageRequest calldata pageRequest
     )
-        public
-        view
-        returns (
-            distribution.ValidatorSlashEvent[] memory,
-            distribution.PageResponse memory
-        )
+    public
+    view
+    returns (
+        distribution.ValidatorSlashEvent[] memory,
+        distribution.PageResponse memory
+    )
     {
         return
             distribution.DISTRIBUTION_CONTRACT.validatorSlashes(
-                _valAddr,
-                _startingHeight,
-                _endingHeight,
-                pageRequest
-            );
+            _valAddr,
+            _startingHeight,
+            _endingHeight,
+            pageRequest
+        );
     }
 
     function getDelegationRewards(
@@ -274,20 +297,20 @@ contract DistributionCaller {
     ) public view returns (types.DecCoin[] memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.delegationRewards(
-                _delAddr,
-                _valAddr
-            );
+            _delAddr,
+            _valAddr
+        );
     }
 
     function getDelegationTotalRewards(
         address _delAddr
     )
-        public
-        view
-        returns (
-            distribution.DelegationDelegatorReward[] memory rewards,
-            types.DecCoin[] memory total
-        )
+    public
+    view
+    returns (
+        distribution.DelegationDelegatorReward[] memory rewards,
+        types.DecCoin[] memory total
+    )
     {
         return
             distribution.DISTRIBUTION_CONTRACT.delegationTotalRewards(_delAddr);
@@ -304,8 +327,8 @@ contract DistributionCaller {
     ) public view returns (string memory) {
         return
             distribution.DISTRIBUTION_CONTRACT.delegatorWithdrawAddress(
-                _delAddr
-            );
+            _delAddr
+        );
     }
 
     // testRevertState allows sender to change the withdraw address
@@ -323,9 +346,9 @@ contract DistributionCaller {
 
         return
             distribution.DISTRIBUTION_CONTRACT.withdrawDelegatorRewards(
-                _delAddr,
-                _valAddr
-            );
+            _delAddr,
+            _valAddr
+        );
     }
 
     function delegateCallSetWithdrawAddress(
@@ -335,12 +358,12 @@ contract DistributionCaller {
         (bool success, ) = distribution
             .DISTRIBUTION_PRECOMPILE_ADDRESS
             .delegatecall(
-                abi.encodeWithSignature(
-                    "setWithdrawAddress(address,string)",
-                    _delAddr,
-                    _withdrawAddr
-                )
-            );
+            abi.encodeWithSignature(
+                "setWithdrawAddress(address,string)",
+                _delAddr,
+                _withdrawAddr
+            )
+        );
         require(success, "failed delegateCall to precompile");
     }
 
@@ -351,12 +374,12 @@ contract DistributionCaller {
         (bool success, ) = distribution
             .DISTRIBUTION_PRECOMPILE_ADDRESS
             .staticcall(
-                abi.encodeWithSignature(
-                    "setWithdrawAddress(address,string)",
-                    _delAddr,
-                    _withdrawAddr
-                )
-            );
+            abi.encodeWithSignature(
+                "setWithdrawAddress(address,string)",
+                _delAddr,
+                _withdrawAddr
+            )
+        );
         require(success, "failed staticCall to precompile");
     }
 
@@ -366,11 +389,11 @@ contract DistributionCaller {
         (bool success, bytes memory data) = distribution
             .DISTRIBUTION_PRECOMPILE_ADDRESS
             .staticcall(
-                abi.encodeWithSignature(
-                    "delegatorWithdrawAddress(address)",
-                    _delAddr
-                )
-            );
+            abi.encodeWithSignature(
+                "delegatorWithdrawAddress(address)",
+                _delAddr
+            )
+        );
         require(success, "failed staticCall to precompile");
         return data;
     }
