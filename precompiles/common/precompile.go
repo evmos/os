@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package common
 
 import (
@@ -51,7 +52,7 @@ func NewBalanceChangeEntry(acc common.Address, amt *big.Int, op Operation) balan
 // This is needed to allow us to revert the changes
 // during the EVM execution
 type snapshot struct {
-	MultiStore sdk.CacheMultiStore
+	MultiStore storetypes.CacheMultiStore
 	Events     sdk.Events
 }
 
@@ -159,7 +160,7 @@ func HandleGasError(ctx sdk.Context, contract *vm.Contract, initialGas storetype
 	return func() {
 		if r := recover(); r != nil {
 			switch r.(type) {
-			case sdk.ErrorOutOfGas:
+			case storetypes.ErrorOutOfGas:
 				// update contract gas
 				usedGas := ctx.GasMeter().GasConsumed() - initialGas
 				_ = contract.UseGas(usedGas)
