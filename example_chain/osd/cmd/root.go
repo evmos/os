@@ -9,10 +9,10 @@ import (
 	"io"
 	"os"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/simapp/params"
 	"cosmossdk.io/store/types"
 	tmcfg "github.com/cometbft/cometbft/config"
-	"github.com/cometbft/cometbft/libs/log"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"

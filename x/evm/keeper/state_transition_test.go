@@ -9,7 +9,7 @@ import (
 	storetypes "cosmossdk.io/store/types/types"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -27,7 +27,7 @@ import (
 
 func (suite *KeeperTestSuite) TestGetHashFn() {
 	header := suite.ctx.BlockHeader()
-	h, _ := tmtypes.HeaderFromProto(&header)
+	h, _ := cmttypes.HeaderFromProto(&header)
 	hash := h.Hash()
 
 	testCases := []struct {

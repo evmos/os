@@ -6,8 +6,8 @@ package staking
 import (
 	"embed"
 
+	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types/types"
-	"github.com/cometbft/cometbft/libs/log"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"

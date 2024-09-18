@@ -7,10 +7,10 @@ import (
 	"encoding/json"
 	"time"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
 	"cosmossdk.io/simapp"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtypes "github.com/cometbft/cometbft/types"
 	dbm "github.com/cosmos/cosmos-db"

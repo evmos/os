@@ -2,14 +2,14 @@ package backend
 
 import (
 	"bufio"
+	testnetwork "github.com/evmos/os/testutil/integration/os/network"
 	"math/big"
 	"os"
 	"path/filepath"
 	"testing"
 
+	cmtrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	dbm "github.com/cosmos/cosmos-db"
-
-	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -18,7 +18,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/crypto/hd"
 	"github.com/evmos/os/encoding"
-	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
@@ -70,7 +69,8 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.signer = utiltx.NewSigner(priv)
 	suite.Require().NoError(err)
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	nw := testnetwork.New()
+	encodingConfig := nw.GetEncodingConfig()
 	clientCtx := client.Context{}.WithChainID(ChainID).
 		WithHeight(1).
 		WithTxConfig(encodingConfig.TxConfig).
@@ -91,8 +91,7 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.backend.ctx = rpctypes.ContextWithHeight(1)
 
 	// Add codec
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
-	suite.backend.clientCtx.Codec = encCfg.Codec
+	suite.backend.clientCtx.Codec = encodingConfig.Codec
 }
 
 // buildEthereumTx returns an example legacy Ethereum transaction
@@ -121,8 +120,8 @@ func (suite *BackendTestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byt
 
 // buildFormattedBlock returns a formatted block for testing
 func (suite *BackendTestSuite) buildFormattedBlock(
-	blockRes *tmrpctypes.ResultBlockResults,
-	resBlock *tmrpctypes.ResultBlock,
+	blockRes *cmtrpctypes.ResultBlockResults,
+	resBlock *cmtrpctypes.ResultBlock,
 	fullTx bool,
 	tx *evmtypes.MsgEthereumTx,
 	validator sdk.AccAddress,
@@ -168,7 +167,7 @@ func (suite *BackendTestSuite) buildFormattedBlock(
 
 func (suite *BackendTestSuite) generateTestKeyring(clientDir string) (keyring.Keyring, error) {
 	buf := bufio.NewReader(os.Stdin)
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := encoding.MakeConfig()
 	return keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, encCfg.Codec, []keyring.Option{hd.EthSecp256k1Option()}...)
 }
 

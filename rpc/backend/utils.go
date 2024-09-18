@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package backend
 
 import (
@@ -9,23 +10,20 @@ import (
 	"sort"
 	"strings"
 
+	"cosmossdk.io/log"
+	abci "github.com/cometbft/cometbft/abci/types"
+	"github.com/cometbft/cometbft/proto/tendermint/crypto"
+	cmtrpctypes "github.com/cometbft/cometbft/rpc/core/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus/misc"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-
-	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
-
-	"github.com/cometbft/cometbft/proto/tendermint/crypto"
 	"github.com/evmos/os/rpc/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type txGasAndReward struct {
@@ -61,7 +59,7 @@ func (b *Backend) getAccountNonce(accAddr common.Address, pending bool, height i
 		}
 		return 0, err
 	}
-	var acc authtypes.AccountI
+	var acc sdk.AccountI
 	if err := b.clientCtx.InterfaceRegistry.UnpackAny(res.Account, &acc); err != nil {
 		return 0, err
 	}
@@ -105,10 +103,10 @@ func (b *Backend) getAccountNonce(accAddr common.Address, pending bool, height i
 
 // output: targetOneFeeHistory
 func (b *Backend) processBlock(
-	tendermintBlock *tmrpctypes.ResultBlock,
+	tendermintBlock *cmtrpctypes.ResultBlock,
 	ethBlock *map[string]interface{},
 	rewardPercentiles []float64,
-	tendermintBlockResult *tmrpctypes.ResultBlockResults,
+	tendermintBlockResult *cmtrpctypes.ResultBlockResults,
 	targetOneFeeHistory *types.OneFeeHistory,
 ) error {
 	blockHeight := tendermintBlock.Block.Height
@@ -254,12 +252,12 @@ func ParseTxLogsFromEvent(event abci.Event) ([]*ethtypes.Log, error) {
 			continue
 		}
 
-		var log evmtypes.Log
-		if err := json.Unmarshal([]byte(attr.Value), &log); err != nil {
+		var txLog evmtypes.Log
+		if err := json.Unmarshal([]byte(attr.Value), &txLog); err != nil {
 			return nil, err
 		}
 
-		logs = append(logs, &log)
+		logs = append(logs, &txLog)
 	}
 	return evmtypes.LogsToEthereum(logs), nil
 }
@@ -271,7 +269,7 @@ func ShouldIgnoreGasUsed(res *abci.ExecTxResult) bool {
 }
 
 // GetLogsFromBlockResults returns the list of event logs from the tendermint block result response
-func GetLogsFromBlockResults(blockRes *tmrpctypes.ResultBlockResults) ([][]*ethtypes.Log, error) {
+func GetLogsFromBlockResults(blockRes *cmtrpctypes.ResultBlockResults) ([][]*ethtypes.Log, error) {
 	blockLogs := [][]*ethtypes.Log{}
 	for _, txResult := range blockRes.TxsResults {
 		logs, err := AllTxLogsFromEvents(txResult.Events)
