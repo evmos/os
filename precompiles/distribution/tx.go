@@ -44,21 +44,27 @@ func (p *Precompile) ClaimRewards(
 		return nil, err
 	}
 
-	maxVals := p.stakingKeeper.MaxValidators(ctx)
+	maxVals, err := p.stakingKeeper.MaxValidators(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if maxRetrieve > maxVals {
 		return nil, fmt.Errorf("maxRetrieve (%d) parameter exceeds the maximum number of validators (%d)", maxRetrieve, maxVals)
 	}
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorAddr && origin != delegatorAddr
+	isContractDelegator := (contract.CallerAddress == delegatorAddr) && (origin != delegatorAddr)
 	if !isContractDelegator && origin != delegatorAddr {
 		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
 
-	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	res, err := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	if err != nil {
+		return nil, err
+	}
 	totalCoins := sdk.Coins{}
-	for _, validator := range validators {
+	for _, validator := range res.Validators {
 		// Convert the validator operator address into an ValAddress
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
 		if err != nil {
@@ -79,7 +85,11 @@ func (p *Precompile) ClaimRewards(
 	// this happens when the precompile is called from a smart contract
 	if contract.CallerAddress != origin {
 		// rewards go to the withdrawer address
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, delegatorAddr)
+		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorAddr)
+		if err != nil {
+			return nil, err
+		}
+
 		evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(evmDenom).BigInt(), cmn.Add))
 	}
