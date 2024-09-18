@@ -10,7 +10,7 @@ import (
 	storetypes "cosmossdk.io/store/types"
 	authzkeeper "github.com/cosmos/cosmos-sdk/x/authz/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
@@ -19,6 +19,9 @@ import (
 	evmtypes "github.com/evmos/os/x/evm/types"
 	transferkeeper "github.com/evmos/os/x/ibc/transfer/keeper"
 )
+
+// PrecompileAddress of the ICS-20 EVM extension in hex format.
+const PrecompileAddress = "0x0000000000000000000000000000000000000802"
 
 var _ vm.PrecompiledContract = &Precompile{}
 
