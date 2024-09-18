@@ -9,7 +9,7 @@ import (
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
@@ -43,7 +43,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 
 	chainID := testutil.ExampleChainID
 	suite.app = exampleapp.Setup(suite.T(), false, chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Now().UTC(),

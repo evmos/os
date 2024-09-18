@@ -65,7 +65,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.registerERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
 
@@ -103,7 +103,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.registerERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
 
@@ -151,7 +151,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.registerERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				pair.Enabled = false
 				suite.app.Erc20Keeper.SetTokenPair(suite.ctx, *pair)
@@ -179,7 +179,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.registerERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
 				suite.Require().Equal("erc20/"+pair.Erc20Address, pair.Denom)
@@ -200,7 +200,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.registerERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
 
@@ -225,7 +225,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 				suite.Require().NoError(err)
 				suite.Commit()
 
-				pair, err := suite.app.Erc20Keeper.RegisterERC20(suite.ctx, contractAddr)
+				pair, err := suite.app.Erc20Keeper.registerERC20(suite.ctx, contractAddr)
 				suite.Require().NoError(err)
 				suite.Commit()
 

@@ -7,20 +7,17 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
-
 	storetypes "cosmossdk.io/store/types"
-	"github.com/armon/go-metrics"
 	"github.com/cosmos/cosmos-sdk/telemetry"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/ethereum/go-ethereum/common"
-
 	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v7/modules/core/04-channel/types"
 	"github.com/cosmos/ibc-go/v7/modules/core/exported"
-
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/ibc"
 	"github.com/evmos/os/x/erc20/types"
+	"github.com/hashicorp/go-metrics"
 )
 
 // OnRecvPacket performs the ICS20 middleware receive callback for automatically
@@ -97,7 +94,11 @@ func (k Keeper) OnRecvPacket(
 	}
 
 	// check if the coin is a native staking token
-	if coin.Denom == evmParams.EvmDenom {
+	bondDenom, err := k.stakingKeeper.BondDenom(ctx)
+	if err != nil {
+		return channeltypes.NewErrorAcknowledgement(err)
+	}
+	if coin.Denom == bondDenom {
 		// no-op, received coin is the staking denomination
 		return ack
 	}

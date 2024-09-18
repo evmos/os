@@ -617,7 +617,7 @@ var _ = Describe("IBCTransfer Precompile", func() {
 			BeforeEach(func() {
 				erc20Addr = s.setupERC20ContractTests(sentAmount)
 				// register the token pair
-				tokenPair, err = s.app.Erc20Keeper.RegisterERC20(s.chainA.GetContext(), erc20Addr)
+				tokenPair, err = s.app.Erc20Keeper.registerERC20(s.chainA.GetContext(), erc20Addr)
 				Expect(err).To(BeNil(), "error while registering the token pair: %v", err)
 
 				defaultErc20TransferArgs = defaultTransferArgs.WithArgs(
@@ -1495,7 +1495,7 @@ var _ = Describe("Calling ICS20 precompile from another contract", func() {
 				erc20Addr = s.setupERC20ContractTests(sentAmount)
 
 				// Register ERC20 token pair to send via IBC
-				_, err := s.app.Erc20Keeper.RegisterERC20(s.chainA.GetContext(), erc20Addr)
+				_, err := s.app.Erc20Keeper.registerERC20(s.chainA.GetContext(), erc20Addr)
 				Expect(err).To(BeNil(), "error while registering the token pair: %v", err)
 
 				denom = fmt.Sprintf("erc20/%s", erc20Addr.String())

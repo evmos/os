@@ -3,8 +3,7 @@ package types_test
 import (
 	"testing"
 
-	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/utils"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -21,7 +20,7 @@ func TestGenesisTestSuite(t *testing.T) {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	newGen := types.NewGenesisState(types.DefaultParams(), exampleapp.ExampleTokenPairs)
+	newGen := types.NewGenesisState(types.DefaultParams(), types.DefaultTokenPairs)
 
 	testCases := []struct {
 		name     string
@@ -42,7 +41,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name: "valid genesis",
 			genState: &types.GenesisState{
 				Params:     types.DefaultParams(),
-				TokenPairs: exampleapp.ExampleTokenPairs,
+				TokenPairs: types.DefaultTokenPairs,
 			},
 			expPass: true,
 		},
@@ -57,8 +56,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -81,8 +80,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -105,8 +104,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -129,8 +128,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
@@ -148,8 +147,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: types.WEVMOSContractMainnet,
+						Denom:        utils.BaseDenom,
 						Enabled:      true,
 					},
 				},
