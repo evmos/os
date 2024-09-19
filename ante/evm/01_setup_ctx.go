@@ -5,6 +5,7 @@ package evm
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	storetypes "cosmossdk.io/store/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
@@ -43,7 +44,7 @@ func SetupContext(ctx sdktypes.Context, tx sdktypes.Tx, evmKeeper anteinterfaces
 
 	// We need to set up an empty gas config so that the gas is consistent with Ethereum.
 	newCtx := evmante.BuildEvmExecutionCtx(ctx).
-		WithGasMeter(sdktypes.NewInfiniteGasMeter())
+		WithGasMeter(storetypes.NewInfiniteGasMeter())
 	// Reset transient gas used to prepare the execution of current cosmos tx.
 	// Transient gas-used is necessary to sum the gas-used of cosmos tx, when it contains multiple eth msgs.
 	evmKeeper.ResetTransientGasUsed(ctx)

@@ -111,7 +111,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 		{
 			name: "success: there are non zero fees, user has sufficient bank balances and event emitted",
 			fees: sdktypes.Coins{
-				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+				sdktypes.NewCoin(unitNetwork.GetDenom(), sdkmath.NewInt(1000)),
 			},
 			getSender: func() sdktypes.AccAddress {
 				// Return prefunded sender
@@ -122,7 +122,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			name:          "fail: insufficient user balance, event is NOT emitted",
 			expectedError: "failed to deduct transaction costs from user balance",
 			fees: sdktypes.Coins{
-				sdktypes.NewCoin(unitNetwork.GetDenom(), sdktypes.NewInt(1000)),
+				sdktypes.NewCoin(unitNetwork.GetDenom(), sdkmath.NewInt(1000)),
 			},
 			getSender: func() sdktypes.AccAddress {
 				// Set up account with too little balance (but not zero)
@@ -183,7 +183,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 				suite.Require().NoError(err)
 				expectedBalance := prevBalance.Balances.Sub(tc.fees...)
 				suite.Require().True(
-					expectedBalance.IsEqual(afterBalance.Balances),
+					expectedBalance.Equal(afterBalance.Balances),
 				)
 
 				// Event to be emitted
