@@ -69,11 +69,11 @@ func NewIndexTxCmd() *cobra.Command {
 				if blk == nil {
 					return fmt.Errorf("block not found %d", height)
 				}
-				resBlk, err := stateStore.LoadABCIResponses(height)
+				resBlk, err := stateStore.LoadFinalizeBlockResponse(height)
 				if err != nil {
 					return err
 				}
-				if err := idxer.IndexBlock(blk, resBlk.DeliverTxs); err != nil {
+				if err := idxer.IndexBlock(blk, resBlk.TxResults); err != nil {
 					return err
 				}
 				fmt.Println(height)

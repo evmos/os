@@ -19,6 +19,10 @@ import (
 )
 
 const (
+	// ServerStartTime defines the time duration that the server need to stay running after startup
+	// for the startup be considered successful
+	ServerStartTime = 5 * time.Second
+
 	// DefaultAPIEnable is the default value for the parameter that defines if the cosmos REST API server is enabled
 	DefaultAPIEnable = false
 

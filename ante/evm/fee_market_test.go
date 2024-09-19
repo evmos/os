@@ -12,7 +12,6 @@ import (
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
-	"github.com/evmos/os/utils"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -20,7 +19,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	suite.WithFeemarketEnabled(true)
 	suite.SetupTest()
 	ctx := suite.GetNetwork().GetContext()
-	dec := evm.NewGasWantedDecorator(suite.GetNetwork().App.EvmKeeper, suite.GetNetwork().App.FeeMarketKeeper)
+	dec := evm.NewGasWantedDecorator(suite.GetNetwork().App.EVMKeeper, suite.GetNetwork().App.FeeMarketKeeper)
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
@@ -40,7 +39,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), utils.BaseDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testutil.ExampleAttoDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -115,7 +114,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), utils.BaseDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testutil.ExampleAttoDenom, &testMsg)
 				limit := types.BlockGasLimit(ctx)
 				txBuilder.SetGasLimit(limit + 5)
 				return txBuilder.GetTx()
