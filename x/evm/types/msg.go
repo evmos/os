@@ -6,7 +6,6 @@ package types
 import (
 	"errors"
 	"fmt"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -17,13 +16,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	evmapi "github.com/evmos/os/api/os/evm"
+	evmapi "github.com/evmos/os/api/os/evm/v1"
 	"github.com/evmos/os/types"
 	protov2 "google.golang.org/protobuf/proto"
 )

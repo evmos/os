@@ -4,6 +4,7 @@
 package testutil
 
 import (
+	"fmt"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
@@ -15,7 +16,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 
-	"github.com/evmos/os/encoding"
 	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil/tx"
 )
@@ -47,7 +47,7 @@ func CommitAndCreateNewCtx(ctx sdk.Context, app *app.ExampleChain, t time.Durati
 	// NewContext function keeps the multistore
 	// but resets other context fields
 	// GasMeter is set as InfiniteGasMeter
-	newCtx := app.BaseApp.NewContext(false, header)
+	newCtx := app.BaseApp.NewContextLegacy(false, header)
 	// set the reseted fields to keep the current ctx settings
 	newCtx = newCtx.WithMinGasPrices(ctx.MinGasPrices())
 	newCtx = newCtx.WithEventManager(ctx.EventManager())
@@ -65,7 +65,7 @@ func DeliverTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := exampleApp.GetTxConfig()
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
 		exampleApp,
@@ -92,7 +92,7 @@ func DeliverEthTx(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := exampleApp.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
 	if err != nil {
@@ -103,7 +103,7 @@ func DeliverEthTx(
 		return res, err
 	}
 
-	codec := encoding.MakeConfig(app.ModuleBasics).Codec
+	codec := exampleApp.AppCodec()
 	if _, err := CheckEthTxResponse(res, codec); err != nil {
 		return res, err
 	}
@@ -119,7 +119,7 @@ func DeliverEthTxWithoutCheck(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ExecTxResult, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := exampleApp.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
 	if err != nil {
@@ -142,7 +142,7 @@ func CheckTx(
 	gasPrice *sdkmath.Int,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := exampleApp.GetTxConfig()
 
 	tx, err := tx.PrepareCosmosTx(
 		ctx,
@@ -168,7 +168,7 @@ func CheckEthTx(
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (abci.ResponseCheckTx, error) {
-	txConfig := encoding.MakeConfig(app.ModuleBasics).TxConfig
+	txConfig := exampleApp.GetTxConfig()
 
 	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
 	if err != nil {
@@ -185,22 +185,34 @@ func BroadcastTxBytes(app *app.ExampleChain, txEncoder sdk.TxEncoder, tx sdk.Tx)
 		return abci.ExecTxResult{}, err
 	}
 
-	req := abci.RequestDeliverTx{Tx: bz}
-	res := app.BaseApp.DeliverTx(req)
-	if res.Code != 0 {
-		return abci.ExecTxResult{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
+	req := abci.RequestFinalizeBlock{Txs: [][]byte{bz}}
+
+	res, err := app.BaseApp.FinalizeBlock(&req)
+	if err != nil {
+		return abci.ExecTxResult{}, err
+	}
+	if len(res.TxResults) != 1 {
+		return abci.ExecTxResult{}, fmt.Errorf("unexpected transaction results. Expected 1, got: %d", len(res.TxResults))
+	}
+	txRes := res.TxResults[0]
+	if txRes.Code != 0 {
+		return abci.ExecTxResult{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, "log: %s", txRes.Log)
 	}
 
-	return res, nil
+	return *txRes, nil
 }
 
 // commit is a private helper function that runs the EndBlocker logic, commits the changes,
 // updates the header, runs the BeginBlocker function and returns the updated header
 func commit(ctx sdk.Context, app *app.ExampleChain, t time.Duration, vs *cmttypes.ValidatorSet) (tmproto.Header, error) {
 	header := ctx.BlockHeader()
+	req := abci.RequestFinalizeBlock{Height: header.Height}
 
 	if vs != nil {
-		res := app.EndBlock(abci.RequestEndBlock{Height: header.Height})
+		res, err := app.FinalizeBlock(&req)
+		if err != nil {
+			return header, err
+		}
 
 		nextVals, err := applyValSetChanges(vs, res.ValidatorUpdates)
 		if err != nil {
@@ -209,18 +221,22 @@ func commit(ctx sdk.Context, app *app.ExampleChain, t time.Duration, vs *cmttype
 		header.ValidatorsHash = vs.Hash()
 		header.NextValidatorsHash = nextVals.Hash()
 	} else {
-		app.EndBlocker(ctx, abci.RequestEndBlock{Height: header.Height})
+		if _, err := app.EndBlocker(ctx); err != nil {
+			return header, err
+		}
 	}
 
-	_ = app.Commit()
+	if _, err := app.Commit(); err != nil {
+		return header, err
+	}
 
 	header.Height++
 	header.Time = header.Time.Add(t)
 	header.AppHash = app.LastCommitID().Hash
 
-	app.BeginBlock(abci.RequestBeginBlock{
-		Header: header,
-	})
+	if _, err := app.BeginBlocker(ctx); err != nil {
+		return header, err
+	}
 
 	return header, nil
 }
@@ -233,12 +249,16 @@ func checkTxBytes(app *app.ExampleChain, txEncoder sdk.TxEncoder, tx sdk.Tx) (ab
 	}
 
 	req := abci.RequestCheckTx{Tx: bz}
-	res := app.BaseApp.CheckTx(req)
+	res, err := app.BaseApp.CheckTx(&req)
+	if err != nil {
+		return abci.ResponseCheckTx{}, err
+	}
+
 	if res.Code != 0 {
 		return abci.ResponseCheckTx{}, errorsmod.Wrapf(errortypes.ErrInvalidRequest, res.Log)
 	}
 
-	return res, nil
+	return *res, nil
 }
 
 // applyValSetChanges takes in cmttypes.ValidatorSet and []abci.ValidatorUpdate and will return a new cmttypes.ValidatorSet which has the
