@@ -129,7 +129,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			_, err := dec.AnteHandle(ctx, tc.malleate(), false, testutil.NextFn)
+			_, err := dec.AnteHandle(ctx, tc.malleate(), false, testutil.NoOpNextFn)
 			if tc.expPass {
 				suite.Require().NoError(err)
 

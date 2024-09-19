@@ -7,10 +7,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	cosmosante "github.com/evmos/os/app/ante/cosmos"
+	cosmosante "github.com/evmos/os/ante/cosmos"
 	"github.com/evmos/os/testutil"
 	testutiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/utils"
 )
 
 var execTypes = []struct {
@@ -23,7 +22,7 @@ var execTypes = []struct {
 }
 
 func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
-	denom := utils.BaseDenom
+	denom := testutil.ExampleAttoDenom
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
@@ -190,8 +189,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		for _, tc := range testCases {
 			suite.Run(et.name+"_"+tc.name, func() {
 				ctx := ctx.WithIsReCheckTx(et.isCheckTx)
-				dec := cosmosante.NewMinGasPriceDecorator(nw.App.FeeMarketKeeper, nw.App.EvmKeeper)
-				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, testutil.NextFn)
+				dec := cosmosante.NewMinGasPriceDecorator(nw.App.FeeMarketKeeper, nw.App.EVMKeeper)
+				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, testutil.NoOpNextFn)
 
 				if (et.name == "deliverTx" && tc.expPass) || (et.name == "deliverTxSimulate" && et.simulate && tc.allowPassOnSimulate) {
 					suite.Require().NoError(err, tc.name)

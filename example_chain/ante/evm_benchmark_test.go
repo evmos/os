@@ -4,7 +4,6 @@ package ante_test
 
 import (
 	"fmt"
-	chainante "github.com/evmos/os/example_chain/ante"
 	"math/big"
 	"testing"
 
@@ -13,6 +12,7 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/os/ante"
 	ethante "github.com/evmos/os/ante/evm"
+	chainante "github.com/evmos/os/example_chain/ante"
 	cmmnfactory "github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
