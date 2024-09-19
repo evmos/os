@@ -9,6 +9,7 @@ import (
 	txsigning "cosmossdk.io/x/tx/signing"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	erc20api "github.com/evmos/os/api/os/erc20/v1"
 	protov2 "google.golang.org/protobuf/proto"
 
 	"github.com/ethereum/go-ethereum/common"

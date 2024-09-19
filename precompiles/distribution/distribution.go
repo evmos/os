@@ -18,9 +18,6 @@ import (
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
-// PrecompileAddress of the distribution EVM extension in hex format.
-const PrecompileAddress = "0x0000000000000000000000000000000000000801"
-
 var _ vm.PrecompiledContract = &Precompile{}
 
 // Embed abi json file to the executable binary. Needed when importing as dependency.

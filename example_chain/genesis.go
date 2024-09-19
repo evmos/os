@@ -6,35 +6,18 @@ package example_chain
 import (
 	"encoding/json"
 
-	"cosmossdk.io/simapp"
-	"github.com/evmos/os/encoding"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // GenesisState of the blockchain is represented here as a map of raw json
-// messages key'd by a identifier string.
+// messages key'd by an identifier string.
 // The identifier is used to determine which module genesis information belongs
 // to so it may be appropriately routed during init chain.
 // Within this application default genesis information is retrieved from
 // the ModuleBasicManager which populates json from each BasicModule
 // object provided to it during init.
 type GenesisState map[string]json.RawMessage
-
-// NewDefaultGenesisState generates the default state for the application.
-func NewDefaultGenesisState() simapp.GenesisState {
-	encCfg := encoding.MakeConfig(ModuleBasics)
-
-	genesisState := ModuleBasics.DefaultGenesis(encCfg.Codec)
-
-	evmGenState := NewEVMGenesisState()
-	genesisState[evmtypes.ModuleName] = encCfg.Codec.MustMarshalJSON(evmGenState)
-
-	erc20GenState := NewErc20GenesisState()
-	genesisState[erc20types.ModuleName] = encCfg.Codec.MustMarshalJSON(erc20GenState)
-
-	return genesisState
-}
 
 // NewEVMGenesisState returns the default genesis state for the EVM module.
 //

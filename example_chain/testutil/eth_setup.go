@@ -5,11 +5,11 @@ package testutil
 
 import (
 	"encoding/json"
+	evmostypes "github.com/evmos/os/types"
 	"time"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"cosmossdk.io/simapp"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	cmtypes "github.com/cometbft/cometbft/types"
@@ -69,12 +69,12 @@ var EthDefaultConsensusParams = &cmtypes.ConsensusParams{
 }
 
 // EthSetup initializes a new evmOS application. A Nop logger is set in ExampleChain.
-func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, simapp.GenesisState) simapp.GenesisState) *exampleapp.ExampleChain {
+func EthSetup(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, evmostypes.GenesisState) evmostypes.GenesisState) *exampleapp.ExampleChain {
 	return EthSetupWithDB(isCheckTx, chainID, patchGenesis, dbm.NewMemDB())
 }
 
 // EthSetupWithDB initializes a new ExampleChain. A Nop logger is set in ExampleChain.
-func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, simapp.GenesisState) simapp.GenesisState, db dbm.DB) *exampleapp.ExampleChain {
+func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleapp.ExampleChain, evmostypes.GenesisState) evmostypes.GenesisState, db dbm.DB) *exampleapp.ExampleChain {
 	app := exampleapp.NewExampleApp(log.NewNopLogger(),
 		db,
 		nil,
@@ -84,7 +84,7 @@ func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleap
 	)
 	if !isCheckTx {
 		// init chain must be called to stop deliverState from being nil
-		genesisState := NewTestGenesisState(app.AppCodec())
+		genesisState := NewTestGenesisState(app)
 		if patchGenesis != nil {
 			genesisState = patchGenesis(app, genesisState)
 		}
@@ -96,7 +96,7 @@ func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleap
 
 		// Initialize the chain
 		app.InitChain(
-			abci.RequestInitChain{
+			&abci.RequestInitChain{
 				ChainId:         chainID,
 				Validators:      []abci.ValidatorUpdate{},
 				ConsensusParams: DefaultConsensusParams,
@@ -114,7 +114,7 @@ func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleap
 //
 // TODO: are these different genesis functions necessary or can they all be refactored into one?
 // there's also other genesis state functions; some like app.DefaultGenesis() or others in test helpers only.
-func NewTestGenesisState(codec codec.Codec) simapp.GenesisState {
+func NewTestGenesisState(app *exampleapp.ExampleChain) evmostypes.GenesisState {
 	privVal := mock.NewPV()
 	pubKey, err := privVal.GetPubKey()
 	if err != nil {
@@ -132,14 +132,14 @@ func NewTestGenesisState(codec codec.Codec) simapp.GenesisState {
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100000000000000))),
 	}
 
-	genesisState := exampleapp.NewDefaultGenesisState()
-	return genesisStateWithValSet(codec, genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
+	genesisState := app.DefaultGenesis()
+	return genesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 }
 
-func genesisStateWithValSet(codec codec.Codec, genesisState simapp.GenesisState,
+func genesisStateWithValSet(codec codec.Codec, genesisState evmostypes.GenesisState,
 	valSet *cmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount,
 	balances ...banktypes.Balance,
-) simapp.GenesisState {
+) evmostypes.GenesisState {
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
 	genesisState[authtypes.ModuleName] = codec.MustMarshalJSON(authGenesis)
@@ -172,7 +172,7 @@ func genesisStateWithValSet(codec codec.Codec, genesisState simapp.GenesisState,
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), val.Address.String(), math.LegacyOneDec()))
 	}
 	// set validators and delegations
 	stakingGenesis := stakingtypes.NewGenesisState(stakingtypes.DefaultParams(), validators, delegations)

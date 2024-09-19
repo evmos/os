@@ -76,6 +76,8 @@ func RegisterEvmosERC20Coins(
 // ERC20 token. The function performs all the required steps for the registration
 // like registering the denom trace in the transfer keeper and minting the token
 // with the bank. Returns the TokenPair or an error.
+//
+// TODO: why is this not yet used
 func RegisterIBCERC20Coins(
 	network *network.UnitTestNetwork,
 	tokenReceiver sdk.AccAddress,
@@ -105,7 +107,7 @@ func RegisterIBCERC20Coins(
 	coin := sdk.NewCoin(ibcMetadata.Base, math.NewInt(TokenToMint))
 	err := network.App.BankKeeper.MintCoins(
 		network.GetContext(),
-		inflationtypes.ModuleName,
+		minttypes.ModuleName,
 		sdk.NewCoins(coin),
 	)
 	if err != nil {
@@ -114,7 +116,7 @@ func RegisterIBCERC20Coins(
 
 	err = network.App.BankKeeper.SendCoinsFromModuleToAccount(
 		network.GetContext(),
-		inflationtypes.ModuleName,
+		minttypes.ModuleName,
 		tokenReceiver,
 		sdk.NewCoins(coin),
 	)

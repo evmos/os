@@ -32,18 +32,19 @@ type StakingKeeper interface {
 
 // EVMKeeper defines the expected EVM keeper interface used on erc20
 type EVMKeeper interface {
-	GetParams(ctx context.Context) evmtypes.Params
-	GetAccountWithoutBalance(ctx context.Context, addr common.Address) *statedb.Account
+	// TODO: should these methods also be converted to use context.Context?
+	GetParams(ctx sdk.Context) evmtypes.Params
+	GetAccountWithoutBalance(ctx sdk.Context, addr common.Address) *statedb.Account
 	EstimateGasInternal(c context.Context, req *evmtypes.EthCallRequest, fromType evmtypes.CallType) (*evmtypes.EstimateGasResponse, error)
-	ApplyMessage(ctx context.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
-	DeleteAccount(ctx context.Context, addr common.Address) error
+	ApplyMessage(ctx sdk.Context, msg core.Message, tracer vm.EVMLogger, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
+	DeleteAccount(ctx sdk.Context, addr common.Address) error
 	IsAvailableStaticPrecompile(params *evmtypes.Params, address common.Address) bool
-	CallEVM(ctx context.Context, abi abi.ABI, from, contract common.Address, commit bool, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error)
-	CallEVMWithData(ctx context.Context, from common.Address, contract *common.Address, data []byte, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
-	GetCode(ctx context.Context, hash common.Hash) []byte
-	SetCode(ctx context.Context, hash []byte, bytecode []byte)
-	SetAccount(ctx context.Context, address common.Address, account statedb.Account) error
-	GetAccount(ctx context.Context, address common.Address) *statedb.Account
+	CallEVM(ctx sdk.Context, abi abi.ABI, from, contract common.Address, commit bool, method string, args ...interface{}) (*evmtypes.MsgEthereumTxResponse, error)
+	CallEVMWithData(ctx sdk.Context, from common.Address, contract *common.Address, data []byte, commit bool) (*evmtypes.MsgEthereumTxResponse, error)
+	GetCode(ctx sdk.Context, hash common.Hash) []byte
+	SetCode(ctx sdk.Context, hash []byte, bytecode []byte)
+	SetAccount(ctx sdk.Context, address common.Address, account statedb.Account) error
+	GetAccount(ctx sdk.Context, address common.Address) *statedb.Account
 }
 
 type (
@@ -51,7 +52,7 @@ type (
 	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
 	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
 	Subspace interface {
-		GetParamSet(ctx context.Context, ps LegacyParams)
+		GetParamSet(ctx sdk.Context, ps LegacyParams)
 		WithKeyTable(table paramtypes.KeyTable) paramtypes.Subspace
 	}
 )

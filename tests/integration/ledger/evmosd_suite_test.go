@@ -85,7 +85,7 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 
 	// init app
 	chainID := testutil.ExampleChainID
-	suite.app = exampleapp.Setup(suite.T(), false, chainID)
+	suite.app = exampleapp.Setup(suite.T(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,

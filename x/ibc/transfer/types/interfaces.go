@@ -28,8 +28,8 @@ type BankKeeper interface {
 // ERC20Keeper defines the expected ERC20 keeper interface for supporting
 // ERC20 token transfers via IBC.
 type ERC20Keeper interface {
-	IsERC20Enabled(ctx context.Context) bool
-	GetTokenPairID(ctx context.Context, token string) []byte
-	GetTokenPair(ctx context.Context, id []byte) (erc20types.TokenPair, bool)
+	IsERC20Enabled(ctx sdk.Context) bool
+	GetTokenPairID(ctx sdk.Context, token string) []byte
+	GetTokenPair(ctx sdk.Context, id []byte) (erc20types.TokenPair, bool)
 	ConvertERC20(ctx context.Context, msg *erc20types.MsgConvertERC20) (*erc20types.MsgConvertERC20Response, error)
 }

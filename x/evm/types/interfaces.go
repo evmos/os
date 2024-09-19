@@ -47,14 +47,14 @@ type StakingKeeper interface {
 
 // FeeMarketKeeper
 type FeeMarketKeeper interface {
-	GetBaseFee(ctx context.Context) *big.Int
-	GetParams(ctx context.Context) feemarkettypes.Params
-	CalculateBaseFee(ctx context.Context) *big.Int
+	GetBaseFee(ctx sdk.Context) *big.Int
+	GetParams(ctx sdk.Context) feemarkettypes.Params
+	CalculateBaseFee(ctx sdk.Context) *big.Int
 }
 
 // Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.
 type Erc20Keeper interface {
-	GetERC20PrecompileInstance(ctx context.Context, address common.Address) (contract vm.PrecompiledContract, found bool, err error)
+	GetERC20PrecompileInstance(ctx sdk.Context, address common.Address) (contract vm.PrecompiledContract, found bool, err error)
 }
 
 type (
@@ -62,6 +62,6 @@ type (
 	// Subspace defines an interface that implements the legacy Cosmos SDK x/params Subspace type.
 	// NOTE: This is used solely for migration of the Cosmos SDK x/params managed parameters.
 	Subspace interface {
-		GetParamSetIfExists(ctx context.Context, ps LegacyParams)
+		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
 	}
 )

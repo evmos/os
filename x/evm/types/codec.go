@@ -26,7 +26,7 @@ var (
 
 const (
 	// Amino names
-	updateParamsName = "ethermint/MsgUpdateParams"
+	updateParamsName = "os/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function

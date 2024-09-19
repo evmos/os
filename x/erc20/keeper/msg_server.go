@@ -137,7 +137,7 @@ func (k Keeper) convertERC20IntoCoinsForNativeToken(
 	balanceCoinAfter := k.bankKeeper.GetBalance(ctx, receiver, pair.Denom)
 	expCoin := balanceCoin.Add(coins[0])
 
-	if ok := balanceCoinAfter.IsEqual(expCoin); !ok {
+	if ok := balanceCoinAfter.Equal(expCoin); !ok {
 		return nil, sdkerrors.Wrapf(
 			types.ErrBalanceInvariance,
 			"invalid coin balance - expected: %v, actual: %v",
@@ -346,7 +346,7 @@ func (k *Keeper) ToggleConversion(goCtx context.Context, req *types.MsgToggleCon
 // is the keeper's authority address
 func (k *Keeper) validateAuthority(authority string) error {
 	if _, err := k.accountKeeper.AddressCodec().StringToBytes(authority); err != nil {
-		return sdkerrors.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
+		return errortypes.ErrInvalidAddress.Wrapf("invalid authority address: %s", err)
 	}
 
 	if k.authority.String() != authority {
