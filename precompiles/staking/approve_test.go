@@ -5,18 +5,16 @@ import (
 	"math/big"
 	"time"
 
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-
 	"cosmossdk.io/math"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkauthz "github.com/cosmos/cosmos-sdk/x/authz"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 )

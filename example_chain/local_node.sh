@@ -81,8 +81,8 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	rm -rf "$HOMEDIR"
 
 	# Set client config
-	osd config keyring-backend "$KEYRING" --home "$HOMEDIR"
-	osd config chain-id "$CHAINID" --home "$HOMEDIR"
+	osd config set client chain-id "$CHAINID" --home "$HOMEDIR"
+	osd config set client keyring-backend "$KEYRING" --home "$HOMEDIR"
 
 	# myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e | os10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky
 	VAL_KEY="mykey"
@@ -165,6 +165,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	# Change proposal periods to pass within a reasonable time for local testing
 	sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
 	sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$GENESIS"
+	sed -i.bak 's/"expedited_voting_period": "86400s"/"expedited_voting_period": "15s"/g' "$GENESIS"
 
 	# set custom pruning settings
 	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"

@@ -62,7 +62,7 @@ func Delegate(
 		return abci.ExecTxResult{}, err
 	}
 
-	delegateMsg := stakingtypes.NewMsgDelegate(accountAddress, val, delegateAmount)
+	delegateMsg := stakingtypes.NewMsgDelegate(accountAddress.String(), val.String(), delegateAmount)
 	return DeliverTx(ctx, appEvmos, priv, nil, delegateMsg)
 }
 

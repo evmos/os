@@ -37,7 +37,7 @@ func (n *IntegrationNetwork) GetERC20Client() erc20types.QueryClient {
 
 func (n *IntegrationNetwork) GetEvmClient() evmtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext(), n.GetEncodingConfig())
-	evmtypes.RegisterQueryServer(queryHelper, n.app.EvmKeeper)
+	evmtypes.RegisterQueryServer(queryHelper, n.app.EVMKeeper)
 	return evmtypes.NewQueryClient(queryHelper)
 }
 
@@ -73,7 +73,7 @@ func (n *IntegrationNetwork) GetAuthzClient() authz.QueryClient {
 
 func (n *IntegrationNetwork) GetStakingClient() stakingtypes.QueryClient {
 	queryHelper := getQueryHelper(n.GetContext(), n.GetEncodingConfig())
-	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: n.app.StakingKeeper.Keeper})
+	stakingtypes.RegisterQueryServer(queryHelper, stakingkeeper.Querier{Keeper: n.app.StakingKeeper})
 	return stakingtypes.NewQueryClient(queryHelper)
 }
 

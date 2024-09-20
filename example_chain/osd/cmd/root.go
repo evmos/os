@@ -35,9 +35,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth/tx"
 	txmodule "github.com/cosmos/cosmos-sdk/x/auth/tx/config"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
-	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	evmoscmd "github.com/evmos/os/client"
 	evmoscmdconfig "github.com/evmos/os/cmd/config"
 	evmoskeyring "github.com/evmos/os/crypto/keyring"
@@ -214,19 +212,7 @@ func initRootCmd(rootCmd *cobra.Command, osApp *example_chain.ExampleChain) {
 			osApp.BasicModuleManager,
 			example_chain.DefaultNodeHome,
 		),
-		genutilcli.CollectGenTxsCmd(banktypes.GenesisBalancesIterator{},
-			example_chain.DefaultNodeHome,
-			genutiltypes.DefaultMessageValidator,
-			osApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
-		),
-		genutilcli.GenTxCmd(
-			osApp.BasicModuleManager, osApp.GetTxConfig(),
-			banktypes.GenesisBalancesIterator{},
-			example_chain.DefaultNodeHome,
-			osApp.GetTxConfig().SigningContext().ValidatorAddressCodec(),
-		),
-		genutilcli.ValidateGenesisCmd(osApp.BasicModuleManager),
-		debug.Cmd(),
+		genutilcli.Commands(osApp.TxConfig(), osApp.BasicModuleManager, example_chain.DefaultNodeHome),
 		cmtcli.NewCompletionCmd(rootCmd, true),
 		debug.Cmd(),
 		confixcmd.ConfigCommand(),

@@ -7,7 +7,6 @@ import (
 	"slices"
 	"time"
 
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -34,12 +33,6 @@ import (
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
 	evmtypes "github.com/evmos/os/x/evm/types"
-)
-
-// stipend to pay EVM tx fees
-var (
-	accountGasCoverage = sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1e16)))
-	gas                = uint64(200_000)
 )
 
 // ApproveAndCheckAuthz is a helper function to approve a given authorization method and check if the authorization was created.

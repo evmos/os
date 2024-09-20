@@ -7,7 +7,7 @@ To regenerate the mocks, run the following commands at the root of this reposito
 
 ```bash
 # update the currently used version
-COSMOS_VERSION="v0.47.13-evmos"
+COSMOS_VERSION="v0.50.9-evmos"
 CUR_DIR="$(pwd)"
 TMP_DIR="/tmp/tmp-sdk-mocks-$(date +%s)"
 

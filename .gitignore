@@ -28,3 +28,6 @@ yarn.lock
 
 # OpenZeppelin contracts
 contracts/@openzeppelin/*
+
+# Build files
+example_chain/build/
