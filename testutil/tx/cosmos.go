@@ -12,11 +12,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	protov2 "google.golang.org/protobuf/proto"
 )
 
-var DefaultFee = sdk.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AEVMOS
+var DefaultFee = sdk.NewCoin(constants.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AEVMOS
 
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
@@ -51,7 +51,7 @@ func PrepareCosmosTx(
 
 	var fees sdk.Coins
 	if args.GasPrice != nil {
-		fees = sdk.Coins{{Denom: testutil.ExampleAttoDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}} //#nosec G115
+		fees = sdk.Coins{{Denom: constants.ExampleAttoDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}} //#nosec G115
 	} else {
 		fees = sdk.Coins{DefaultFee}
 	}

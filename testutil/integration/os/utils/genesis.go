@@ -7,7 +7,7 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	erc20types "github.com/evmos/os/x/erc20/types"
@@ -62,8 +62,8 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 		},
 		erc20types.TokenPair{
-			Erc20Address:  testutil.WEVMOSContractTestnet,
-			Denom:         testutil.ExampleAttoDenom,
+			Erc20Address:  constants.WEVMOSContractTestnet,
+			Denom:         constants.ExampleAttoDenom,
 			Enabled:       true,
 			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 		},

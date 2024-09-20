@@ -1,6 +1,7 @@
 package erc20_test
 
 import (
+	"github.com/evmos/os/testutil/constants"
 	"testing"
 	"time"
 
@@ -11,7 +12,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20"
@@ -41,7 +41,7 @@ func (suite *GenesisTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
-	chainID := testutil.ExampleChainID
+	chainID := constants.ExampleChainID
 	suite.app = exampleapp.Setup(suite.T(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,

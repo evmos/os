@@ -5,6 +5,7 @@ package ibctesting
 
 import (
 	"encoding/json"
+	"github.com/evmos/os/testutil/constants"
 	"testing"
 	"time"
 
@@ -20,7 +21,6 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
-	"github.com/evmos/os/testutil"
 	evmostypes "github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
@@ -70,20 +70,20 @@ func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = testutil.ExampleAttoDenom
+	stakingParams.BondDenom = constants.ExampleAttoDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(testutil.ExampleAttoDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(constants.ExampleAttoDenom, bondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(testutil.ExampleAttoDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(constants.ExampleAttoDenom, bondAmt)},
 	})
 
 	// update total supply

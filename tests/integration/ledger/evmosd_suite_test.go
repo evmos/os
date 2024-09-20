@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"io"
 	"testing"
 	"time"
@@ -28,7 +29,6 @@ import (
 	evmoskeyring "github.com/evmos/os/crypto/keyring"
 	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/tests/integration/ledger/mocks"
-	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"
@@ -84,7 +84,7 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
-	chainID := testutil.ExampleChainID
+	chainID := constants.ExampleChainID
 	suite.app = exampleapp.Setup(suite.T(), chainID)
 	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
@@ -133,7 +133,7 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithUseLedger(true).
 		WithKeyring(kr).
 		WithClient(mocks.MockCometRPC{Client: rpcclientmock.Client{}}).
-		WithChainID(testutil.ExampleChainIDPrefix + "-13").
+		WithChainID(constants.ExampleChainIDPrefix + "-13").
 		WithSignModeStr(flags.SignModeLegacyAminoJSON)
 
 	srvCtx := server.NewDefaultContext()

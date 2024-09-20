@@ -6,7 +6,7 @@ package tx
 import (
 	"context"
 	"encoding/json"
-	evmostestutil "github.com/evmos/os/testutil"
+	evmostestutil "github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"

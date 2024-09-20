@@ -6,6 +6,7 @@ package ledger_test
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"regexp"
 	"testing"
 
@@ -22,7 +23,6 @@ import (
 	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/wallets/ledger"
 	"github.com/evmos/os/wallets/ledger/mocks"
@@ -92,7 +92,7 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 				}
 			}],
 			"sequence":"6"
-		}`, testutil.ExampleChainID),
+		}`, constants.ExampleChainID),
 		"",
 	)
 
@@ -156,7 +156,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 	signBytes, err := auxTx.DirectSignBytes(
 		bodyBytes,
 		authInfoBytes,
-		testutil.ExampleChainID,
+		constants.ExampleChainID,
 		0,
 	)
 	suite.Require().NoError(err)

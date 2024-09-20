@@ -3,6 +3,7 @@ package eip712_test
 import (
 	"encoding/hex"
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"strings"
 	"testing"
 
@@ -17,7 +18,6 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
-	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
@@ -26,7 +26,7 @@ import (
 // Testing Constants
 var (
 	// chainID is used in EIP-712 tests.
-	chainID = testutil.ExampleChainID
+	chainID = constants.ExampleChainID
 
 	ctx = client.Context{}.WithTxConfig(
 		encoding.MakeConfig().TxConfig,
@@ -35,7 +35,7 @@ var (
 	// feePayerAddress is the address of the fee payer used in EIP-712 tests.
 	feePayerAddress = fmt.Sprintf(
 		"%s17xpfvakm2amg962yls6f84z3kell8c5ljcjw34",
-		testutil.ExampleBech32Prefix,
+		constants.ExampleBech32Prefix,
 	)
 )
 
@@ -51,7 +51,7 @@ type TestCaseStruct struct {
 
 func TestLedgerPreprocessing(t *testing.T) {
 	// Update bech32 prefix
-	sdk.GetConfig().SetBech32PrefixForAccount(testutil.ExampleBech32Prefix, "")
+	sdk.GetConfig().SetBech32PrefixForAccount(constants.ExampleBech32Prefix, "")
 
 	testCases := []TestCaseStruct{
 		createBasicTestCase(t),
@@ -108,7 +108,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(testutil.ExampleAttoDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(constants.ExampleAttoDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -206,7 +206,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
 		sdk.NewCoin(
-			testutil.ExampleAttoDenom,
+			constants.ExampleAttoDenom,
 			feeAmount,
 		)))
 
@@ -218,7 +218,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				testutil.ExampleAttoDenom,
+				constants.ExampleAttoDenom,
 				math.NewInt(10000000),
 			),
 		),

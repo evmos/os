@@ -8,7 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	grpchandler "github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
@@ -16,9 +16,9 @@ import (
 )
 
 func TestWithBalances(t *testing.T) {
-	key1Balance := sdk.NewCoins(sdk.NewInt64Coin(testutil.ExampleAttoDenom, 1e18))
+	key1Balance := sdk.NewCoins(sdk.NewInt64Coin(constants.ExampleAttoDenom, 1e18))
 	key2Balance := sdk.NewCoins(
-		sdk.NewInt64Coin(testutil.ExampleAttoDenom, 2e18),
+		sdk.NewInt64Coin(constants.ExampleAttoDenom, 2e18),
 		sdk.NewInt64Coin("other", 3e18),
 	)
 

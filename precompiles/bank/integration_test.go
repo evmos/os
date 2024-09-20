@@ -2,7 +2,7 @@ package bank_test
 
 import (
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	evmostestutil "github.com/evmos/os/testutil"
+	evmostestutil "github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
 

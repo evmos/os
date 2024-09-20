@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -68,7 +68,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	nw := network.New()
 	suite.config = nw.GetEncodingConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = testutil.ExampleAttoDenom
+	suite.denom = constants.ExampleAttoDenom
 
 	sdk.GetConfig().SetBech32PrefixForAccount(chainconfig.Bech32Prefix, "")
 }
@@ -342,7 +342,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 				err = txBuilder.SetSignatures([]signing.SignatureV2{txSig}...)
 				suite.Require().NoError(err)
 
-				chainID := testutil.ExampleChainID
+				chainID := constants.ExampleChainID
 				if tc.chainID != "" {
 					chainID = tc.chainID
 				}
@@ -356,7 +356,7 @@ func (suite *EIP712TestSuite) TestEIP712() {
 					AccountNumber: params.accountNumber,
 					Sequence:      params.sequence,
 					PubKey:        pubKey,
-					Address:       sdk.MustBech32ifyAddressBytes(testutil.ExampleBech32Prefix, pubKey.Bytes()),
+					Address:       sdk.MustBech32ifyAddressBytes(constants.ExampleBech32Prefix, pubKey.Bytes()),
 				}
 
 				bz, err := authsigning.GetSignBytesAdapter(

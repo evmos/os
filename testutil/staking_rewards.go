@@ -5,6 +5,7 @@ package testutil
 
 import (
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"testing"
 
 	"cosmossdk.io/math"
@@ -61,7 +62,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 
 	// set distribution module account balance which pays out the rewards
 	distrAcc := app.DistrKeeper.GetDistributionAccount(ctx)
-	err := FundModuleAccount(ctx, app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(ExampleAttoDenom, totalRewards)))
+	err := FundModuleAccount(ctx, app.BankKeeper, distrAcc.GetName(), sdk.NewCoins(sdk.NewCoin(constants.ExampleAttoDenom, totalRewards)))
 	if err != nil {
 		return sdk.Context{}, fmt.Errorf("failed to fund distribution module account: %s", err.Error())
 	}
@@ -85,14 +86,14 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		if err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to get staking params: %s", err.Error())
 		}
-		stakingParams.BondDenom = ExampleAttoDenom
+		stakingParams.BondDenom = constants.ExampleAttoDenom
 		stakingParams.MinCommissionRate = zeroDec
 		err = app.StakingKeeper.SetParams(ctx, stakingParams)
 		require.NoError(t, err)
 
 		stakingHelper := teststaking.NewHelper(t, ctx, app.StakingKeeper)
 		stakingHelper.Commission = stakingtypes.NewCommissionRates(zeroDec, zeroDec, zeroDec)
-		stakingHelper.Denom = ExampleAttoDenom
+		stakingHelper.Denom = constants.ExampleAttoDenom
 
 		valAddr := sdk.ValAddress(addr2.Bytes())
 		// self-delegate the same amount of tokens as the delegate address also stakes
@@ -110,7 +111,7 @@ func PrepareAccountsForDelegationRewards(t *testing.T, ctx sdk.Context, app *app
 		if err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to get validator: %s", err.Error())
 		}
-		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(ExampleAttoDenom, reward.Mul(math.NewInt(2))))
+		allocatedRewards := sdk.NewDecCoins(sdk.NewDecCoin(constants.ExampleAttoDenom, reward.Mul(math.NewInt(2))))
 		if err = app.DistrKeeper.AllocateTokensToValidator(ctx, validator, allocatedRewards); err != nil {
 			return sdk.Context{}, fmt.Errorf("failed to allocate tokens to validator: %s", err.Error())
 		}

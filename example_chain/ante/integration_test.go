@@ -5,7 +5,7 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
@@ -56,8 +56,8 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			rewards sdk.DecCoins
 			// minExpRewards are the minimun rewards that should be accrued
 			// for the test case
-			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e5), Denom: testutil.ExampleAttoDenom}}
-			delegationCoin = sdk.Coin{Amount: sdkmath.NewInt(1e15), Denom: testutil.ExampleAttoDenom}
+			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e5), Denom: constants.ExampleAttoDenom}}
+			delegationCoin = sdk.Coin{Amount: sdkmath.NewInt(1e15), Denom: constants.ExampleAttoDenom}
 			transferAmt    = sdkmath.NewInt(1e14)
 		)
 
@@ -69,7 +69,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: testutil.ExampleAttoDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: constants.ExampleAttoDenom}},
 			}
 
 			valAddr := s.network.GetValidators()[0].OperatorAddress
@@ -129,7 +129,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				sdk.Coins{
 					sdk.Coin{
 						Amount: sdkmath.NewInt(1),
-						Denom:  testutil.ExampleAttoDenom,
+						Denom:  constants.ExampleAttoDenom,
 					},
 				},
 			)
@@ -140,7 +140,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e14), Denom: testutil.ExampleAttoDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e14), Denom: constants.ExampleAttoDenom}},
 			}
 		})
 

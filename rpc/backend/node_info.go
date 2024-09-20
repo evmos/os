@@ -5,6 +5,7 @@ package backend
 
 import (
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"math/big"
 	"time"
 
@@ -25,7 +26,6 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/server/config"
-	"github.com/evmos/os/testutil"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -339,13 +339,13 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 func (b *Backend) RPCMinGasPrice() int64 {
 	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
-		return testutil.DefaultGasPrice
+		return constants.DefaultGasPrice
 	}
 
 	minGasPrice := b.cfg.GetMinGasPrices()
 	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
 	if amt == 0 {
-		return testutil.DefaultGasPrice
+		return constants.DefaultGasPrice
 	}
 
 	return amt

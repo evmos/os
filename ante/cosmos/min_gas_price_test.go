@@ -2,6 +2,7 @@ package cosmos_test
 
 import (
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 
@@ -22,7 +23,7 @@ var execTypes = []struct {
 }
 
 func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
-	denom := testutil.ExampleAttoDenom
+	denom := constants.ExampleAttoDenom
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",

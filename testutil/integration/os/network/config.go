@@ -5,6 +5,7 @@ package network
 
 import (
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -12,7 +13,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/os/testutil"
 	testtx "github.com/evmos/os/testutil/tx"
 	evmostypes "github.com/evmos/os/types"
 )
@@ -40,14 +40,14 @@ func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 
 	return Config{
-		chainID:            testutil.ExampleChainID,
-		eip155ChainID:      big.NewInt(testutil.ExampleEIP155ChainID),
+		chainID:            constants.ExampleChainID,
+		eip155ChainID:      big.NewInt(constants.ExampleEIP155ChainID),
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
-		denom:              testutil.ExampleAttoDenom,
+		denom:              constants.ExampleAttoDenom,
 		customGenesisState: nil,
 	}
 }

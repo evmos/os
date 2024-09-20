@@ -2,6 +2,7 @@ package backend
 
 import (
 	"bufio"
+	"github.com/evmos/os/testutil/constants"
 	testnetwork "github.com/evmos/os/testutil/integration/os/network"
 	"math/big"
 	"os"
@@ -21,7 +22,6 @@ import (
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
-	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
@@ -40,7 +40,7 @@ func TestBackendTestSuite(t *testing.T) {
 	suite.Run(t, new(BackendTestSuite))
 }
 
-var ChainID = testutil.ExampleChainID
+var ChainID = constants.ExampleChainID
 
 // SetupTest is executed before every BackendTestSuite test
 func (suite *BackendTestSuite) SetupTest() {

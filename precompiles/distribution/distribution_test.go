@@ -2,7 +2,7 @@ package distribution_test
 
 import (
 	chainutil "github.com/evmos/os/example_chain/testutil"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -80,7 +80,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				valAddr, err := sdk.ValAddressFromBech32(s.network.GetValidators()[0].OperatorAddress)
 				s.Require().NoError(err)
 				val, _ := s.network.App.StakingKeeper.GetValidator(ctx, valAddr)
-				coins := sdk.NewCoins(sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(1e18)))
+				coins := sdk.NewCoins(sdk.NewCoin(constants.ExampleAttoDenom, math.NewInt(1e18)))
 				s.Require().NoError(s.network.App.DistrKeeper.AllocateTokensToValidator(ctx, val, sdk.NewDecCoinsFromCoins(coins...)))
 
 				input, err := s.precompile.Pack(
@@ -103,7 +103,7 @@ func (s *PrecompileTestSuite) TestRun() {
 				caller := common.BytesToAddress(valAddr)
 
 				commAmt := math.LegacyNewDecWithPrec(1000000000000000000, 1)
-				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(testutil.ExampleAttoDenom, commAmt)}
+				valCommission := sdk.DecCoins{sdk.NewDecCoinFromDec(constants.ExampleAttoDenom, commAmt)}
 				// set outstanding rewards
 				s.Require().NoError(s.network.App.DistrKeeper.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: valCommission}))
 				// set commission

@@ -3,6 +3,7 @@
 package distribution_test
 
 import (
+	evmostestutil "github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
 
@@ -16,7 +17,6 @@ import (
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
 	"github.com/evmos/os/precompiles/testutil/contracts"
-	evmostestutil "github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	testutils "github.com/evmos/os/testutil/integration/os/utils"
 	testutiltx "github.com/evmos/os/testutil/tx"

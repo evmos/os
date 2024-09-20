@@ -2,6 +2,7 @@ package backend
 
 import (
 	"fmt"
+	"github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -12,7 +13,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/rpc/backend/mocks"
-	"github.com/evmos/os/testutil"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 )
@@ -30,7 +30,7 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParamsWithoutHeaderError(queryClient, 1)
 			},
-			testutil.DefaultGasPrice,
+			constants.DefaultGasPrice,
 			true,
 		},
 		{
@@ -39,7 +39,7 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParamsWithoutHeader(queryClient, 1)
 			},
-			testutil.DefaultGasPrice,
+			constants.DefaultGasPrice,
 			true,
 		},
 	}
@@ -255,7 +255,7 @@ func (suite *BackendTestSuite) TestSetEtherbase() {
 				RegisterStatus(client)
 				RegisterValidatorAccount(queryClient, suite.acc)
 				RegisterParams(queryClient, &header, 1)
-				c := sdk.NewDecCoin(testutil.ExampleAttoDenom, math.NewIntFromBigInt(big.NewInt(1)))
+				c := sdk.NewDecCoin(constants.ExampleAttoDenom, math.NewIntFromBigInt(big.NewInt(1)))
 				suite.backend.cfg.SetMinGasPrices(sdk.DecCoins{c})
 				delAddr, _ := suite.backend.GetCoinbase()
 				// account, _ := suite.backend.clientCtx.AccountRetriever.GetAccount(suite.backend.clientCtx, delAddr)

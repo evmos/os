@@ -1,6 +1,7 @@
 package evm_test
 
 import (
+	"github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	sdkmath "cosmossdk.io/math"
@@ -39,7 +40,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testutil.ExampleAttoDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), constants.ExampleAttoDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -114,7 +115,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testutil.ExampleAttoDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), constants.ExampleAttoDenom, &testMsg)
 				limit := types.BlockGasLimit(ctx)
 				txBuilder.SetGasLimit(limit + 5)
 				return txBuilder.GetTx()

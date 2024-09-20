@@ -1,6 +1,7 @@
 package indexer_test
 
 import (
+	"github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
 
@@ -13,7 +14,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/indexer"
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/types"
@@ -44,7 +44,7 @@ func TestKVIndexer(t *testing.T) {
 	clientCtx := client.Context{}.WithTxConfig(encodingConfig.TxConfig).WithCodec(encodingConfig.Codec)
 
 	// build cosmos-sdk wrapper tx
-	tmTx, err := tx.BuildTx(clientCtx.TxConfig.NewTxBuilder(), testutil.ExampleAttoDenom)
+	tmTx, err := tx.BuildTx(clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
 	require.NoError(t, err)
 	txBz, err := clientCtx.TxConfig.TxEncoder()(tmTx)
 	require.NoError(t, err)

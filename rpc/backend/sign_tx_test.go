@@ -3,6 +3,7 @@ package backend
 import (
 	"fmt"
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto"
@@ -14,7 +15,6 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/rpc/backend/mocks"
-	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"
@@ -258,7 +258,7 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
 	suite.Require().NoError(err)
-	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), testutil.ExampleAttoDenom)
+	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 	txBytes, _ = txEncoder(tx)
 	return client, txBytes
