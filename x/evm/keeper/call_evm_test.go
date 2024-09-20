@@ -5,13 +5,14 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/contracts"
+	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestCallEVM() {
-	wevmosContract := common.HexToAddress(types.WEVMOSContractMainnet)
+	wevmosContract := common.HexToAddress(testconstants.WEVMOSContractMainnet)
 	testCases := []struct {
 		name    string
 		method  string
@@ -45,7 +46,7 @@ func (suite *KeeperTestSuite) TestCallEVM() {
 
 func (suite *KeeperTestSuite) TestCallEVMWithData() {
 	erc20 := contracts.ERC20MinterBurnerDecimalsContract.ABI
-	wevmosContract := common.HexToAddress(types.WEVMOSContractMainnet)
+	wevmosContract := common.HexToAddress(testconstants.WEVMOSContractMainnet)
 	testCases := []struct {
 		name     string
 		from     common.Address

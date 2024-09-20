@@ -4,26 +4,23 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/evmos/os/x/evm/keeper/testdata"
-
 	sdkmath "cosmossdk.io/math"
-	"github.com/stretchr/testify/require"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authante "github.com/cosmos/cosmos-sdk/x/auth/ante"
 	"github.com/ethereum/go-ethereum/common"
-
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
-	evmostypes "github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/keeper/testdata"
 	"github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/require"
 )
 
 func SetupContract(b *testing.B) (*KeeperTestSuite, common.Address) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
 
-	amt := sdk.Coins{evmostypes.NewEvmosCoinInt64(1000000000000000000)}
+	amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, 1000000000000000000)}
 	err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 	require.NoError(b, err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)
@@ -40,7 +37,7 @@ func SetupTestMessageCall(b *testing.B) (*KeeperTestSuite, common.Address) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
 
-	amt := sdk.Coins{evmostypes.NewEvmosCoinInt64(1000000000000000000)}
+	amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, 1000000000000000000)}
 	err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 	require.NoError(b, err)
 	err = suite.network.App.BankKeeper.SendCoinsFromModuleToAccount(suite.network.GetContext(), types.ModuleName, suite.keyring.GetAddr(0).Bytes(), amt)

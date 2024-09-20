@@ -110,7 +110,7 @@ func (p *Precompile) transfer(
 		return nil, err
 	}
 
-	// TODO: is this the correct denom? It was hardcoded to utils.BaseDenom before..
+	// TODO: is this the correct denom? It was hardcoded to testconstants.ExampleAttoDenom before..
 	// evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
 	// TODO: when using the Evm denomiation here there is an import cycle - how to handle this, we should get the EVM denom here
 	evmDenom := chainconfig.BaseDenom

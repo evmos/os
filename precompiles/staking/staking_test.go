@@ -1,23 +1,20 @@
 package staking_test
 
 import (
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"math/big"
 	"time"
 
-	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-
 	"cosmossdk.io/math"
-
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	"github.com/evmos/os/x/evm/core/vm"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/os/app"
+	"github.com/ethereum/go-ethereum/common"
+	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/precompiles/authorization"
 	"github.com/evmos/os/precompiles/staking"
-	"github.com/evmos/os/utils"
+	testconstants "github.com/evmos/os/testutil/constants"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -253,7 +250,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
-				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
+				coin := sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1000))
 				err = s.network.App.BankKeeper.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
@@ -381,7 +378,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 				// Needs to be called after setting unbonding delegation
 				// In order to mimic the coins being added to the unboding pool
-				coin := sdk.NewCoin(utils.BaseDenom, math.NewInt(1000))
+				coin := sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1000))
 				err = s.network.App.BankKeeper.SendCoinsFromModuleToModule(ctx, stakingtypes.BondedPoolName, stakingtypes.NotBondedPoolName, sdk.Coins{coin})
 				s.Require().NoError(err, "failed to send coins from module to module")
 
@@ -446,12 +443,12 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.network.App.EvmKeeper.ChainID(),
+				ChainID:   s.network.App.EVMKeeper.ChainID(),
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
 				GasLimit:  tc.gas,
-				GasPrice:  app.MainnetMinGasPrices.BigInt(),
+				GasPrice:  chainutil.ExampleMinGasPrices.BigInt(),
 				GasFeeCap: baseFee,
 				GasTipCap: big.NewInt(1),
 				Accesses:  &ethtypes.AccessList{},
@@ -462,21 +459,21 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Instantiate config
 			proposerAddress := ctx.BlockHeader().ProposerAddress
-			cfg, err := s.network.App.EvmKeeper.EVMConfig(ctx, proposerAddress, s.network.App.EvmKeeper.ChainID())
+			cfg, err := s.network.App.EVMKeeper.EVMConfig(ctx, proposerAddress, s.network.App.EVMKeeper.ChainID())
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
 			// Instantiate EVM
 			headerHash := ctx.HeaderHash()
 			stDB := statedb.New(
 				ctx,
-				s.network.App.EvmKeeper,
+				s.network.App.EVMKeeper,
 				statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
 			)
-			evm := s.network.App.EvmKeeper.NewEVM(
+			evm := s.network.App.EVMKeeper.NewEVM(
 				ctx, msg, cfg, nil, stDB,
 			)
 
-			precompiles, found, err := s.network.App.EvmKeeper.GetPrecompileInstance(ctx, contractAddr)
+			precompiles, found, err := s.network.App.EVMKeeper.GetPrecompileInstance(ctx, contractAddr)
 			s.Require().NoError(err, "failed to instantiate precompile")
 			s.Require().True(found, "not found precompile")
 			evm.WithPrecompiles(precompiles.Map, precompiles.Addresses)

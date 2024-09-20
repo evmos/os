@@ -43,7 +43,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 		{
 			"existent account",
 			func() {
-				err := suite.network.App.EvmKeeper.SetAccount(ctx, account, statedb.Account{
+				err := suite.network.App.EVMKeeper.SetAccount(ctx, account, statedb.Account{
 					CodeHash: codeHash,
 					Nonce:    nonce,
 					Balance:  balance,
@@ -61,7 +61,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 		err := suite.network.App.Erc20Keeper.RegisterERC20CodeHash(ctx, account)
 		suite.Require().NoError(err)
 
-		acc := suite.network.App.EvmKeeper.GetAccount(ctx, account)
+		acc := suite.network.App.EVMKeeper.GetAccount(ctx, account)
 		suite.Require().Equal(codeHash, acc.CodeHash)
 		if tc.existent {
 			suite.Require().Equal(balance, acc.Balance)
@@ -74,7 +74,7 @@ func (suite *KeeperTestSuite) TestRegisterERC20CodeHash() {
 		err = suite.network.App.Erc20Keeper.UnRegisterERC20CodeHash(ctx, account.Hex())
 		suite.Require().NoError(err)
 
-		acc = suite.network.App.EvmKeeper.GetAccount(ctx, account)
+		acc = suite.network.App.EVMKeeper.GetAccount(ctx, account)
 		suite.Require().Equal(emptyCodeHash, acc.CodeHash)
 		if tc.existent {
 			suite.Require().Equal(balance, acc.Balance)

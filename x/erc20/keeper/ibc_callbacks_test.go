@@ -3,10 +3,10 @@ package keeper_test
 import (
 	"errors"
 	"fmt"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	"cosmossdk.io/math"
-	"github.com/evmos/os/utils"
 	"github.com/evmos/os/x/erc20/keeper"
 
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -59,7 +59,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 
 	registeredDenom := cosmosTokenBase
 	coins := sdk.NewCoins(
-		sdk.NewCoin(utils.BaseDenom, math.NewInt(1000)),
+		sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1000)),
 		sdk.NewCoin(registeredDenom, math.NewInt(1000)), // some ERC20 token
 		sdk.NewCoin(ibcBase, math.NewInt(1000)),         // some IBC coin with a registered token pair
 	)
@@ -212,7 +212,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:   ethsecpAddr,
 			expErc20s:  big.NewInt(0),
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(utils.BaseDenom, math.NewInt(1000)),
+				sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, math.NewInt(0)),
 				sdk.NewCoin(ibcBase, math.NewInt(1000)),
 			),
@@ -259,7 +259,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 				authtypes.NewModuleAddress(govtypes.ModuleName),
 				suite.network.App.AccountKeeper,
 				suite.network.App.BankKeeper,
-				suite.network.App.EvmKeeper,
+				suite.network.App.EVMKeeper,
 				suite.network.App.StakingKeeper,
 				suite.network.App.AuthzKeeper,
 				&suite.network.App.TransferKeeper,
@@ -381,7 +381,7 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 				)
 				suite.Require().NoError(err)
 
-				_, err = suite.network.App.EvmKeeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.keyring.GetAddr(0), contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
+				_, err = suite.network.App.EVMKeeper.CallEVM(ctx, contracts.ERC20MinterBurnerDecimalsContract.ABI, suite.keyring.GetAddr(0), contractAddr, true, "mint", types.ModuleAddress, big.NewInt(10))
 				suite.Require().NoError(err)
 
 				return transfertypes.NewFungibleTokenPacketData(pair.Denom, "10", senderAddr, "", "")

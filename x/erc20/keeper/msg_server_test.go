@@ -235,7 +235,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.network.App.Erc20Keeper = keeper.NewKeeper(
 					suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.network.App.AccountKeeper,
-					mockBankKeeper, suite.network.App.EvmKeeper, suite.network.App.StakingKeeper,
+					mockBankKeeper, suite.network.App.EVMKeeper, suite.network.App.StakingKeeper,
 					suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 				)
 
@@ -260,7 +260,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.network.App.Erc20Keeper = keeper.NewKeeper(
 					suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.network.App.AccountKeeper,
-					mockBankKeeper, suite.network.App.EvmKeeper, suite.network.App.StakingKeeper,
+					mockBankKeeper, suite.network.App.EVMKeeper, suite.network.App.StakingKeeper,
 					suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 				)
 
@@ -285,7 +285,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 				suite.network.App.Erc20Keeper = keeper.NewKeeper(
 					suite.network.App.GetKey("erc20"), suite.network.App.AppCodec(),
 					authtypes.NewModuleAddress(govtypes.ModuleName), suite.network.App.AccountKeeper,
-					mockBankKeeper, suite.network.App.EvmKeeper, suite.network.App.StakingKeeper,
+					mockBankKeeper, suite.network.App.EVMKeeper, suite.network.App.StakingKeeper,
 					suite.network.App.AuthzKeeper, &suite.network.App.TransferKeeper,
 				)
 
@@ -338,7 +338,7 @@ func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
 			if tc.expPass {
 				suite.Require().NoError(err, tc.name)
 
-				acc := suite.network.App.EvmKeeper.GetAccountWithoutBalance(ctx, contractAddr)
+				acc := suite.network.App.EVMKeeper.GetAccountWithoutBalance(ctx, contractAddr)
 				if tc.selfdestructed {
 					suite.Require().Nil(acc, "expected contract to be destroyed")
 				} else {
