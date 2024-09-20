@@ -24,6 +24,7 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	govtypesv1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	slashingtypes "github.com/cosmos/cosmos-sdk/x/slashing/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/cosmos/gogoproto/proto"
@@ -46,6 +47,7 @@ type defaultGenesisParams struct {
 	slashing    SlashingCustomGenesisState
 	bank        BankCustomGenesisState
 	gov         GovCustomGenesisState
+	mint        MintCustomGenesisState
 }
 
 // genesisSetupFunctions contains the available genesis setup functions
@@ -56,6 +58,7 @@ var genesisSetupFunctions = map[string]genSetupFn{
 	govtypes.ModuleName:       genStateSetter[*govtypesv1.GenesisState](govtypes.ModuleName),
 	feemarkettypes.ModuleName: genStateSetter[*feemarkettypes.GenesisState](feemarkettypes.ModuleName),
 	distrtypes.ModuleName:     genStateSetter[*distrtypes.GenesisState](distrtypes.ModuleName),
+	minttypes.ModuleName:      genStateSetter[*minttypes.GenesisState](minttypes.ModuleName),
 	banktypes.ModuleName:      setBankGenesisState,
 	authtypes.ModuleName:      setAuthGenesisState,
 	consensustypes.ModuleName: func(_ *exampleapp.ExampleChain, genesisState evmostypes.GenesisState, _ interface{}) (evmostypes.GenesisState, error) {
@@ -434,6 +437,21 @@ func setDefaultGovGenesisState(evmosApp *exampleapp.ExampleChain, genesisState e
 	return genesisState
 }
 
+// MintCustomGenesisState defines the gov genesis state
+type MintCustomGenesisState struct {
+	denom string
+}
+
+// setDefaultGovGenesisState sets the default gov genesis state
+func setDefaultMintGenesisState(evmosApp *exampleapp.ExampleChain, genesisState evmostypes.GenesisState, overwriteParams MintCustomGenesisState) evmostypes.GenesisState {
+	mintGen := minttypes.DefaultGenesisState()
+	updatedParams := mintGen.Params
+	updatedParams.MintDenom = overwriteParams.denom
+	mintGen.Params = updatedParams
+	genesisState[minttypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(mintGen)
+	return genesisState
+}
+
 func setDefaultErc20GenesisState(evmosApp *exampleapp.ExampleChain, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	erc20Gen := erc20types.DefaultGenesisState()
 	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
@@ -450,6 +468,7 @@ func newDefaultGenesisState(evmosApp *exampleapp.ExampleChain, params defaultGen
 	genesisState = setDefaultBankGenesisState(evmosApp, genesisState, params.bank)
 	genesisState = setDefaultGovGenesisState(evmosApp, genesisState, params.gov)
 	genesisState = setDefaultSlashingGenesisState(evmosApp, genesisState, params.slashing)
+	genesisState = setDefaultMintGenesisState(evmosApp, genesisState, params.mint)
 	genesisState = setDefaultErc20GenesisState(evmosApp, genesisState)
 
 	return genesisState

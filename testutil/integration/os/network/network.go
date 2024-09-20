@@ -132,6 +132,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 		denom: n.cfg.denom,
 	}
 
+	mintParams := MintCustomGenesisState{
+		denom: n.cfg.denom,
+	}
+
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
 	bankParams := BankCustomGenesisState{
 		totalSupply: totalSupply,
@@ -154,6 +158,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			bank:        bankParams,
 			slashing:    slashingParams,
 			gov:         govParams,
+			mint:        mintParams,
 		},
 	)
 
@@ -182,11 +187,6 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			AppStateBytes:   stateBytes,
 		},
 	); err != nil {
-		return err
-	}
-
-	// Commit genesis changes
-	if _, err = exampleApp.Commit(); err != nil {
 		return err
 	}
 
