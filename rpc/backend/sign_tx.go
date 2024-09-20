@@ -6,8 +6,9 @@ package backend
 import (
 	"errors"
 	"fmt"
-	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"math/big"
+
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"

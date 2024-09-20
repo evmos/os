@@ -5,10 +5,11 @@ package network
 
 import (
 	"fmt"
-	chainutil "github.com/evmos/os/example_chain/testutil"
 	"math"
 	"math/big"
 	"time"
+
+	chainutil "github.com/evmos/os/example_chain/testutil"
 
 	sdkmath "cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"

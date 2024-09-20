@@ -1,9 +1,10 @@
 package types_test
 
 import (
-	testconstants "github.com/evmos/os/testutil/constants"
 	"slices"
 	"testing"
+
+	testconstants "github.com/evmos/os/testutil/constants"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/x/erc20/types"

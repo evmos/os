@@ -5,8 +5,9 @@ package testutil
 
 import (
 	"encoding/json"
-	evmostypes "github.com/evmos/os/types"
 	"time"
+
+	evmostypes "github.com/evmos/os/types"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"

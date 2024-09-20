@@ -1,9 +1,10 @@
 package indexer_test
 
 import (
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"

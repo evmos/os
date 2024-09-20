@@ -3,9 +3,10 @@ package eip712_test
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"strings"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"

@@ -5,9 +5,10 @@ package backend
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
 	"time"
+
+	"github.com/evmos/os/testutil/constants"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"

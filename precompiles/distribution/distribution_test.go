@@ -1,9 +1,10 @@
 package distribution_test
 
 import (
+	"math/big"
+
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/testutil/constants"
-	"math/big"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

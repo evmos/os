@@ -3,9 +3,10 @@
 package distribution_test
 
 import (
-	evmostestutil "github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
+
+	evmostestutil "github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

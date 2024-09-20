@@ -3,7 +3,6 @@ package backend
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	"cosmossdk.io/math"
@@ -13,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"

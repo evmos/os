@@ -4,10 +4,11 @@ package staking_test
 
 import (
 	"fmt"
-	evmosutil "github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
 	"time"
+
+	evmosutil "github.com/evmos/os/testutil/constants"
 
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"

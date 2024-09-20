@@ -1,8 +1,9 @@
 package types_test
 
 import (
-	exampleapp "github.com/evmos/os/example_chain"
 	"testing"
+
+	exampleapp "github.com/evmos/os/example_chain"
 
 	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/erc20/types"

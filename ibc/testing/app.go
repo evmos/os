@@ -5,7 +5,6 @@ package ibctesting
 
 import (
 	"encoding/json"
-	"github.com/evmos/os/testutil/constants"
 	"testing"
 	"time"
 
@@ -21,6 +20,7 @@ import (
 	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
+	"github.com/evmos/os/testutil/constants"
 	evmostypes "github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )

@@ -3,8 +3,9 @@ package keeper_test
 import (
 	"errors"
 	"fmt"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"math/big"
+
+	testconstants "github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/evmos/os/x/erc20/keeper"

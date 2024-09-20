@@ -2,8 +2,9 @@ package distribution_test
 
 import (
 	"fmt"
-	evmostestutil "github.com/evmos/os/testutil/constants"
 	"math/big"
+
+	evmostestutil "github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/evmos/os/precompiles/testutil"

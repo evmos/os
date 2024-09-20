@@ -2,6 +2,7 @@ package cosmos_test
 
 import (
 	"fmt"
+
 	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"

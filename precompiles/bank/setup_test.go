@@ -3,6 +3,8 @@ package bank_test
 import (
 	"testing"
 
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -13,7 +15,6 @@ import (
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -75,7 +76,7 @@ func (s *PrecompileTestSuite) SetupTest() sdk.Context {
 	s.evmosAddr = tokenPair.GetERC20Contract()
 
 	// Mint and register a second coin for testing purposes
-	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), inflationtypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
+	err = s.network.App.BankKeeper.MintCoins(s.network.GetContext(), minttypes.ModuleName, sdk.Coins{{Denom: "xmpl", Amount: math.NewInt(1e18)}})
 	s.Require().NoError(err)
 
 	tokenPairID = s.network.App.Erc20Keeper.GetTokenPairID(s.network.GetContext(), s.tokenDenom)

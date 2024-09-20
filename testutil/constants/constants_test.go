@@ -1,8 +1,9 @@
 package constants_test
 
 import (
-	"github.com/evmos/os/testutil/constants"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"github.com/evmos/os/example_chain"
 	chainconfig "github.com/evmos/os/example_chain/osd/config"

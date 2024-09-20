@@ -1,8 +1,9 @@
 package common_test
 
 import (
-	"github.com/evmos/os/testutil/constants"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

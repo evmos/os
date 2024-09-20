@@ -9,8 +9,6 @@ import (
 	"github.com/evmos/os/precompiles/bank"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	inflationtypes "github.com/evmos/os/x/inflation/v1/types"
-
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/gomega"
 )
@@ -42,9 +40,9 @@ func (is *IntegrationTestSuite) setupBankPrecompile() *bank.Precompile {
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
 func (s *PrecompileTestSuite) mintAndSendXMPLCoin(ctx sdk.Context, addr sdk.AccAddress, amount math.Int) sdk.Context {
 	coins := sdk.NewCoins(sdk.NewCoin(s.tokenDenom, amount))
-	err := s.network.App.BankKeeper.MintCoins(ctx, inflationtypes.ModuleName, coins)
+	err := s.network.App.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
 	s.Require().NoError(err)
-	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, inflationtypes.ModuleName, addr, coins)
+	err = s.network.App.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, coins)
 	s.Require().NoError(err)
 	return ctx
 }
@@ -52,9 +50,9 @@ func (s *PrecompileTestSuite) mintAndSendXMPLCoin(ctx sdk.Context, addr sdk.AccA
 // mintAndSendXMPLCoin is a helper function to mint and send a coin to a given address.
 func (is *IntegrationTestSuite) mintAndSendXMPLCoin(addr sdk.AccAddress, amount math.Int) { //nolint:unused
 	coins := sdk.NewCoins(sdk.NewCoin(is.tokenDenom, amount))
-	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), inflationtypes.ModuleName, coins)
+	err := is.network.App.BankKeeper.MintCoins(is.network.GetContext(), minttypes.ModuleName, coins)
 	Expect(err).ToNot(HaveOccurred())
-	err = is.network.App.BankKeeper.SendCoinsFromModuleToAccount(is.network.GetContext(), inflationtypes.ModuleName, addr, coins)
+	err = is.network.App.BankKeeper.SendCoinsFromModuleToAccount(is.network.GetContext(), minttypes.ModuleName, addr, coins)
 	Expect(err).ToNot(HaveOccurred())
 }
 

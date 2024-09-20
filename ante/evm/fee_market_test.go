@@ -1,8 +1,9 @@
 package evm_test
 
 import (
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
+
+	"github.com/evmos/os/testutil/constants"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

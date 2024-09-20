@@ -1,9 +1,10 @@
 package erc20_test
 
 import (
-	"github.com/evmos/os/testutil/constants"
 	"testing"
 	"time"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"

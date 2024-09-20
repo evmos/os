@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	evmostestutil "github.com/evmos/os/testutil/constants"
 	"net/http"
 	"net/url"
 	"os"
@@ -20,6 +19,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	evmostestutil "github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"

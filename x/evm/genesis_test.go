@@ -1,10 +1,11 @@
 package evm_test
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
 	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/evmos/os/testutil/constants"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"

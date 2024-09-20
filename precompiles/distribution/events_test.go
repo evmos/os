@@ -1,9 +1,10 @@
 package distribution_test
 
 import (
+	"math/big"
+
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"github.com/evmos/os/testutil/constants"
-	"math/big"
 
 	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"

@@ -2,9 +2,10 @@ package config_test
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"reflect"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	serverconfig "github.com/evmos/os/server/config"
 	"github.com/spf13/viper"

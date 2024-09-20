@@ -2,8 +2,6 @@ package backend
 
 import (
 	"bufio"
-	"github.com/evmos/os/testutil/constants"
-	testnetwork "github.com/evmos/os/testutil/integration/os/network"
 	"math/big"
 	"os"
 	"path/filepath"
@@ -22,6 +20,8 @@ import (
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/testutil/constants"
+	testnetwork "github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"

@@ -2,6 +2,7 @@ package backend
 
 import (
 	"fmt"
+
 	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/log"

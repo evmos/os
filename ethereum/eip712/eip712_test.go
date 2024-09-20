@@ -3,9 +3,10 @@ package eip712_test
 import (
 	"bytes"
 	"fmt"
+	"testing"
+
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"github.com/evmos/os/testutil/constants"
-	"testing"
 
 	"cosmossdk.io/math"
 

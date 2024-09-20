@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"io"
 	"testing"
 	"time"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"

@@ -6,9 +6,10 @@ package ledger_test
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"regexp"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"

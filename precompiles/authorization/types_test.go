@@ -2,8 +2,9 @@ package authorization_test
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"

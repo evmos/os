@@ -2,6 +2,7 @@ package backend
 
 import (
 	"fmt"
+
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/evmos/os/testutil/constants"
 

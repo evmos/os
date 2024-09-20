@@ -2,11 +2,12 @@ package erc20_test
 
 import (
 	"fmt"
-	exampleapp "github.com/evmos/os/example_chain"
 	"math/big"
 	"slices"
 	"strings"
 	"testing"
+
+	exampleapp "github.com/evmos/os/example_chain"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

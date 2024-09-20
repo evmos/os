@@ -4,9 +4,10 @@
 package erc20_test
 
 import (
-	chainutil "github.com/evmos/os/example_chain/testutil"
 	"math"
 	"math/big"
+
+	chainutil "github.com/evmos/os/example_chain/testutil"
 
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

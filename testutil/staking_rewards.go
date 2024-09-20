@@ -5,8 +5,9 @@ package testutil
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"testing"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"

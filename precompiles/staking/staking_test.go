@@ -1,9 +1,10 @@
 package staking_test
 
 import (
-	chainutil "github.com/evmos/os/example_chain/testutil"
 	"math/big"
 	"time"
+
+	chainutil "github.com/evmos/os/example_chain/testutil"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"

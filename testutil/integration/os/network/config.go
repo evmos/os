@@ -5,7 +5,6 @@ package network
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -13,6 +12,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/evmos/os/testutil/constants"
 	testtx "github.com/evmos/os/testutil/tx"
 	evmostypes "github.com/evmos/os/types"
 )

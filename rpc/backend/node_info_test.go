@@ -2,8 +2,9 @@ package backend
 
 import (
 	"fmt"
-	"github.com/evmos/os/testutil/constants"
 	"math/big"
+
+	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
