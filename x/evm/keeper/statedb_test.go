@@ -13,11 +13,11 @@ import (
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/contracts"
+	testconstants "github.com/evmos/os/testutil/constants"
 	testfactory "github.com/evmos/os/testutil/integration/os/factory"
 	testhandler "github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -691,8 +691,6 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 	clientCtx := client.Context{}.WithTxConfig(suite.network.App.GetTxConfig())
 	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
 
-	println("got chain id", suite.network.App.EVMKeeper.ChainID())
-
 	txBuilder := clientCtx.TxConfig.NewTxBuilder()
 	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
 	suite.Require().True(ok)
@@ -740,7 +738,7 @@ func (suite *KeeperTestSuite) TestAddLog() {
 	msg2.From = addr.Hex()
 
 	ethTx3Params := &types.EvmTxArgs{
-		ChainID:   big.NewInt(9001),
+		ChainID:   big.NewInt(testconstants.ExampleEIP155ChainID),
 		Nonce:     0,
 		To:        &toAddr,
 		Amount:    big.NewInt(1),

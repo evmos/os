@@ -105,6 +105,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy ERC-20 contract")
 
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
+
 		// Mint some tokens to the deployer.
 		_, err = factory.ExecuteContractCall(
 			deployer.Priv,
@@ -119,6 +121,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to mint tokens")
 
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
+
 		// Check the balance of the deployer on the ERC20 contract.
 		res, err := factory.ExecuteContractCall(
 			deployer.Priv,
@@ -132,6 +136,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode balance of tx response")
@@ -156,6 +162,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to deploy flash loan contract")
 
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
+
 		// Approve the flash loan contract to spend tokens. This is required because
 		// the contract will get funds from the caller to perform actions.
 		_, err = factory.ExecuteContractCall(
@@ -171,6 +179,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to approve flash loan contract")
 
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
+
 		// Check the allowance.
 		res, err = factory.ExecuteContractCall(
 			deployer.Priv,
@@ -184,6 +194,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get allowance")
+
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
 
 		ethRes, err = evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode allowance tx response")
@@ -215,6 +227,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to approve flash loan contract")
 
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
+
 		// Check the allowance.
 		res, err = factory.ExecuteContractCall(
 			deployer.Priv,
@@ -228,6 +242,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get allowance")
+
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
 
 		ethRes, err = evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode allowance tx response")
@@ -256,6 +272,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to execute flash loan")
 
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
+
 		delRes, err := handler.GetDelegation(deployer.AccAddr.String(), validatorToDelegateTo)
 		Expect(err).ToNot(HaveOccurred(), "failed to get delegation")
 		delAmtPost := delRes.DelegationResponse.Balance.Amount
@@ -281,6 +299,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
 
 		ethRes, err := evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode balance of tx response")
@@ -308,6 +328,8 @@ var _ = Describe("testing the flash loan exploit", Ordered, func() {
 			},
 		)
 		Expect(err).ToNot(HaveOccurred(), "failed to get balance")
+
+		Expect(network.NextBlock()).ToNot(HaveOccurred(), "failed to commit block")
 
 		ethRes, err = evmtypes.DecodeTxResponse(res.Data)
 		Expect(err).ToNot(HaveOccurred(), "failed to decode balance of tx response")

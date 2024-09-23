@@ -1,14 +1,13 @@
 package keeper_test
 
 import (
-	testconstants "github.com/evmos/os/testutil/constants"
-	"reflect"
-
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/x/evm/types"
 )
 
 func (suite *KeeperTestSuite) TestParams() {
-	params := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+	defaultChainEVMParams := exampleapp.NewEVMGenesisState().Params
+	defaultChainEVMParams.ActiveStaticPrecompiles = types.AvailableStaticPrecompiles
 
 	testCases := []struct {
 		name      string
@@ -19,7 +18,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Checks if the default params are set correctly",
 			func() interface{} {
-				return types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				return defaultChainEVMParams
 			},
 			func() interface{} {
 				return suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
@@ -29,6 +28,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - EvmDenom param is set to \"inj\" and can be retrieved correctly",
 			func() interface{} {
+				params := defaultChainEVMParams
 				params.EvmDenom = "inj"
 				err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
@@ -43,6 +43,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Check Access Control Create param is set to restricted and can be retrieved correctly",
 			func() interface{} {
+				params := defaultChainEVMParams
 				params.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
@@ -61,6 +62,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Check Access control param is set to restricted and can be retrieved correctly",
 			func() interface{} {
+				params := defaultChainEVMParams
 				params.AccessControl = types.AccessControl{
 					Call: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
@@ -79,6 +81,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Check AllowUnprotectedTxs param is set to false and can be retrieved correctly",
 			func() interface{} {
+				params := defaultChainEVMParams
 				params.AllowUnprotectedTxs = false
 				err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
@@ -93,6 +96,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			"success - Check ChainConfig param is set to the default value and can be retrieved correctly",
 			func() interface{} {
+				params := defaultChainEVMParams
 				params.ChainConfig = types.DefaultChainConfig()
 				err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), params)
 				suite.Require().NoError(err)
@@ -107,6 +111,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		{
 			name: "success - Active precompiles are sorted when setting params",
 			paramsFun: func() interface{} {
+				params := defaultChainEVMParams
 				params.ActiveStaticPrecompiles = []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",
@@ -131,8 +136,7 @@ func (suite *KeeperTestSuite) TestParams() {
 		suite.Run(tc.name, func() {
 			suite.SetupTest()
 
-			outcome := reflect.DeepEqual(tc.paramsFun(), tc.getFun())
-			suite.Require().Equal(tc.expected, outcome)
+			suite.Require().Equal(tc.paramsFun(), tc.getFun(), "expected different params")
 		})
 	}
 }

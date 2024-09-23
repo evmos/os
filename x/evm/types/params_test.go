@@ -30,7 +30,7 @@ func TestParamsValidate(t *testing.T) {
 		},
 		{
 			name:    "valid",
-			params:  NewParams(DefaultEVMDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl),
+			params:  NewParams(testconstants.ExampleAttoDenom, false, DefaultChainConfig(), extraEips, nil, nil, DefaultAccessControl),
 			expPass: true,
 		},
 		{
@@ -48,7 +48,7 @@ func TestParamsValidate(t *testing.T) {
 		{
 			name: "invalid eip",
 			params: Params{
-				EvmDenom:  DefaultEVMDenom,
+				EvmDenom:  testconstants.ExampleAttoDenom,
 				ExtraEIPs: []string{"os_1000000"},
 			},
 			errContains: "EIP os_1000000 is not activateable, valid EIPs are",
@@ -56,7 +56,7 @@ func TestParamsValidate(t *testing.T) {
 		{
 			name: "unsorted precompiles",
 			params: Params{
-				EvmDenom: DefaultEVMDenom,
+				EvmDenom: testconstants.ExampleAttoDenom,
 				ActiveStaticPrecompiles: []string{
 					"0x0000000000000000000000000000000000000801",
 					"0x0000000000000000000000000000000000000800",

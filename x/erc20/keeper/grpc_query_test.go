@@ -172,7 +172,7 @@ func (suite *KeeperTestSuite) TestTokenPair() {
 func (suite *KeeperTestSuite) TestQueryParams() {
 	suite.SetupTest()
 	ctx := suite.network.GetContext()
-	expParams := types.DefaultParams()
+	expParams := exampleapp.NewErc20GenesisState().Params
 
 	res, err := suite.queryClient.Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)

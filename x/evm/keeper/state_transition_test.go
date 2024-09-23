@@ -18,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	exampleapp "github.com/evmos/os/example_chain"
 	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
@@ -536,6 +537,9 @@ func (suite *KeeperTestSuite) TestResetGasMeterAndConsumeGas() {
 
 func (suite *KeeperTestSuite) TestEVMConfig() {
 	suite.SetupTest()
+
+	defaultChainEVMParams := exampleapp.NewEVMGenesisState().Params
+
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
 	eip155ChainID := suite.network.GetEIP155ChainID()
 	cfg, err := suite.network.App.EVMKeeper.EVMConfig(
@@ -544,17 +548,17 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 		eip155ChainID,
 	)
 	suite.Require().NoError(err)
-	suite.Require().Equal(types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom), cfg.Params)
+	suite.Require().Equal(defaultChainEVMParams, cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom).ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
+	suite.Require().Equal(defaultChainEVMParams.ChainConfig.EthereumConfig(big.NewInt(testconstants.ExampleEIP155ChainID)), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
 
 	networkChainID := suite.network.GetEIP155ChainID()
-	networkConfig := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom).ChainConfig.EthereumConfig(networkChainID)
+	networkConfig := defaultChainEVMParams.ChainConfig.EthereumConfig(networkChainID)
 	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 

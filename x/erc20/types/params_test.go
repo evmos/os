@@ -4,9 +4,9 @@ import (
 	"slices"
 	"testing"
 
-	testconstants "github.com/evmos/os/testutil/constants"
-
 	"github.com/ethereum/go-ethereum/common"
+	exampleapp "github.com/evmos/os/example_chain"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -161,7 +161,7 @@ func (suite *ParamsTestSuite) TestIsNativePrecompile() {
 	}{
 		{
 			"default",
-			types.DefaultParams,
+			func() types.Params { return exampleapp.NewErc20GenesisState().Params },
 			common.HexToAddress(testconstants.WEVMOSContractMainnet),
 			true,
 		},
@@ -190,8 +190,10 @@ func (suite *ParamsTestSuite) TestIsNativePrecompile() {
 	}
 
 	for _, tc := range testCases {
-		p := tc.malleate()
-		suite.Require().Equal(tc.expRes, p.IsNativePrecompile(tc.addr), tc.name)
+		suite.Run(tc.name, func() {
+			p := tc.malleate()
+			suite.Require().Equal(tc.expRes, p.IsNativePrecompile(tc.addr), tc.name)
+		})
 	}
 }
 
@@ -233,8 +235,10 @@ func (suite *ParamsTestSuite) TestIsDynamicPrecompile() {
 	}
 
 	for _, tc := range testCases {
-		p := tc.malleate()
-		suite.Require().Equal(tc.expRes, p.IsDynamicPrecompile(tc.addr), tc.name)
+		suite.Run(tc.name, func() {
+			p := tc.malleate()
+			suite.Require().Equal(tc.expRes, p.IsDynamicPrecompile(tc.addr), tc.name)
+		})
 	}
 }
 

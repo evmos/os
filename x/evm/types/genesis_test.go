@@ -83,6 +83,9 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
+	defaultGenesisWithEVMDenom := DefaultGenesisState()
+	defaultGenesisWithEVMDenom.Params.EvmDenom = testconstants.ExampleAttoDenom
+
 	testCases := []struct {
 		name     string
 		genState *GenesisState
@@ -91,7 +94,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name:     "default",
 			genState: DefaultGenesisState(),
-			expPass:  true,
+			expPass:  false,
 		},
 		{
 			name: "valid genesis",
@@ -117,7 +120,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name:     "copied genesis",
-			genState: NewGenesisState(DefaultGenesisState().Params, DefaultGenesisState().Accounts),
+			genState: NewGenesisState(defaultGenesisWithEVMDenom.Params, DefaultGenesisState().Accounts),
 			expPass:  true,
 		},
 		{
@@ -215,11 +218,14 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 
 	for _, tc := range testCases {
 		tc := tc
-		err := tc.genState.Validate()
-		if tc.expPass {
-			suite.Require().NoError(err, tc.name)
-		} else {
-			suite.Require().Error(err, tc.name)
-		}
+
+		suite.Run(tc.name, func() {
+			err := tc.genState.Validate()
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+			} else {
+				suite.Require().Error(err, tc.name)
+			}
+		})
 	}
 }

@@ -65,6 +65,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 	if !s.enableLondonHF {
 		evmGenesis := evmtypes.DefaultGenesisState()
 		maxInt := sdkmath.NewInt(math.MaxInt64)
+		evmGenesis.Params.EvmDenom = testconstants.ExampleAttoDenom
 		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
 		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
 		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt

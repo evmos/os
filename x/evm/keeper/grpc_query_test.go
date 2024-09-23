@@ -435,6 +435,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := suite.network.GetContext()
 	expParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+	expParams.ActiveStaticPrecompiles = types.AvailableStaticPrecompiles
 
 	res, err := suite.network.GetEvmClient().Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
