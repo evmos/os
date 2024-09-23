@@ -556,6 +556,8 @@ var _ = Describe("Calling staking precompile directly", func() {
 				callArgs.Args = []interface{}{
 					defaultDescription, defaultCommission, defaultMinSelfDelegation, s.keyring.GetAddr(0), defaultPubkeyBase64Str, defaultValue,
 				}
+				// NOTE: increase gas limit here
+				txArgs.GasLimit = 2e5
 
 				logCheckArgs := passCheck.WithExpEvents(staking.EventTypeCreateValidator)
 

@@ -2,12 +2,11 @@ package erc20_test
 
 import (
 	"fmt"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"math/big"
 	"slices"
 	"strings"
 	"testing"
-
-	exampleapp "github.com/evmos/os/example_chain"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -25,7 +24,7 @@ import (
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
-	"github.com/evmos/os/testutil/integration/os/utils"
+	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
 	utiltx "github.com/evmos/os/testutil/tx"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	"github.com/evmos/os/x/evm/core/vm"
@@ -60,7 +59,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.tokenDenomTwo = "xmpl2"
 
 	keys := keyring.New(2)
-	genesis := utils.CreateGenesisWithTokenPairs(keys, is.tokenDenom, is.tokenDenomTwo)
+	genesis := integrationutils.CreateGenesisWithTokenPairs(keys, is.tokenDenom, is.tokenDenomTwo)
 
 	nw := network.NewUnitTestNetwork(
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
@@ -246,7 +245,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
-		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(exampleapp.WEVMOSContractMainnet)))
+		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(testconstants.WEVMOSContractTestnet)))
 
 		revertContractAddr, err = is.factory.DeployContract(
 			sender.Priv,
@@ -425,6 +424,7 @@ var _ = Describe("ERC20 Extension -", func() {
 					args = factory.CallArgs{
 						ContractABI: revertCallerContract.ABI,
 					}
+
 					txArgs = evmtypes.EvmTxArgs{
 						To:       &revertContractAddr,
 						GasLimit: gasLimit,
@@ -435,6 +435,31 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetKey(1)
 					amountToSend := big.NewInt(100)
+
+					fmt.Println("testnet contract: ", testconstants.WEVMOSContractTestnet)
+					evmParams := is.network.App.EVMKeeper.GetParams(is.network.GetContext())
+					fmt.Println("evmParams: ", evmParams.ActiveStaticPrecompiles)
+					erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
+					fmt.Println("erc20Params: ", erc20Params.NativePrecompiles)
+
+					// Check if token pair is actually registered
+					tokenPair := is.network.App.Erc20Keeper.GetTokenPairs(is.network.GetContext())
+					Expect(tokenPair).ToNot(BeNil())
+					fmt.Println("got token pairs: ", tokenPair)
+					for _, pair := range tokenPair {
+						fmt.Println("  denom: ", pair.Denom)
+						fmt.Println("  addr: ", pair.Erc20Address)
+					}
+
+					// Get ERC20 balance of user
+					erc20Balance, err := integrationutils.GetERC20Balance(
+						is.network,
+						common.HexToAddress(testconstants.WEVMOSContractTestnet),
+						sender.Addr,
+					)
+					Expect(err).ToNot(HaveOccurred(), "failed to get ERC20 balance")
+					Expect(erc20Balance).ToNot(BeZero(), "expected non-zero balance of sender")
+
 					balRes, err := is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
@@ -458,6 +483,8 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(err).To(BeNil())
 					Expect(is.network.NextBlock()).To(BeNil())
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
+
+					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "failed to advance block")
 
 					balRes, err = is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
@@ -1943,7 +1970,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				expName = erc20types.CreateDenom(erc20Addr.String())
 
 				// Register ERC20 token pair for this test
-				tokenPairs, err := utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+				tokenPairs, err := integrationutils.RegisterERC20(is.factory, is.network, integrationutils.ERC20RegistrationData{
 					Addresses:    []string{erc20Addr.Hex()},
 					ProposerPriv: is.keyring.GetPrivKey(0),
 				})
@@ -2773,7 +2800,7 @@ var _ = Describe("ERC20 Extension migration Flows -", func() {
 			Expect(err).ToNot(HaveOccurred(), "failed to commit block")
 
 			// Register the deployed erc20 contract as a token pair
-			_, err = utils.RegisterERC20(is.factory, is.network, utils.ERC20RegistrationData{
+			_, err = integrationutils.RegisterERC20(is.factory, is.network, integrationutils.ERC20RegistrationData{
 				Addresses:    []string{erc20Addr.Hex()},
 				ProposerPriv: contractOwner.Priv,
 			})

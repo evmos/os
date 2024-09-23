@@ -4,17 +4,14 @@ import (
 	"math/big"
 	"testing"
 
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	evmostestutil "github.com/evmos/os/testutil/constants"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/evmos/os/precompiles/bank"
 	"github.com/evmos/os/precompiles/bank/testdata"
 	"github.com/evmos/os/precompiles/testutil"
+	evmostestutil "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
@@ -22,6 +19,7 @@ import (
 	testutils "github.com/evmos/os/testutil/integration/os/utils"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -236,8 +234,8 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(balances[0].Amount).To(Equal(evmosTotalSupply))
-				Expect(balances[1].Amount).To(Equal(xmplTotalSupply))
+				Expect(balances[0].Amount.String()).To(Equal(evmosTotalSupply.String()))
+				Expect(balances[1].Amount.String()).To(Equal(xmplTotalSupply.String()))
 			})
 		})
 
@@ -250,7 +248,7 @@ var _ = Describe("Bank Extension -", func() {
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int)).To(Equal(evmosTotalSupply))
+				Expect(out[0].(*big.Int).String()).To(Equal(evmosTotalSupply.String()))
 			})
 
 			It("should return the supply of XMPL", func() {
@@ -261,7 +259,7 @@ var _ = Describe("Bank Extension -", func() {
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int)).To(Equal(xmplTotalSupply))
+				Expect(out[0].(*big.Int).String()).To(Equal(xmplTotalSupply.String()))
 			})
 
 			It("should return a supply of 0 for a non existing token", func() {
@@ -379,8 +377,8 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.TotalSupplyMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(balances[0].Amount).To(Equal(evmosTotalSupply))
-				Expect(balances[1].Amount).To(Equal(xmplTotalSupply))
+				Expect(balances[0].Amount.String()).To(Equal(evmosTotalSupply.String()))
+				Expect(balances[1].Amount.String()).To(Equal(xmplTotalSupply.String()))
 			})
 		})
 
@@ -393,7 +391,7 @@ var _ = Describe("Bank Extension -", func() {
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int)).To(Equal(evmosTotalSupply))
+				Expect(out[0].(*big.Int).String()).To(Equal(evmosTotalSupply.String()))
 			})
 
 			It("should return the supply of XMPL", func() {
@@ -404,7 +402,7 @@ var _ = Describe("Bank Extension -", func() {
 				out, err := is.precompile.Unpack(bank.SupplyOfMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				Expect(out[0].(*big.Int)).To(Equal(xmplTotalSupply))
+				Expect(out[0].(*big.Int).String()).To(Equal(xmplTotalSupply.String()))
 			})
 
 			It("should return a supply of 0 for a non existing token", func() {

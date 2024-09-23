@@ -5,6 +5,7 @@ package factory
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -55,6 +56,9 @@ func (tf *IntegrationTxFactory) EstimateGasLimit(from *common.Address, txArgs *e
 		return 0, errorsmod.Wrap(err, "failed to estimate gas")
 	}
 	gas := res.Gas
+
+	fmt.Println("estimated gas: ", gas)
+
 	return gas, nil
 }
 
@@ -79,6 +83,8 @@ func (tf *IntegrationTxFactory) GenerateSignedMsgEthereumTx(privKey cryptotypes.
 	if err != nil {
 		return evmtypes.MsgEthereumTx{}, errorsmod.Wrap(err, "failed to create ethereum tx")
 	}
+
+	fmt.Println("signing msg ethereum tx with gas limit: ", msgEthereumTx.GetGas())
 
 	return tf.SignMsgEthereumTx(privKey, msgEthereumTx)
 }

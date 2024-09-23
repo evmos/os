@@ -5,7 +5,9 @@ package factory
 
 import (
 	"fmt"
+	"github.com/evmos/os/x/evm/core/vm"
 	"math/big"
+	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
@@ -157,6 +159,8 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 		txArgs.GasLimit = gasLimit
 	}
 
+	fmt.Println("returning with gas limit", txArgs.GasLimit)
+
 	return txArgs, nil
 }
 
@@ -194,6 +198,10 @@ func (tf *IntegrationTxFactory) checkEthTxResponse(res *abcitypes.ExecTxResult) 
 	var evmRes evmtypes.MsgEthereumTxResponse
 	if err := proto.Unmarshal(txData.MsgResponses[0].Value, &evmRes); err != nil {
 		return errorsmod.Wrap(err, "failed to unmarshal evm tx response")
+	}
+
+	if strings.Contains(evmRes.VmError, vm.ErrOutOfGas.Error()) {
+		return fmt.Errorf("eth tx ran out of gas; gas used: %d", evmRes.GasUsed)
 	}
 
 	if evmRes.Failed() {

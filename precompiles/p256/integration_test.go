@@ -6,6 +6,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	exampleapp "github.com/evmos/os/example_chain"
 
 	"github.com/cometbft/cometbft/crypto"
 	"github.com/ethereum/go-ethereum/common"
@@ -115,7 +116,7 @@ var _ = Describe("Calling p256 precompile directly", Label("P256 Precompile"), O
 
 	When("the precompile is not enabled in the EVM params", func() {
 		BeforeAll(func() {
-			customGenesis := evmtypes.DefaultGenesisState()
+			customGenesis := exampleapp.NewEVMGenesisState()
 			params := customGenesis.Params
 			addr := s.precompileAddress.String()
 			var activePrecompiles []string

@@ -8,8 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/evmos/os/testutil/constants"
-
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
@@ -30,6 +28,7 @@ import (
 	evmoskeyring "github.com/evmos/os/crypto/keyring"
 	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/tests/integration/ledger/mocks"
+	"github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"

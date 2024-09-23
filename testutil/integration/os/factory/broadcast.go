@@ -5,6 +5,7 @@ package factory
 
 import (
 	errorsmod "cosmossdk.io/errors"
+	"fmt"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/ethereum/go-ethereum/common"
@@ -95,6 +96,8 @@ func (tf *IntegrationTxFactory) CallContractAndCheckLogs(
 	if err != nil {
 		return res, nil, err
 	}
+
+	fmt.Println("gas used: ", ethRes.GasUsed)
 
 	return res, ethRes, testutil.CheckLogs(logCheckArgs)
 }
