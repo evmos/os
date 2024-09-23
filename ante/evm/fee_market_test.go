@@ -3,8 +3,6 @@ package evm_test
 import (
 	"math/big"
 
-	"github.com/evmos/os/testutil/constants"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -12,6 +10,7 @@ import (
 	"github.com/evmos/os/ante/evm"
 	"github.com/evmos/os/ante/testutils"
 	"github.com/evmos/os/testutil"
+	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -35,13 +34,13 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Cosmos Tx",
 			testutils.TestGasLimit,
 			func() sdk.Tx {
-				denom := evmtypes.DefaultEVMDenom
+				denom := testconstants.ExampleAttoDenom
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), constants.ExampleAttoDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testconstants.ExampleAttoDenom, &testMsg)
 				return txBuilder.GetTx()
 			},
 			true,
@@ -95,7 +94,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"EIP712 message",
 			200000,
 			func() sdk.Tx {
-				amount := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)))
+				amount := sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(20)))
 				gas := uint64(200000)
 				acc := suite.GetNetwork().App.AccountKeeper.NewAccountWithAddress(ctx, from.Bytes())
 				suite.Require().NoError(acc.SetSequence(1))
@@ -110,13 +109,13 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 			"Cosmos Tx - gasWanted > max block gas",
 			testutils.TestGasLimit,
 			func() sdk.Tx {
-				denom := evmtypes.DefaultEVMDenom
+				denom := testconstants.ExampleAttoDenom
 				testMsg := banktypes.MsgSend{
 					FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 					ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 					Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(10), Denom: denom}},
 				}
-				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), constants.ExampleAttoDenom, &testMsg)
+				txBuilder := suite.CreateTestCosmosTxBuilder(sdkmath.NewInt(10), testconstants.ExampleAttoDenom, &testMsg)
 				limit := types.BlockGasLimit(ctx)
 				txBuilder.SetGasLimit(limit + 5)
 				return txBuilder.GetTx()

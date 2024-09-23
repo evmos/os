@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	ethparams "github.com/ethereum/go-ethereum/params"
-
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/stretchr/testify/require"
 )
 
@@ -19,8 +19,13 @@ func TestParamsValidate(t *testing.T) {
 		errContains string
 	}{
 		{
-			name:    "default",
-			params:  DefaultParams(),
+			name:        "default",
+			params:      DefaultParams(),
+			errContains: "invalid denom",
+		},
+		{
+			name:    "default with denom",
+			params:  DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
 			expPass: true,
 		},
 		{

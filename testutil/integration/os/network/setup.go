@@ -452,8 +452,10 @@ func setDefaultMintGenesisState(evmosApp *exampleapp.ExampleChain, genesisState 
 	return genesisState
 }
 
+// TODO: why is this being set here? This was imported from the Evmos repo and is maybe not necessary with the corresponding setup from the example chain repo (incl. moving the default Mint and Gov states there instead of here)
 func setDefaultErc20GenesisState(evmosApp *exampleapp.ExampleChain, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
-	erc20Gen := erc20types.DefaultGenesisState()
+	// NOTE: here we are using the setup from the example chain
+	erc20Gen := exampleapp.NewErc20GenesisState()
 	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
 	return genesisState
 }

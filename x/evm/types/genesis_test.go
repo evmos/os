@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/stretchr/testify/suite"
-
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	testconstants "github.com/evmos/os/testutil/constants"
+	"github.com/stretchr/testify/suite"
 )
 
 type GenesisTestSuite struct {
@@ -106,7 +106,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: DefaultParams(),
+				Params: DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
 			},
 			expPass: true,
 		},
@@ -144,7 +144,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: DefaultParams(),
+				Params: DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
 			},
 			expPass: false,
 		},

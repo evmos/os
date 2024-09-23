@@ -6,23 +6,21 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/evmos/os/x/evm/keeper/testdata"
-
 	sdkmath "cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
-	ethlogger "github.com/evmos/os/x/evm/core/logger"
-	"github.com/evmos/os/x/evm/core/vm"
-
-	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/evmos/os/server/config"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
+	ethlogger "github.com/evmos/os/x/evm/core/logger"
+	"github.com/evmos/os/x/evm/core/vm"
+	"github.com/evmos/os/x/evm/keeper/testdata"
 	"github.com/evmos/os/x/evm/statedb"
 	"github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
@@ -51,7 +49,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 		{
 			"success",
 			func() *types.QueryAccountRequest {
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, 100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, 100)}
 
 				// Add new unfunded key
 				index := suite.keyring.AddKey()
@@ -211,7 +209,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 				addr := suite.keyring.GetAddr(newIndex)
 
 				balance := int64(100)
-				amt := sdk.Coins{sdk.NewInt64Coin(types.DefaultEVMDenom, balance)}
+				amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, balance)}
 
 				err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 				suite.Require().NoError(err)
@@ -436,7 +434,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := suite.network.GetContext()
-	expParams := types.DefaultParams()
+	expParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 
 	res, err := suite.network.GetEvmClient().Params(ctx, &types.QueryParamsRequest{})
 	suite.Require().NoError(err)
@@ -1170,7 +1168,7 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Clean up per test
-			defaultEvmParams := types.DefaultParams()
+			defaultEvmParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 			err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 
@@ -1492,7 +1490,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParams()
+				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
 			},
 
@@ -1507,7 +1505,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParams()
+				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 				maxInt := sdkmath.NewInt(math.MaxInt64)
 				evmDefault.ChainConfig.LondonBlock = &maxInt
 				evmDefault.ChainConfig.LondonBlock = &maxInt
@@ -1531,7 +1529,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault.NoBaseFee = true
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParams()
+				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
 			},
 			true,
@@ -1667,7 +1665,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			}
 
 			// Reset params
-			defaultEvmParams := types.DefaultParams()
+			defaultEvmParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 			err = suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 		})

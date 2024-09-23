@@ -9,8 +9,6 @@ import (
 	"testing"
 
 	sdkmath "cosmossdk.io/math"
-	"github.com/stretchr/testify/suite"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,10 +16,11 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	utiltx "github.com/evmos/os/testutil/tx"
-
 	"github.com/evmos/os/encoding"
+	testconstants "github.com/evmos/os/testutil/constants"
+	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/types"
+	"github.com/stretchr/testify/suite"
 )
 
 const invalidAddress = "0x0000"
@@ -114,7 +113,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			tc.msg.Data = nil
 		}
 
-		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), types.DefaultEVMDenom)
+		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), testconstants.ExampleAttoDenom)
 		if tc.expError {
 			suite.Require().Error(err)
 		} else {
@@ -123,7 +122,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			suite.Require().Empty(tx.GetMemo())
 			suite.Require().Empty(tx.GetTimeoutHeight())
 			suite.Require().Equal(uint64(100000), tx.GetGas())
-			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(types.DefaultEVMDenom, sdkmath.NewInt(100000))), tx.GetFee())
+			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(100000))), tx.GetFee())
 		}
 	}
 }

@@ -691,6 +691,8 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 	clientCtx := client.Context{}.WithTxConfig(suite.network.App.GetTxConfig())
 	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
 
+	println("got chain id", suite.network.App.EVMKeeper.ChainID())
+
 	txBuilder := clientCtx.TxConfig.NewTxBuilder()
 	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)
 	suite.Require().True(ok)

@@ -70,7 +70,10 @@ func (suite *KeeperTestSuite) TestGetERC20PrecompileInstance() {
 
 			suite.network.App.Erc20Keeper.SetToken(ctx, tokenPair)
 			tokenPairs = suite.network.App.Erc20Keeper.GetTokenPairs(ctx)
-			suite.Require().True(len(tokenPairs) > 1)
+			suite.Require().True(len(tokenPairs) > 1,
+				"expected more than 1 token pair to be set; got %d",
+				len(tokenPairs),
+			)
 
 			tc.paramsFun()
 

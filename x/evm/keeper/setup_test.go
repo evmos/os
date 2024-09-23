@@ -9,6 +9,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/params"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
@@ -75,7 +76,7 @@ func (suite *KeeperTestSuite) SetupTest() {
 
 	if s.mintFeeCollector {
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
 			{
 				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),

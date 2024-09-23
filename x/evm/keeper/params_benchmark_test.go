@@ -3,13 +3,14 @@ package keeper_test
 import (
 	"testing"
 
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/evm/types"
 )
 
 func BenchmarkSetParams(b *testing.B) {
 	suite := KeeperTestSuite{}
 	suite.SetupTest()
-	params := types.DefaultParams()
+	params := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 
 	b.ReportAllocs()
 	b.ResetTimer()

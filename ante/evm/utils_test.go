@@ -35,6 +35,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/testutil"
+	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -124,7 +125,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),
-		sdk.NewCoin(evmtypes.DefaultEVMDenom, sdkmath.NewInt(20)),
+		sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(20)),
 		stakingtypes.NewDescription("moniker", "identity", "website", "security_contract", "details"),
 		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 		sdkmath.OneInt(),

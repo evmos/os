@@ -1,5 +1,3 @@
-// Copyright Tharsis Labs Ltd.(Evmos)
-// SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 package keeper_test
 
 import (
@@ -20,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -366,7 +365,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 	// NOTE: everything should happen within the same block for
 	// feecollector account to remain funded
 	coins := sdk.NewCoins(sdk.NewCoin(
-		types.DefaultEVMDenom,
+		testconstants.ExampleAttoDenom,
 		sdkmath.NewInt(6e18),
 	))
 	balances := []banktypes.Balance{
@@ -545,17 +544,17 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 		eip155ChainID,
 	)
 	suite.Require().NoError(err)
-	suite.Require().Equal(types.DefaultParams(), cfg.Params)
+	suite.Require().Equal(types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom), cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(types.DefaultParams().ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
+	suite.Require().Equal(types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom).ChainConfig.EthereumConfig(big.NewInt(9001)), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
 
 	networkChainID := suite.network.GetEIP155ChainID()
-	networkConfig := types.DefaultParams().ChainConfig.EthereumConfig(networkChainID)
+	networkConfig := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom).ChainConfig.EthereumConfig(networkChainID)
 	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 
@@ -629,7 +628,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 				return msg
 			},
-			types.DefaultParams,
+			func() types.Params {
+				return types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			},
 			feemarkettypes.DefaultParams,
 			false,
 			false,
@@ -649,7 +650,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return msg
 			},
 			func() types.Params {
-				defaultParams := types.DefaultParams()
+				defaultParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 				defaultParams.AccessControl = types.AccessControl{
 					Call: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
@@ -674,7 +675,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return msg
 			},
 			func() types.Params {
-				defaultParams := types.DefaultParams()
+				defaultParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
 				defaultParams.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
@@ -699,7 +700,9 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 				return msg
 			},
-			types.DefaultParams,
+			func() types.Params {
+				return types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			},
 			func() feemarkettypes.Params {
 				paramsRes, err := suite.handler.GetFeeMarketParams()
 				suite.Require().NoError(err)
