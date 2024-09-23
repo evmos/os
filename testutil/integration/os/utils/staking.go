@@ -4,10 +4,12 @@
 package utils
 
 import (
+	"errors"
 	"time"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/network"
 )
@@ -21,6 +23,10 @@ func WaitToAccrueRewards(n network.Network, gh grpc.Handler, delegatorAddr strin
 		rewards = sdk.DecCoins{}
 	)
 
+	if err = checkNonZeroInflation(n); err != nil {
+		return nil, err
+	}
+
 	expAmt := expRewards.AmountOf(n.GetDenom())
 	for rewards.AmountOf(n.GetDenom()).LT(expAmt) {
 		rewards, err = checkRewardsAfter(n, gh, delegatorAddr, lapse)
@@ -33,7 +39,7 @@ func WaitToAccrueRewards(n network.Network, gh grpc.Handler, delegatorAddr strin
 }
 
 // checkRewardsAfter is a helper function that checks the accrued rewards
-// after the provided time lapse
+// after the provided timelapse
 func checkRewardsAfter(n network.Network, gh grpc.Handler, delegatorAddr string, lapse time.Duration) (sdk.DecCoins, error) {
 	err := n.NextBlockAfter(lapse)
 	if err != nil {
@@ -56,6 +62,10 @@ func WaitToAccrueCommission(n network.Network, gh grpc.Handler, validatorAddr st
 		lapse      = time.Hour * 24 * 7 // one week
 		commission = sdk.DecCoins{}
 	)
+
+	if err := checkNonZeroInflation(n); err != nil {
+		return nil, err
+	}
 
 	expAmt := expCommission.AmountOf(n.GetDenom())
 	for commission.AmountOf(n.GetDenom()).LT(expAmt) {
@@ -82,4 +92,20 @@ func checkCommissionAfter(n network.Network, gh grpc.Handler, valAddr string, la
 	}
 
 	return res.Commission.Commission, nil
+}
+
+// checkNonZeroInflation is a helper function that checks if the network's
+// inflation is non-zero.
+// This is required to ensure that rewards and commission are accrued.
+func checkNonZeroInflation(n network.Network) error {
+	res, err := n.GetMintClient().Inflation(n.GetContext(), &minttypes.QueryInflationRequest{})
+	if err != nil {
+		return errorsmod.Wrap(err, "failed to get inflation")
+	}
+
+	if res.Inflation.IsZero() {
+		return errors.New("inflation is zero; must be non-zero for rewards or commission to be distributed")
+	}
+
+	return nil
 }

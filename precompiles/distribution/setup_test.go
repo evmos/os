@@ -6,8 +6,9 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
-
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	"github.com/evmos/os/precompiles/distribution"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -58,6 +59,11 @@ func (s *PrecompileTestSuite) SetupTest() {
 		}
 	}
 	customGen[distrtypes.ModuleName] = distrGen
+
+	// set non-zero inflation for rewards to accrue (use defaults from SDK for values)
+	mintGen := minttypes.DefaultGenesisState()
+	mintGen.Params.MintDenom = testconstants.ExampleAttoDenom
+	customGen[minttypes.ModuleName] = mintGen
 
 	operatorsAddr := make([]sdk.AccAddress, 3)
 	for i, k := range s.validatorsKeys {

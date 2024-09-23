@@ -9,8 +9,6 @@ import (
 	"math/big"
 	"time"
 
-	chainutil "github.com/evmos/os/example_chain/testutil"
-
 	sdkmath "cosmossdk.io/math"
 	abcitypes "github.com/cometbft/cometbft/abci/types"
 	cmtjson "github.com/cometbft/cometbft/libs/json"
@@ -22,9 +20,11 @@ import (
 	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	gethparams "github.com/ethereum/go-ethereum/params"
 	app "github.com/evmos/os/example_chain"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	commonnetwork "github.com/evmos/os/testutil/integration/common/network"
 	"github.com/evmos/os/types"
 	erc20types "github.com/evmos/os/x/erc20/types"
@@ -47,6 +47,7 @@ type Network interface {
 	GetEvmClient() evmtypes.QueryClient
 	GetGovClient() govtypes.QueryClient
 	GetFeeMarketClient() feemarkettypes.QueryClient
+	GetMintClient() minttypes.QueryClient
 }
 
 var _ Network = (*IntegrationNetwork)(nil)

@@ -6,8 +6,6 @@ import (
 	"math/big"
 	"testing"
 
-	evmostestutil "github.com/evmos/os/testutil/constants"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -18,6 +16,7 @@ import (
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
 	"github.com/evmos/os/precompiles/testutil/contracts"
+	evmostestutil "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	testutils "github.com/evmos/os/testutil/integration/os/utils"
 	testutiltx "github.com/evmos/os/testutil/tx"
@@ -170,6 +169,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 	Describe("Execute WithdrawDelegatorRewards transaction", func() {
 		var accruedRewards sdk.DecCoins
+
 		BeforeEach(func() {
 			var err error
 			// set the default call arguments
@@ -185,7 +185,11 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 				s.network.GetValidators()[0].OperatorAddress,
 			}
 
-			withdrawalCheck := defaultLogCheck.WithErrContains(cmn.ErrDelegatorDifferentOrigin, s.keyring.GetAddr(0).String(), differentAddr.String())
+			withdrawalCheck := defaultLogCheck.WithErrContains(
+				cmn.ErrDelegatorDifferentOrigin,
+				s.keyring.GetAddr(0).String(),
+				differentAddr.String(),
+			)
 
 			_, _, err := s.factory.CallContractAndCheckLogs(
 				s.keyring.GetPrivKey(0),
@@ -203,6 +207,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			initialBalance := queryRes.Balance
 
 			txArgs.GasPrice = gasPrice.BigInt()
+			txArgs.GasLimit = 100_000
+
 			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0),
 				s.network.GetValidators()[0].OperatorAddress,
@@ -605,6 +611,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			callArgs.Args = []interface{}{
 				s.keyring.GetAddr(0), uint32(valCount),
 			}
+			txArgs.GasLimit = 250_000
 
 			// get base fee to use in tx to then calculate fee paid
 			bfQuery, err := s.grpcHandler.GetBaseFee()
@@ -676,8 +683,8 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			expAddr := s.validatorsKeys[0].AccAddr.String()
 			Expect(expAddr).To(Equal(out.DistributionInfo.OperatorAddress))
-			Expect(0).To(Equal(len(out.DistributionInfo.Commission)))
-			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
+			Expect(1).To(Equal(len(out.DistributionInfo.Commission)))
+			Expect(1).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})
 
 		It("should get validator outstanding rewards - validatorOutstandingRewards query", func() {
@@ -712,10 +719,9 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			expRewardAmt := accruedRewards.AmountOf(s.bondDenom).
 				Quo(math.LegacyNewDec(3)).             // divide by validators count
 				Quo(math.LegacyNewDecWithPrec(95, 2)). // add 5% commission
-				Ceil().                                // round up to get the same value
 				TruncateInt()
 
-			Expect(rewards[0].Amount).To(Equal(expRewardAmt.BigInt()))
+			Expect(rewards[0].Amount.String()).To(Equal(expRewardAmt.BigInt().String()))
 		})
 
 		It("should get validator commission - validatorCommission query", func() {
@@ -2482,7 +2488,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			Expect(expAddr).To(Equal(out.DistributionInfo.OperatorAddress))
 			Expect(1).To(Equal(len(out.DistributionInfo.Commission)))
-			Expect(0).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
+			Expect(1).To(Equal(len(out.DistributionInfo.SelfBondRewards)))
 		})
 
 		It("should get validator outstanding rewards", func() {
