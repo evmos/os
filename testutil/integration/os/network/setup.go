@@ -439,14 +439,21 @@ func setDefaultGovGenesisState(evmosApp *exampleapp.ExampleChain, genesisState e
 
 // MintCustomGenesisState defines the gov genesis state
 type MintCustomGenesisState struct {
-	denom string
+	denom        string
+	inflationMin sdkmath.LegacyDec
+	inflationMax sdkmath.LegacyDec
 }
 
 // setDefaultGovGenesisState sets the default gov genesis state
+//
+// NOTE: for the testing network we don't want to have any minting
 func setDefaultMintGenesisState(evmosApp *exampleapp.ExampleChain, genesisState evmostypes.GenesisState, overwriteParams MintCustomGenesisState) evmostypes.GenesisState {
 	mintGen := minttypes.DefaultGenesisState()
 	updatedParams := mintGen.Params
 	updatedParams.MintDenom = overwriteParams.denom
+	updatedParams.InflationMin = overwriteParams.inflationMin
+	updatedParams.InflationMax = overwriteParams.inflationMax
+
 	mintGen.Params = updatedParams
 	genesisState[minttypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(mintGen)
 	return genesisState

@@ -133,7 +133,9 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 
 	mintParams := MintCustomGenesisState{
-		denom: n.cfg.denom,
+		denom:        n.cfg.denom,
+		inflationMax: sdkmath.LegacyNewDecWithPrec(0, 1),
+		inflationMin: sdkmath.LegacyNewDecWithPrec(0, 1),
 	}
 
 	totalSupply := calculateTotalSupply(fundedAccountBalances)
