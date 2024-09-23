@@ -159,8 +159,6 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 		txArgs.GasLimit = gasLimit
 	}
 
-	fmt.Println("returning with gas limit", txArgs.GasLimit)
-
 	return txArgs, nil
 }
 

@@ -306,9 +306,6 @@ func (n *IntegrationNetwork) BroadcastTxSync(txBytes []byte) (abcitypes.ExecTxRe
 	// NextBlock or NextBlockAfter functions
 	req.DecidedLastCommit = abcitypes.CommitInfo{}
 
-	fmt.Println("current block gas limit", types.BlockGasLimit(n.GetContext()))
-	fmt.Println("current block gas used", n.GetContext().BlockGasMeter().GasConsumed())
-	fmt.Println("current block gas remaining", n.GetContext().BlockGasMeter().GasRemaining())
 	blockRes, err := n.app.BaseApp.FinalizeBlock(req)
 	if err != nil {
 		return abcitypes.ExecTxResult{}, err
