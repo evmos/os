@@ -63,7 +63,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	consensus "github.com/cosmos/cosmos-sdk/x/consensus"
+	"github.com/cosmos/cosmos-sdk/x/consensus"
 	consensusparamkeeper "github.com/cosmos/cosmos-sdk/x/consensus/keeper"
 	consensusparamtypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -654,7 +654,7 @@ func NewExampleApp(
 		govtypes.ModuleName, stakingtypes.ModuleName,
 		capabilitytypes.ModuleName, authtypes.ModuleName, banktypes.ModuleName,
 
-		// evmOS BeginBlockers
+		// evmOS EndBlockers
 		evmtypes.ModuleName, erc20types.ModuleName, feemarkettypes.ModuleName,
 
 		// no-ops
@@ -894,6 +894,9 @@ func (app *ExampleChain) TxConfig() client.TxConfig {
 // TODO: change all receivers to osApp
 func (a *ExampleChain) DefaultGenesis() map[string]json.RawMessage {
 	genesis := a.BasicModuleManager.DefaultGenesis(a.appCodec)
+
+	mintGenState := NewMintGenesisState()
+	genesis[minttypes.ModuleName] = a.appCodec.MustMarshalJSON(mintGenState)
 
 	evmGenState := NewEVMGenesisState()
 	genesis[evmtypes.ModuleName] = a.appCodec.MustMarshalJSON(evmGenState)

@@ -91,7 +91,6 @@ func TestIntegrationSuite(t *testing.T) {
 }
 
 var (
-	wevmosAddress      common.Address
 	revertContractAddr common.Address
 	gasLimit           = uint64(5000000)
 	gasPrice           = big.NewInt(800_000_000)
@@ -249,7 +248,6 @@ var _ = Describe("ERC20 Extension -", func() {
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
 		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(exampleapp.WEVMOSContractMainnet)))
 
-		wevmosAddress = common.HexToAddress(erc20Params.NativePrecompiles[0])
 		revertContractAddr, err = is.factory.DeployContract(
 			sender.Priv,
 			evmtypes.EvmTxArgs{}, // NOTE: passing empty struct to use default values
@@ -1931,7 +1929,6 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		Context("for a token with available metadata", func() {
 			const (
-				denom       = "axmpl"
 				expSymbol   = "Xmpl"
 				expDecimals = uint8(18)
 			)

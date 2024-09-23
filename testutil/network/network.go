@@ -109,7 +109,7 @@ func DefaultConfig() Config {
 	defer os.RemoveAll(dir)
 	tempApp := exampleapp.NewExampleApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simutils.NewAppOptionsWithFlagHome(dir), baseapp.SetChainID(chainID))
 
-	return Config{
+	cfg := Config{
 		Codec:             tempApp.AppCodec(),
 		TxConfig:          tempApp.TxConfig(),
 		LegacyAmino:       tempApp.LegacyAmino(),
@@ -131,6 +131,7 @@ func DefaultConfig() Config {
 		KeyringOptions:    []keyring.Option{hd.EthSecp256k1Option()},
 		PrintMnemonic:     false,
 	}
+	return cfg
 }
 
 // NewAppConstructor returns a new Evmos AppConstructor

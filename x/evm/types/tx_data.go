@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package types
 
 import (
@@ -67,19 +68,6 @@ func NewTxDataFromTx(tx *ethtypes.Transaction) (TxData, error) {
 	}
 
 	return txData, nil
-}
-
-func rawSignatureValues(vBz, rBz, sBz []byte) (v, r, s *big.Int) {
-	if len(vBz) > 0 {
-		v = new(big.Int).SetBytes(vBz)
-	}
-	if len(rBz) > 0 {
-		r = new(big.Int).SetBytes(rBz)
-	}
-	if len(sBz) > 0 {
-		s = new(big.Int).SetBytes(sBz)
-	}
-	return v, r, s
 }
 
 func fee(gasPrice *big.Int, gas uint64) *big.Int {

@@ -10,12 +10,8 @@ import (
 	"github.com/evmos/os/testutil/constants"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
+	utiltx "github.com/evmos/os/testutil/tx"
 	erc20types "github.com/evmos/os/x/erc20/types"
-)
-
-const (
-	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
-	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials #gitleaks:allow
 )
 
 // CreateGenesisWithTokenPairs creates a genesis that includes
@@ -34,13 +30,14 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 	if len(denoms) == 0 {
 		denoms = []string{"xmpl"}
 	}
+
 	accs := keyring.GetAllAccAddrs()
 	genesisAccounts := make([]*authtypes.BaseAccount, len(accs))
 	for i, addr := range accs {
 		genesisAccounts[i] = &authtypes.BaseAccount{
 			Address:       addr.String(),
 			PubKey:        nil,
-			AccountNumber: uint64(i + 1),
+			AccountNumber: uint64(i + 1), //nolint:gosec // G115
 			Sequence:      1,
 		}
 	}
@@ -53,14 +50,8 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 	}
 
 	// Add token pairs to genesis
-	erc20GenesisState := exampleapp.NewErc20GenesisState()
-	erc20GenesisState.TokenPairs = append(erc20GenesisState.TokenPairs,
-		erc20types.TokenPair{
-			Erc20Address:  erc20TokenPairHex,
-			Denom:         "xmpl",
-			Enabled:       true,
-			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-		},
+	tokenPairs := make([]erc20types.TokenPair, 0, len(denoms)+1)
+	tokenPairs = append(tokenPairs,
 		erc20types.TokenPair{
 			Erc20Address:  constants.WEVMOSContractTestnet,
 			Denom:         constants.ExampleAttoDenom,
@@ -68,6 +59,26 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
 		},
 	)
+
+	dynPrecAddr := make([]string, 0, len(denoms))
+	for _, denom := range denoms {
+		addr := utiltx.GenerateAddress().Hex()
+		tp := erc20types.TokenPair{
+			Erc20Address:  addr,
+			Denom:         denom,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
+		}
+		tokenPairs = append(tokenPairs, tp)
+		dynPrecAddr = append(dynPrecAddr, addr)
+	}
+
+	// STR v2: update the NativePrecompiles and DynamicPrecompiles
+	// with the WEVMOS (default is testnet) and 'xmpl' tokens in the erc20 params
+	erc20GenesisState := exampleapp.NewErc20GenesisState()
+	erc20GenesisState.TokenPairs = tokenPairs
+	erc20GenesisState.Params.NativePrecompiles = []string{constants.WEVMOSContractTestnet}
+	erc20GenesisState.Params.DynamicPrecompiles = dynPrecAddr
 
 	// Combine module genesis states
 	return network.CustomGenesisState{

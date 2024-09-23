@@ -219,7 +219,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	// Set networks global parameters
 	var blockMaxGas uint64 = math.MaxUint64
 	if consensusParams.Block != nil && consensusParams.Block.MaxGas > 0 {
-		blockMaxGas = uint64(consensusParams.Block.MaxGas)
+		blockMaxGas = uint64(consensusParams.Block.MaxGas) //#nosec G115 -- max gas will not exceed uint64
 	}
 
 	n.app = exampleApp

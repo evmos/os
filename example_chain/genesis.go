@@ -6,6 +6,7 @@ package example_chain
 import (
 	"encoding/json"
 
+	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 	erc20types "github.com/evmos/os/x/erc20/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -41,4 +42,14 @@ func NewErc20GenesisState() *erc20types.GenesisState {
 	erc20GenState.Params.NativePrecompiles = append(erc20GenState.Params.NativePrecompiles, WEVMOSContractMainnet)
 
 	return erc20GenState
+}
+
+// NewMintGenesisState returns the default genesis state for the mint module.
+//
+// NOTE: for the example chain implementation we are also adding a default minter.
+func NewMintGenesisState() *minttypes.GenesisState {
+	mintGenState := minttypes.DefaultGenesisState()
+	mintGenState.Params.MintDenom = ExampleChainDenom
+
+	return mintGenState
 }

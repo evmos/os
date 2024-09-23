@@ -117,7 +117,7 @@ func (endpoint *Endpoint) CreateClient() (err error) {
 		fmt.Sprintf("expected sender account on chain with ID %q not to be nil", endpoint.Chain.ChainID),
 	)
 
-	zeroTimestamp := uint64(time.Time{}.UnixNano())
+	zeroTimestamp := uint64(time.Time{}.UnixNano()) //#nosec G115 -- will not exceed uint64
 	require.NotEqual(
 		endpoint.Chain.TB, consensusState.GetTimestamp(), zeroTimestamp,
 		"current timestamp on the last header is the zero time; it might be necessary to commit blocks with the IBC coordinator",

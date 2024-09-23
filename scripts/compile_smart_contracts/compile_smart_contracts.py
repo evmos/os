@@ -316,11 +316,11 @@ if __name__ == "__main__":
         clean_up_hardhat_project(CONTRACTS_TARGET.parent)
 
     elif sys.argv[1] == "--add":
-        added_contract = sys.argv[2]
-        if not added_contract.endswith(".sol"):
+        ADDED_CONTRACT = sys.argv[2]
+        if not ADDED_CONTRACT.endswith(".sol"):
             raise ValueError("Provided contract is not a Solidity file.")
 
-        compile_files(REPO_PATH, added_contract=added_contract)
+        compile_files(REPO_PATH, added_contract=ADDED_CONTRACT)
 
     else:
         raise ValueError(
