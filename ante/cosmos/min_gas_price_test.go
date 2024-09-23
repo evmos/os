@@ -182,7 +182,7 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 				return txBuilder.GetTx()
 			},
 			false,
-			fmt.Sprintf("expected only use native token %s for fee", denom),
+			fmt.Sprintf("expected only native token %s for fee", denom),
 			true,
 		},
 	}

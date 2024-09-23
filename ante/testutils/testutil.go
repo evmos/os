@@ -14,6 +14,7 @@ import (
 	evmante "github.com/evmos/os/ante/evm"
 	chainante "github.com/evmos/os/example_chain/ante"
 	chainutil "github.com/evmos/os/example_chain/testutil"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
@@ -59,6 +60,7 @@ func (suite *AnteTestSuite) SetupTest() {
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
 	evmGenesis := evmtypes.DefaultGenesisState()
+	evmGenesis.Params.EvmDenom = testconstants.ExampleAttoDenom
 	if !suite.enableLondonHF {
 		maxInt := sdkmath.NewInt(math.MaxInt64)
 		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt

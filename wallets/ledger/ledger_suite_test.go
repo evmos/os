@@ -105,8 +105,8 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 
 	memo := "memo"
 	msg := bankTypes.NewMsgSend(
-		sdk.MustAccAddressFromBech32("cosmos1r5sckdd808qvg7p8d0auaw896zcluqfd7djffp"),
-		sdk.MustAccAddressFromBech32("cosmos10t8ca2w09ykd6ph0agdz5stvgau47whhaggl9a"),
+		sdk.MustAccAddressFromBech32("evmos1r5sckdd808qvg7p8d0auaw896zcluqfduvr8nf"),
+		sdk.MustAccAddressFromBech32("evmos10t8ca2w09ykd6ph0agdz5stvgau47whhlfe3l4"),
 		[]sdk.Coin{
 			{
 				Denom:  "atom",
