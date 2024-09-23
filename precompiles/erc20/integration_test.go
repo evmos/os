@@ -245,7 +245,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 		erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
 		Expect(len(erc20Params.NativePrecompiles)).To(Equal(1))
-		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(testconstants.WEVMOSContractTestnet)))
+		Expect(common.HexToAddress(erc20Params.NativePrecompiles[0])).To(Equal(common.HexToAddress(testconstants.WEVMOSContractMainnet)))
 
 		revertContractAddr, err = is.factory.DeployContract(
 			sender.Priv,
@@ -435,30 +435,6 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetKey(1)
 					amountToSend := big.NewInt(100)
-
-					fmt.Println("testnet contract: ", testconstants.WEVMOSContractTestnet)
-					evmParams := is.network.App.EVMKeeper.GetParams(is.network.GetContext())
-					fmt.Println("evmParams: ", evmParams.ActiveStaticPrecompiles)
-					erc20Params := is.network.App.Erc20Keeper.GetParams(is.network.GetContext())
-					fmt.Println("erc20Params: ", erc20Params.NativePrecompiles)
-
-					// Check if token pair is actually registered
-					tokenPair := is.network.App.Erc20Keeper.GetTokenPairs(is.network.GetContext())
-					Expect(tokenPair).ToNot(BeNil())
-					fmt.Println("got token pairs: ", tokenPair)
-					for _, pair := range tokenPair {
-						fmt.Println("  denom: ", pair.Denom)
-						fmt.Println("  addr: ", pair.Erc20Address)
-					}
-
-					// Get ERC20 balance of user
-					erc20Balance, err := integrationutils.GetERC20Balance(
-						is.network,
-						common.HexToAddress(testconstants.WEVMOSContractTestnet),
-						sender.Addr,
-					)
-					Expect(err).ToNot(HaveOccurred(), "failed to get ERC20 balance")
-					Expect(erc20Balance).ToNot(BeZero(), "expected non-zero balance of sender")
 
 					balRes, err := is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())

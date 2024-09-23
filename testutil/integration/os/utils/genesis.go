@@ -52,12 +52,8 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 	// Add token pairs to genesis
 	tokenPairs := make([]erc20types.TokenPair, 0, len(denoms)+1)
 	tokenPairs = append(tokenPairs,
-		erc20types.TokenPair{
-			Erc20Address:  constants.WEVMOSContractTestnet,
-			Denom:         constants.ExampleAttoDenom,
-			Enabled:       true,
-			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-		},
+		// NOTE: the example token pairs are being added in the integration test utils
+		exampleapp.ExampleTokenPairs...,
 	)
 
 	dynPrecAddr := make([]string, 0, len(denoms))
@@ -74,10 +70,10 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) 
 	}
 
 	// STR v2: update the NativePrecompiles and DynamicPrecompiles
-	// with the WEVMOS (default is testnet) and 'xmpl' tokens in the erc20 params
+	// with the WEVMOS (default is mainnet) and 'xmpl' tokens in the erc20 params
 	erc20GenesisState := exampleapp.NewErc20GenesisState()
 	erc20GenesisState.TokenPairs = tokenPairs
-	erc20GenesisState.Params.NativePrecompiles = []string{constants.WEVMOSContractTestnet}
+	erc20GenesisState.Params.NativePrecompiles = []string{constants.WEVMOSContractMainnet}
 	erc20GenesisState.Params.DynamicPrecompiles = dynPrecAddr
 
 	// Combine module genesis states
