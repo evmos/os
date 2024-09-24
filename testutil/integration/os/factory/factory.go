@@ -5,7 +5,6 @@ package factory
 
 import (
 	"fmt"
-	"github.com/evmos/os/x/evm/core/vm"
 	"math/big"
 	"strings"
 
@@ -22,6 +21,7 @@ import (
 	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/network"
+	"github.com/evmos/os/x/evm/core/vm"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 

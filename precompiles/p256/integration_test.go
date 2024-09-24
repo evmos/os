@@ -6,6 +6,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+
 	exampleapp "github.com/evmos/os/example_chain"
 
 	"github.com/cometbft/cometbft/crypto"

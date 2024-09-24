@@ -2,7 +2,6 @@ package erc20_test
 
 import (
 	"fmt"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"math/big"
 	"slices"
 	"strings"
@@ -11,15 +10,14 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-
 	"github.com/evmos/os/contracts"
 	auth "github.com/evmos/os/precompiles/authorization"
 	"github.com/evmos/os/precompiles/erc20"
 	"github.com/evmos/os/precompiles/erc20/testdata"
 	"github.com/evmos/os/precompiles/testutil"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"

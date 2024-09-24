@@ -2532,7 +2532,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			// // In future SDK releases this will be possible to adjust by passing a custom `MintFn` -> check
 			// // https://docs.cosmos.network/main/build/modules/mint#epoch-minting
 			//
-			//It("should not get commission - validator without commission", func() {
+			// It("should not get commission - validator without commission", func() {
 			//	// fund validator account to claim commission (if any)
 			//	err = testutils.FundAccountWithBaseDenom(s.factory, s.network, s.keyring.GetKey(0), s.validatorsKeys[0].AccAddr, math.NewInt(1e18))
 			//	Expect(err).To(BeNil())
@@ -2556,7 +2556,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			//	Expect(err).To(BeNil())
 			//	Expect(len(commission)).To(Equal(1))
 			//	Expect(commission[0].Amount.Int64()).To(Equal(int64(0)))
-			//})
+			// })
 
 			It("should get commission - validator with commission", func() {
 				_, err = testutils.WaitToAccrueCommission(s.network, s.grpcHandler, s.network.GetValidators()[0].OperatorAddress, minExpRewardOrCommission)
@@ -2685,7 +2685,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			// // In future SDK releases this will be possible to adjust by passing a custom `MintFn` -> check
 			// // https://docs.cosmos.network/main/build/modules/mint#epoch-minting
 			//
-			//It("should not get rewards - no rewards available", func() {
+			// It("should not get rewards - no rewards available", func() {
 			//	// withdraw rewards if available
 			//	err := s.factory.WithdrawDelegationRewards(s.keyring.GetPrivKey(0), s.network.GetValidators()[0].OperatorAddress)
 			//	Expect(err).To(BeNil())
@@ -2705,7 +2705,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			//	err = s.precompile.UnpackIntoInterface(&rewards, distribution.DelegationRewardsMethod, ethRes.Ret)
 			//	Expect(err).To(BeNil())
 			//	Expect(len(rewards)).To(Equal(0))
-			//})
+			// })
 
 			It("should get rewards", func() {
 				accruedRewards, err := testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
@@ -2746,7 +2746,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			// // In future SDK releases this will be possible to adjust by passing a custom `MintFn` -> check
 			// // https://docs.cosmos.network/main/build/modules/mint#epoch-minting
 			//
-			//It("should not get rewards - no rewards available", func() {
+			// It("should not get rewards - no rewards available", func() {
 			//	// Create a delegation
 			//	err := s.factory.Delegate(s.keyring.GetPrivKey(1), s.network.GetValidators()[0].OperatorAddress, sdk.NewCoin(s.bondDenom, math.NewInt(1)))
 			//	Expect(err).To(BeNil())
@@ -2767,7 +2767,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			//	Expect(err).To(BeNil())
 			//	Expect(len(out.Rewards)).To(Equal(1))
 			//	Expect(len(out.Rewards[0].Reward)).To(Equal(0))
-			//})
+			// })
 
 			It("should get total rewards", func() {
 				// wait to get rewards
