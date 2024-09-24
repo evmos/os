@@ -16,7 +16,7 @@ import (
 	"github.com/evmos/os/precompiles/staking"
 	"github.com/evmos/os/precompiles/testutil"
 	"github.com/evmos/os/precompiles/testutil/contracts"
-	evmostestutil "github.com/evmos/os/testutil/constants"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	testutils "github.com/evmos/os/testutil/integration/os/utils"
 	testutiltx "github.com/evmos/os/testutil/tx"
@@ -50,7 +50,7 @@ var (
 	txArgs evmtypes.EvmTxArgs
 	// minExpRewardOrCommission is the minimun coins expected for validator's rewards or commission
 	// required for the tests
-	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(evmostestutil.ExampleAttoDenom, testRewardsAmt))
+	minExpRewardOrCommission = sdk.NewDecCoins(sdk.NewDecCoin(testconstants.ExampleAttoDenom, testRewardsAmt))
 )
 
 func TestPrecompileIntegrationTestSuite(t *testing.T) {

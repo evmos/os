@@ -137,6 +137,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 				expectedGasWanted += tc.expectedGasWanted
 				suite.Require().Equal(expectedGasWanted, gasWanted)
 			} else {
+				// TODO: check for specific error message
 				suite.Require().Error(err)
 			}
 		})

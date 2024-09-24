@@ -7,6 +7,7 @@ import (
 	"math/big"
 	"testing"
 
+	"cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -58,11 +59,12 @@ var table = []struct {
 }
 
 func BenchmarkAnteHandler(b *testing.B) {
+	keyring := testkeyring.New(2)
+
 	for _, v := range table {
 		// Reset chain on every tx type to have a clean state
 		// and a fair benchmark
 		b.StopTimer()
-		keyring := testkeyring.New(2)
 		unitNetwork := network.NewUnitTestNetwork(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 		)
@@ -85,24 +87,21 @@ func BenchmarkAnteHandler(b *testing.B) {
 				b.StopTimer()
 				// Start with a clean block
 				if err := unitNetwork.NextBlock(); err != nil {
-					fmt.Println(err)
-					break
+					b.Fatal(errors.Wrap(err, "failed to create block"))
 				}
 				ctx := unitNetwork.GetContext()
 
 				// Generate fresh tx type
 				tx, err := suite.generateTxType(v.txType)
 				if err != nil {
-					fmt.Println(err)
-					break
+					b.Fatal(errors.Wrap(err, "failed to generate tx type"))
 				}
 				b.StartTimer()
 
 				// Run benchmark
 				_, err = ante(ctx, tx, v.simulate)
 				if err != nil {
-					fmt.Println(err)
-					break
+					b.Fatal(errors.Wrap(err, "failed to run ante handler"))
 				}
 			}
 		})

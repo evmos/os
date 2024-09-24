@@ -32,7 +32,7 @@ func CheckBalances(ctx context.Context, client banktypes.QueryClient, balances [
 				return err
 			}
 
-			if !balance.Balance.IsEqual(coin) {
+			if !balance.Balance.Equal(coin) {
 				return fmt.Errorf(
 					"expected balance %s, got %s for address %s",
 					coin, balance.Balance, addr,

@@ -143,7 +143,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator2(from sdk.AccAddr
 		privEd.PubKey(),
 		sdk.NewCoin(suite.GetNetwork().GetDenom(), sdkmath.NewInt(20)),
 		// Ensure optional fields can be left blank
-		stakingtypes.NewDescription("moniker", "indentity", "", "", ""),
+		stakingtypes.NewDescription("moniker", "identity", "", "", ""),
 		stakingtypes.NewCommissionRates(sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec(), sdkmath.LegacyOneDec()),
 		sdkmath.OneInt(),
 	)

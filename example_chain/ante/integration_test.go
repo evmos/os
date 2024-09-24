@@ -13,6 +13,7 @@ import (
 	"github.com/evmos/os/testutil/integration/os/network"
 	integrationutils "github.com/evmos/os/testutil/integration/os/utils"
 	testutiltx "github.com/evmos/os/testutil/tx"
+
 	//nolint:revive // dot imports are fine for Ginkgo
 	. "github.com/onsi/ginkgo/v2"
 	//nolint:revive // dot imports are fine for Ginkgo
@@ -86,6 +87,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 
 			baseFeeRes, err := s.grpcHandler.GetBaseFee()
 			Expect(err).To(BeNil())
+			Expect(baseFeeRes).ToNot(BeNil(), "baseFeeRes is nil")
 
 			res, err := s.factory.ExecuteCosmosTx(
 				priv,
@@ -102,6 +104,8 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			Expect(err).To(BeNil())
 
 			// fees should be deducted from balance
+			Expect(baseFeeRes.BaseFee).ToNot(BeNil(), "baseFeeRes.BaseFee is nil")
+
 			feesAmt := sdkmath.NewInt(res.GasWanted).Mul(*baseFeeRes.BaseFee)
 			balanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
 			Expect(err).To(BeNil())

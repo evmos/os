@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"math/big"
 
-	evmostestutil "github.com/evmos/os/testutil/constants"
+	testconstants "github.com/evmos/os/testutil/constants"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
@@ -57,7 +57,7 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: evmostestutil.ExampleAttoDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		txFee = txFee.Add(sdk.Coin{Denom: testconstants.ExampleAttoDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
 	}
 
 	if err := txBuilder.SetMsgs(msgs...); err != nil {

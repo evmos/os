@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	evmostestutil "github.com/evmos/os/testutil/constants"
+	testconstants "github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
@@ -121,7 +121,7 @@ func DefaultConfig() Config {
 		ChainID:           chainID,
 		NumValidators:     4,
 		BondDenom:         "aevmos",
-		MinGasPrices:      fmt.Sprintf("0.000006%s", evmostestutil.ExampleAttoDenom),
+		MinGasPrices:      fmt.Sprintf("0.000006%s", testconstants.ExampleAttoDenom),
 		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, evmostypes.AttoPowerReduction),
 		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, evmostypes.AttoPowerReduction),
 		BondedTokens:      sdk.TokensFromConsensusPower(100000000000000000, evmostypes.AttoPowerReduction),
@@ -476,7 +476,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 			return nil, err
 		}
 
-		customAppTemplate, _ := chaincmd.InitAppConfig(evmostestutil.ExampleAttoDenom)
+		customAppTemplate, _ := chaincmd.InitAppConfig(testconstants.ExampleAttoDenom)
 		srvconfig.SetConfigTemplate(customAppTemplate)
 		srvconfig.WriteConfigFile(filepath.Join(nodeDir, "config/app.toml"), appCfg)
 
