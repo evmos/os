@@ -536,7 +536,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 				from := suite.GetKeyring().GetAccAddr(0)
 				gas := uint64(200000)
 				amount := sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(100*int64(gas)))) //#nosec G115
-				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "evmos_9000-1", gas, amount)
+				txBuilder, err := suite.CreateTestEIP712TxBuilderMsgSend(from, privKey, "evmos_9005-1", gas, amount)
 				suite.Require().NoError(err)
 				return txBuilder.GetTx()
 			}, false, false, false,
