@@ -19,6 +19,9 @@ TMP_GENESIS="$CHAINDIR/config/tmp_genesis.json"
 APP_TOML="$CHAINDIR/config/app.toml"
 CONFIG_TOML="$CHAINDIR/config/config.toml"
 
+# make sure to reset chain directory before test
+rm -rf "$CHAINDIR"
+
 # validate dependencies are installed
 command -v jq >/dev/null 2>&1 || {
 	echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
@@ -30,6 +33,10 @@ set -e
 
 # feemarket params basefee
 BASEFEE=1000000000
+
+# Set client config
+osd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
+osd config set client chain-id "$CHAINID" --home "$CHAINDIR"
 
 # myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
 VAL_KEY="mykey"
@@ -51,20 +58,11 @@ USER3_MNEMONIC="will wear settle write dance topic tape sea glory hotel oppose r
 USER4_KEY="user4"
 USER4_MNEMONIC="doll midnight silk carpet brush boring pluck office gown inquiry duck chief aim exit gain never tennis crime fragile ship cloud surface exotic patch"
 
-# Set client config
-osd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
-osd config set client chain-id "$CHAINID" --home "$CHAINDIR"
-
 # Import keys from mnemonics
-echo "Adding val key"
 echo "$VAL_MNEMONIC" | osd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user1 key"
 echo "$USER1_MNEMONIC" | osd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user2 key"
 echo "$USER2_MNEMONIC" | osd keys add "$USER2_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user3 key"
 echo "$USER3_MNEMONIC" | osd keys add "$USER3_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user4 key"
 echo "$USER4_MNEMONIC" | osd keys add "$USER4_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
