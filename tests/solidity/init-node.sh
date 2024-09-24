@@ -52,12 +52,11 @@ USER4_KEY="user4"
 USER4_MNEMONIC="doll midnight silk carpet brush boring pluck office gown inquiry duck chief aim exit gain never tennis crime fragile ship cloud surface exotic patch"
 
 # Set client config
-osd config keyring-backend "$KEYRING" --home "$CHAINDIR"
-osd config chain-id "$CHAINID" --home "$CHAINDIR"
+osd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
+osd config set client chain-id "$CHAINID" --home "$CHAINDIR"
 
 # Import keys from mnemonics
 echo "Adding val key"
-echo "adding mnemonic: $VAL_MNEMONIC"
 echo "$VAL_MNEMONIC" | osd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
 echo "Adding user1 key"
 echo "$USER1_MNEMONIC" | osd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
@@ -81,17 +80,10 @@ jq '.app_state["mint"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENES
 # Enable precompiles in EVM params
 jq '.app_state["evm"]["params"]["active_static_precompiles"]=["0x0000000000000000000000000000000000000100","0x0000000000000000000000000000000000000400","0x0000000000000000000000000000000000000800","0x0000000000000000000000000000000000000801","0x0000000000000000000000000000000000000802","0x0000000000000000000000000000000000000803","0x0000000000000000000000000000000000000804"]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-# set gov proposing && voting period
-jq '.app_state.gov.deposit_params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.gov.voting_params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
-# When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
-# check if the 'params' field exists in the genesis file
-if jq '.app_state.gov.params != null' "$GENESIS" | grep -q "true"; then
-	jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-	jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-fi
+# Change proposal periods to pass within a reasonable time for local testing
+sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
+sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$GENESIS"
+sed -i.bak 's/"expedited_voting_period": "86400s"/"expedited_voting_period": "15s"/g' "$GENESIS"
 
 # Set gas limit in genesis
 jq '.consensus_params.block.max_gas="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
