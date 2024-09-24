@@ -21,8 +21,8 @@ CONFIG_TOML="$CHAINDIR/config/config.toml"
 
 # validate dependencies are installed
 command -v jq >/dev/null 2>&1 || {
-  echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
-  exit 1
+	echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
+	exit 1
 }
 
 # used to exit on first error (any non-zero exit code)
@@ -88,9 +88,9 @@ jq '.app_state.gov.voting_params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS"
 # When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
 # check if the 'params' field exists in the genesis file
 if jq '.app_state.gov.params != null' "$GENESIS" | grep -q "true"; then
-  jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 fi
 
 # Set gas limit in genesis
@@ -111,9 +111,9 @@ osd genesis add-genesis-account "$(osd keys show "$USER4_KEY" -a --keyring-backe
 
 # set custom pruning settings
 if [ "$PRUNING" = "custom" ]; then
-  sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
-  sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
-  sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
+	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
+	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 fi
 
 # make sure the localhost IP is 0.0.0.0
@@ -146,8 +146,8 @@ osd genesis validate-genesis --home "$CHAINDIR"
 
 # Start the node
 osd start "$TRACE" \
-  --log_level $LOGLEVEL \
-  --minimum-gas-prices=0.0001aevmos \
-  --json-rpc.api eth,txpool,personal,net,debug,web3 \
-  --chain-id "$CHAINID" \
-  --home "$CHAINDIR"
+	--log_level $LOGLEVEL \
+	--minimum-gas-prices=0.0001aevmos \
+	--json-rpc.api eth,txpool,personal,net,debug,web3 \
+	--chain-id "$CHAINID" \
+	--home "$CHAINDIR"
