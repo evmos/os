@@ -8,6 +8,7 @@ This changelog was created using the `clu` binary
 
 ### Improvements
 
+- (all) [#48](https://github.com/evmos/os/pull/48) Move latest changes from evmOS main (f943af3b incl. SDK v50).
 - (all) [#43](https://github.com/evmos/os/pull/43) Update with latest evmOS main changes (2b7a8e2).
 - (tests) [#41](https://github.com/evmos/os/pull/41) Add Solidity and Ledger tests.
 - (all) [#37](https://github.com/evmos/os/pull/37) Add EVM, feemarket and precompiles from evmOS.
