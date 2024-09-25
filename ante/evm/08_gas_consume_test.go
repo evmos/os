@@ -146,12 +146,6 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 
 	for _, tc := range testCases {
 		suite.Run(tc.name, func() {
-			keepers := &evmante.ConsumeGasKeepers{
-				Bank:         unitNetwork.App.BankKeeper,
-				Distribution: unitNetwork.App.DistrKeeper,
-				Evm:          unitNetwork.App.EVMKeeper,
-				Staking:      unitNetwork.App.StakingKeeper,
-			}
 			sender := tc.getSender()
 			prevBalance, err := grpcHandler.GetAllBalances(
 				sender,
@@ -161,7 +155,7 @@ func (suite *EvmAnteTestSuite) TestConsumeGasAndEmitEvent() {
 			// Function under test
 			err = evmante.ConsumeFeesAndEmitEvent(
 				unitNetwork.GetContext(),
-				keepers,
+				unitNetwork.App.EVMKeeper,
 				tc.fees,
 				sender,
 			)

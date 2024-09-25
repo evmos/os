@@ -9,7 +9,6 @@ import (
 	addresscodec "cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 type AccountKeeper interface {
@@ -23,22 +22,9 @@ type AccountKeeper interface {
 	AddressCodec() addresscodec.Codec
 }
 
-// BankKeeper defines the exposed interface for using functionality of the bank keeper
-// in the context of the AnteHandler utils package.
 type BankKeeper interface {
 	GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin
-}
-
-// DistributionKeeper defines the exposed interface for using functionality of the distribution
-// keeper in the context of the AnteHandler utils package.
-type DistributionKeeper interface {
-	WithdrawDelegationRewards(ctx context.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error)
-}
-
-// StakingKeeper defines the exposed interface for using functionality of the staking keeper
-// in the context of the AnteHandler utils package.
-type StakingKeeper interface {
-	BondDenom(ctx context.Context) (string, error)
-	ValidatorAddressCodec() addresscodec.Codec
-	IterateDelegations(ctx context.Context, delegator sdk.AccAddress, fn func(index int64, delegation stakingtypes.DelegationI) (stop bool)) error
+	IsSendEnabledCoins(ctx context.Context, coins ...sdk.Coin) error
+	SendCoins(ctx context.Context, from, to sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx context.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
 }
