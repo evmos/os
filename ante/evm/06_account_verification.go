@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
+	anteinterfaces "github.com/evmos/os/ante/interfaces"
 	"github.com/evmos/os/x/evm/keeper"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -21,7 +22,7 @@ import (
 // - account balance is lower than the transaction cost
 func VerifyAccountBalance(
 	ctx sdk.Context,
-	accountKeeper evmtypes.AccountKeeper,
+	accountKeeper anteinterfaces.AccountKeeper,
 	account *statedb.Account,
 	from common.Address,
 	txData evmtypes.TxData,
