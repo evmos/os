@@ -8,8 +8,20 @@ import (
 
 	addresscodec "cosmossdk.io/core/address"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
+
+type AccountKeeper interface {
+	NewAccountWithAddress(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	GetModuleAddress(moduleName string) sdk.AccAddress
+	GetAccount(ctx context.Context, addr sdk.AccAddress) sdk.AccountI
+	SetAccount(ctx context.Context, account sdk.AccountI)
+	RemoveAccount(ctx context.Context, account sdk.AccountI)
+	GetParams(ctx context.Context) (params authtypes.Params)
+	GetSequence(ctx context.Context, account sdk.AccAddress) (uint64, error)
+	AddressCodec() addresscodec.Codec
+}
 
 // BankKeeper defines the exposed interface for using functionality of the bank keeper
 // in the context of the AnteHandler utils package.
