@@ -13,11 +13,8 @@ func newMonoEVMAnteHandler(options HandlerOptions) sdk.AnteHandler {
 	return sdk.ChainAnteDecorators(
 		evmante.NewEVMMonoDecorator(
 			options.AccountKeeper,
-			options.BankKeeper,
 			options.FeeMarketKeeper,
 			options.EvmKeeper,
-			options.DistributionKeeper,
-			options.StakingKeeper,
 			options.MaxTxGasWanted,
 		),
 	)
