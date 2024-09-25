@@ -27,7 +27,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/dop251/goja v0.0.0-20220405120441-9037c2b61cbf
 	github.com/ethereum/go-ethereum v1.11.5
-	github.com/evmos/os/example_chain v0.0.0-20240813084209-b051d35c2a55
+	github.com/evmos/os/example_chain v0.0.0-20240924163020-b2a4187dad50
 	github.com/golang/mock v1.6.0
 	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/mux v1.8.1
@@ -237,7 +237,8 @@ require (
 	pgregory.net/rapid v1.1.0 // indirect
 )
 
-replace github.com/evmos/os/example_chain => ./example_chain
+// // replace for local development
+// replace github.com/evmos/os/example_chain => ./example_chain
 
 replace (
 	// need this replace when importing cosmos/rosetta pkg
