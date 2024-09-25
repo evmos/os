@@ -35,8 +35,8 @@ set -e
 BASEFEE=1000000000
 
 # Set client config
-osd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
 osd config set client chain-id "$CHAINID" --home "$CHAINDIR"
+osd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
 
 # myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
 VAL_KEY="mykey"
