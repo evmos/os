@@ -18,13 +18,10 @@ import (
 // MonoDecorator is a single decorator that handles all the prechecks for
 // ethereum transactions.
 type MonoDecorator struct {
-	accountKeeper      anteinterfaces.AccountKeeper
-	bankKeeper         anteinterfaces.BankKeeper
-	feeMarketKeeper    anteinterfaces.FeeMarketKeeper
-	evmKeeper          anteinterfaces.EVMKeeper
-	distributionKeeper anteinterfaces.DistributionKeeper
-	stakingKeeper      anteinterfaces.StakingKeeper
-	maxGasWanted       uint64
+	accountKeeper   anteinterfaces.AccountKeeper
+	feeMarketKeeper anteinterfaces.FeeMarketKeeper
+	evmKeeper       anteinterfaces.EVMKeeper
+	maxGasWanted    uint64
 }
 
 // NewEVMMonoDecorator creates the 'mono' decorator, that is used to run the ante handle logic
@@ -35,21 +32,15 @@ type MonoDecorator struct {
 // decorators using the returned DecoratorUtils
 func NewEVMMonoDecorator(
 	accountKeeper anteinterfaces.AccountKeeper,
-	bankKeeper anteinterfaces.BankKeeper,
 	feeMarketKeeper anteinterfaces.FeeMarketKeeper,
 	evmKeeper anteinterfaces.EVMKeeper,
-	distributionKeeper anteinterfaces.DistributionKeeper,
-	stakingKeeper anteinterfaces.StakingKeeper,
 	maxGasWanted uint64,
 ) MonoDecorator {
 	return MonoDecorator{
-		accountKeeper:      accountKeeper,
-		bankKeeper:         bankKeeper,
-		feeMarketKeeper:    feeMarketKeeper,
-		evmKeeper:          evmKeeper,
-		distributionKeeper: distributionKeeper,
-		stakingKeeper:      stakingKeeper,
-		maxGasWanted:       maxGasWanted,
+		accountKeeper:   accountKeeper,
+		feeMarketKeeper: feeMarketKeeper,
+		evmKeeper:       evmKeeper,
+		maxGasWanted:    maxGasWanted,
 	}
 }
 
@@ -177,12 +168,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		err = ConsumeFeesAndEmitEvent(
 			ctx,
-			&ConsumeGasKeepers{
-				Bank:         md.bankKeeper,
-				Distribution: md.distributionKeeper,
-				Evm:          md.evmKeeper,
-				Staking:      md.stakingKeeper,
-			},
+			md.evmKeeper,
 			msgFees,
 			from,
 		)
