@@ -10,18 +10,17 @@ import (
 
 	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	ibcgotesting "github.com/cosmos/ibc-go/v7/testing"
+	ibcgotesting "github.com/cosmos/ibc-go/v8/testing"
 	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	evmostypes "github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
 )
@@ -35,7 +34,7 @@ var DefaultTestingAppInit func(chainID string) func() (ibcgotesting.TestingApp, 
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit (10^6) in the default token of the simapp from first genesis
 // account. A Nop logger is set in SimApp.
-func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, balances ...banktypes.Balance) ibcgotesting.TestingApp {
+func SetupWithGenesisValSet(t *testing.T, valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, chainID string, balances ...banktypes.Balance) ibcgotesting.TestingApp {
 	app, genesisState := DefaultTestingAppInit(chainID)()
 	// set genesis accounts
 	authGenesis := authtypes.NewGenesisState(authtypes.DefaultParams(), genAccs)
@@ -47,7 +46,7 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	bondAmt := sdk.TokensFromConsensusPower(1, evmostypes.AttoPowerReduction)
 
 	for _, val := range valSet.Validators {
-		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey)
+		pk, err := cryptocodec.FromTmPubKeyInterface(val.PubKey) //nolint:staticcheck
 		require.NoError(t, err)
 		pkAny, err := codectypes.NewAnyWithValue(pk)
 		require.NoError(t, err)
@@ -65,26 +64,26 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 			MinSelfDelegation: math.ZeroInt(),
 		}
 		validators = append(validators, validator)
-		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress(), val.Address.Bytes(), math.LegacyOneDec()))
+		delegations = append(delegations, stakingtypes.NewDelegation(genAccs[0].GetAddress().String(), sdk.ValAddress(val.Address).String(), math.LegacyOneDec()))
 	}
 
 	// set validators and delegations
 	stakingParams := stakingtypes.DefaultParams()
 	// set bond demon to be aevmos
-	stakingParams.BondDenom = testutil.ExampleAttoDenom
+	stakingParams.BondDenom = constants.ExampleAttoDenom
 	stakingGenesis := stakingtypes.NewGenesisState(stakingParams, validators, delegations)
 	genesisState[stakingtypes.ModuleName] = app.AppCodec().MustMarshalJSON(stakingGenesis)
 
 	totalSupply := sdk.NewCoins()
 	for _, b := range balances {
 		// add genesis acc tokens and delegated tokens to total supply
-		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(testutil.ExampleAttoDenom, bondAmt))...)
+		totalSupply = totalSupply.Add(b.Coins.Add(sdk.NewCoin(constants.ExampleAttoDenom, bondAmt))...)
 	}
 
 	// add bonded amount to bonded pool module account
 	balances = append(balances, banktypes.Balance{
 		Address: authtypes.NewModuleAddress(stakingtypes.BondedPoolName).String(),
-		Coins:   sdk.Coins{sdk.NewCoin(testutil.ExampleAttoDenom, bondAmt)},
+		Coins:   sdk.Coins{sdk.NewCoin(constants.ExampleAttoDenom, bondAmt)},
 	})
 
 	// update total supply
@@ -95,24 +94,25 @@ func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs 
 	require.NoError(t, err)
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
-		abci.RequestInitChain{
+	_, err = app.InitChain(
+		&abci.RequestInitChain{
 			ChainId:         chainID,
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: chainutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 		},
 	)
+	require.NoError(t, err)
 
 	// commit genesis changes
-	app.Commit()
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{
-		ChainID:            chainID,
-		Height:             app.LastBlockHeight() + 1,
-		AppHash:            app.LastCommitID().Hash,
-		ValidatorsHash:     valSet.Hash(),
+	_, err = app.Commit()
+	require.NoError(t, err)
+
+	_, err = app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height:             app.LastBlockHeight(),
 		NextValidatorsHash: valSet.Hash(),
-	}})
+	})
+	require.NoError(t, err)
 
 	return app
 }

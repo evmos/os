@@ -7,31 +7,37 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
+	utiltx "github.com/evmos/os/testutil/tx"
 	erc20types "github.com/evmos/os/x/erc20/types"
 )
 
-const (
-	// erc20TokenPairHex is the string representation of the ERC-20 token pair address.
-	erc20TokenPairHex = "0x80b5a32E4F032B2a058b4F29EC95EEfEEB87aDcd" //#nosec G101 -- these are not hardcoded credentials #gitleaks:allow
-)
-
-func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGenesisState {
+// CreateGenesisWithTokenPairs creates a genesis that includes
+// the WEVMOS and the provided denoms.
+// If no denoms provided, creates only one dynamic precompile with the 'xmpl' denom.
+func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring, denoms ...string) network.CustomGenesisState {
 	// Add all keys from the keyring to the genesis accounts as well.
 	//
 	// NOTE: This is necessary to enable the account to send EVM transactions,
 	// because the Mono ante handler checks the account balance by querying the
 	// account from the account keeper first. If these accounts are not in the genesis
 	// state, the ante handler finds a zero balance because of the missing account.
+
+	// if denom not provided, defaults to create only one dynamic erc20
+	// precompile with the 'xmpl' denom
+	if len(denoms) == 0 {
+		denoms = []string{"xmpl"}
+	}
+
 	accs := keyring.GetAllAccAddrs()
 	genesisAccounts := make([]*authtypes.BaseAccount, len(accs))
 	for i, addr := range accs {
 		genesisAccounts[i] = &authtypes.BaseAccount{
 			Address:       addr.String(),
 			PubKey:        nil,
-			AccountNumber: uint64(i + 1),
+			AccountNumber: uint64(i + 1), //nolint:gosec // G115
 			Sequence:      1,
 		}
 	}
@@ -44,21 +50,31 @@ func CreateGenesisWithTokenPairs(keyring testkeyring.Keyring) network.CustomGene
 	}
 
 	// Add token pairs to genesis
-	erc20GenesisState := exampleapp.NewErc20GenesisState()
-	erc20GenesisState.TokenPairs = append(erc20GenesisState.TokenPairs,
-		erc20types.TokenPair{
-			Erc20Address:  erc20TokenPairHex,
-			Denom:         "xmpl",
-			Enabled:       true,
-			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-		},
-		erc20types.TokenPair{
-			Erc20Address:  testutil.WEVMOSContractTestnet,
-			Denom:         testutil.ExampleAttoDenom,
-			Enabled:       true,
-			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
-		},
+	tokenPairs := make([]erc20types.TokenPair, 0, len(denoms)+1)
+	tokenPairs = append(tokenPairs,
+		// NOTE: the example token pairs are being added in the integration test utils
+		exampleapp.ExampleTokenPairs...,
 	)
+
+	dynPrecAddr := make([]string, 0, len(denoms))
+	for _, denom := range denoms {
+		addr := utiltx.GenerateAddress().Hex()
+		tp := erc20types.TokenPair{
+			Erc20Address:  addr,
+			Denom:         denom,
+			Enabled:       true,
+			ContractOwner: erc20types.OWNER_MODULE, // NOTE: Owner is the module account since it's a native token and was registered through governance
+		}
+		tokenPairs = append(tokenPairs, tp)
+		dynPrecAddr = append(dynPrecAddr, addr)
+	}
+
+	// STR v2: update the NativePrecompiles and DynamicPrecompiles
+	// with the WEVMOS (default is mainnet) and 'xmpl' tokens in the erc20 params
+	erc20GenesisState := exampleapp.NewErc20GenesisState()
+	erc20GenesisState.TokenPairs = tokenPairs
+	erc20GenesisState.Params.NativePrecompiles = []string{constants.WEVMOSContractMainnet}
+	erc20GenesisState.Params.DynamicPrecompiles = dynPrecAddr
 
 	// Combine module genesis states
 	return network.CustomGenesisState{

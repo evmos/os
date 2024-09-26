@@ -5,6 +5,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -83,8 +84,7 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
 	defaultGenesisWithEVMDenom := DefaultGenesisState()
-	defaultParamsWithEVMDenom := DefaultParamsWithEVMDenom(testDenom)
-	defaultGenesisWithEVMDenom.Params = defaultParamsWithEVMDenom
+	defaultGenesisWithEVMDenom.Params.EvmDenom = testconstants.ExampleAttoDenom
 
 	testCases := []struct {
 		name     string
@@ -95,11 +95,6 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			name:     "default",
 			genState: DefaultGenesisState(),
 			expPass:  false,
-		},
-		{
-			name:     "default with EVM denom set",
-			genState: defaultGenesisWithEVMDenom,
-			expPass:  true,
 		},
 		{
 			name: "valid genesis",
@@ -114,7 +109,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: defaultParamsWithEVMDenom,
+				Params: DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
 			},
 			expPass: true,
 		},
@@ -125,7 +120,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		},
 		{
 			name:     "copied genesis",
-			genState: NewGenesisState(defaultParamsWithEVMDenom, DefaultGenesisState().Accounts),
+			genState: NewGenesisState(defaultGenesisWithEVMDenom.Params, DefaultGenesisState().Accounts),
 			expPass:  true,
 		},
 		{
@@ -152,7 +147,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: defaultParamsWithEVMDenom,
+				Params: DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
 			},
 			expPass: false,
 		},
@@ -223,11 +218,14 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 
 	for _, tc := range testCases {
 		tc := tc
-		err := tc.genState.Validate()
-		if tc.expPass {
-			suite.Require().NoError(err, tc.name)
-		} else {
-			suite.Require().Error(err, tc.name)
-		}
+
+		suite.Run(tc.name, func() {
+			err := tc.genState.Validate()
+			if tc.expPass {
+				suite.Require().NoError(err, tc.name)
+			} else {
+				suite.Require().Error(err, tc.name)
+			}
+		})
 	}
 }

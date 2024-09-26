@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package filters
 
 import (
@@ -8,17 +9,15 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/evmos/os/rpc/backend"
-	"github.com/evmos/os/rpc/types"
-
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
-	"github.com/pkg/errors"
-
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/eth/filters"
+	"github.com/evmos/os/rpc/backend"
+	"github.com/evmos/os/rpc/types"
+	"github.com/pkg/errors"
 )
 
 // BloomIV represents the bit indexes and value inside the bloom filter that belong

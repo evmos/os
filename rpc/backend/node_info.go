@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package backend
 
 import (
@@ -7,9 +8,11 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/evmos/os/testutil/constants"
+
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdkcrypto "github.com/cosmos/cosmos-sdk/crypto"
@@ -21,11 +24,9 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/server/config"
-	"github.com/evmos/os/testutil"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -73,8 +74,8 @@ func (b *Backend) Syncing() (interface{}, error) {
 	}
 
 	return map[string]interface{}{
-		"startingBlock": hexutil.Uint64(status.SyncInfo.EarliestBlockHeight),
-		"currentBlock":  hexutil.Uint64(status.SyncInfo.LatestBlockHeight),
+		"startingBlock": hexutil.Uint64(status.SyncInfo.EarliestBlockHeight), //nolint:gosec // G115 // won't exceed uint64
+		"currentBlock":  hexutil.Uint64(status.SyncInfo.LatestBlockHeight),   //nolint:gosec // G115 // won't exceed uint64
 		// "highestBlock":  nil, // NA
 		// "pulledStates":  nil, // NA
 		// "knownStates":   nil, // NA
@@ -96,11 +97,6 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 
 	withdrawAddr := sdk.AccAddress(etherbase.Bytes())
 	msg := distributiontypes.NewMsgSetWithdrawAddress(delAddr, withdrawAddr)
-
-	if err := msg.ValidateBasic(); err != nil {
-		b.logger.Debug("tx failed basic validation", "error", err.Error())
-		return false
-	}
 
 	// Assemble transaction from fields
 	builder, ok := b.clientCtx.TxConfig.NewTxBuilder().(authtx.ExtensionOptionsTxBuilder)
@@ -158,7 +154,7 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
-	if err := tx.Sign(txFactory, keyInfo.Name, builder, false); err != nil {
+	if err := tx.Sign(b.clientCtx.CmdContext, txFactory, keyInfo.Name, builder, false); err != nil {
 		b.logger.Debug("failed to sign tx", "error", err.Error())
 		return false
 	}
@@ -171,7 +167,7 @@ func (b *Backend) SetEtherbase(etherbase common.Address) bool {
 		return false
 	}
 
-	tmHash := common.BytesToHash(tmtypes.Tx(txBytes).Hash())
+	tmHash := common.BytesToHash(cmttypes.Tx(txBytes).Hash())
 
 	// Broadcast transaction in sync mode (default)
 	// NOTE: If error is encountered on the node, the broadcast will not return an error
@@ -344,13 +340,13 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 func (b *Backend) RPCMinGasPrice() int64 {
 	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
 	if err != nil {
-		return testutil.DefaultGasPrice
+		return constants.DefaultGasPrice
 	}
 
 	minGasPrice := b.cfg.GetMinGasPrices()
 	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
 	if amt == 0 {
-		return testutil.DefaultGasPrice
+		return constants.DefaultGasPrice
 	}
 
 	return amt

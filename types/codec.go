@@ -4,6 +4,7 @@ package types
 
 import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
@@ -12,7 +13,7 @@ import (
 // implementations and interfaces.
 func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 	registry.RegisterImplementations(
-		(*authtypes.AccountI)(nil),
+		(*sdktypes.AccountI)(nil),
 		// TODO: uncomment after moving into migrations for EVM version
 		// &EthAccount{},
 	)

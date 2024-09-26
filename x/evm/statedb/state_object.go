@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package statedb
 
 import (
@@ -7,6 +8,7 @@ import (
 	"math/big"
 	"sort"
 
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/x/evm/types"
@@ -126,7 +128,7 @@ func (s *stateObject) SetBalance(amount *big.Int) {
 // AddPrecompileFn appends to the journal an entry
 // with a snapshot of the multi-store and events
 // previous to the precompile call
-func (s *stateObject) AddPrecompileFn(cms sdk.CacheMultiStore, events sdk.Events) {
+func (s *stateObject) AddPrecompileFn(cms storetypes.CacheMultiStore, events sdk.Events) {
 	s.db.journal.append(precompileCallChange{
 		multiStore: cms,
 		events:     events,

@@ -3,6 +3,9 @@ package backend
 import (
 	"fmt"
 
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
+	"github.com/evmos/os/testutil/constants"
+
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,7 +16,6 @@ import (
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/rpc/backend/mocks"
-	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"
@@ -179,7 +181,7 @@ func (suite *BackendTestSuite) TestSign() {
 
 			responseBz, err := suite.backend.Sign(tc.fromAddr, tc.inputBz)
 			if tc.expPass {
-				signature, _, err := suite.backend.clientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), tc.inputBz)
+				signature, _, err := suite.backend.clientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), tc.inputBz, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 				signature[goethcrypto.RecoveryIDOffset] += 27
 				suite.Require().NoError(err)
 				suite.Require().Equal((hexutil.Bytes)(signature), responseBz)
@@ -229,7 +231,7 @@ func (suite *BackendTestSuite) TestSignTypedData() {
 
 			if tc.expPass {
 				sigHash, _, _ := apitypes.TypedDataAndHash(tc.inputTypedData)
-				signature, _, err := suite.backend.clientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), sigHash)
+				signature, _, err := suite.backend.clientCtx.Keyring.SignByAddress((sdk.AccAddress)(from.Bytes()), sigHash, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 				signature[goethcrypto.RecoveryIDOffset] += 27
 				suite.Require().NoError(err)
 				suite.Require().Equal((hexutil.Bytes)(signature), responseBz)
@@ -257,7 +259,7 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
 	suite.Require().NoError(err)
-	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), testutil.ExampleAttoDenom)
+	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 	txBytes, _ = txEncoder(tx)
 	return client, txBytes

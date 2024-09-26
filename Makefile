@@ -11,7 +11,7 @@ export GO111MODULE = on
 # Default target executed when no arguments are given to make.
 default_target: all
 
-.PHONY: default_target
+.PHONY: build, default_target
 
 ###############################################################################
 ###                          Tools & Dependencies                           ###
@@ -78,26 +78,31 @@ benchmark:
 ###                                Linting                                  ###
 ###############################################################################
 
-lint:
+lint: lint-go lint-python lint-contracts
+
+lint-go:
+	gofumpt -l .
 	golangci-lint run --out-format=tab
+
+lint-python:
+	find . -name "*.py" -type f -not -path "*/node_modules/*" | xargs pylint
+	flake8
+
+lint-contracts:
 	solhint contracts/**/*.sol
 
 lint-fix:
 	golangci-lint run --fix --out-format=tab --issues-exit-code=0
 
 lint-fix-contracts:
-	@cd contracts && \
-	npm i && \
-	npm run lint-fix
 	solhint --fix contracts/**/*.sol
 
-.PHONY: lint lint-fix
+.PHONY: lint lint-fix lint-contracts lint-go lint-python
 
-format:
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -name '*.pb.go' -not -name '*.pb.gw.go' | xargs gofumpt -w -l
+format: format-go format-python format-shell
 
-.PHONY: format
-
+format-go:
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' -not -name '*.pb.gw.go' -not -name '*.pulsar.go' | xargs gofumpt -w -l
 
 format-python: format-isort format-black
 
@@ -107,11 +112,16 @@ format-black:
 format-isort:
 	find . -name '*.py' -type f -not -path "*/node_modules/*" | xargs isort
 
+format-shell:
+	shfmt -l -w .
+
+.PHONY: format format-go format-python format-black format-isort format-go
+
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
 
-protoVer=0.11.6
+protoVer=0.14.0
 protoImageName=ghcr.io/cosmos/proto-builder:$(protoVer)
 protoImage=$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace --user 0 $(protoImageName)
 
@@ -128,6 +138,7 @@ proto-all: proto-format proto-lint proto-gen
 proto-gen:
 	@echo "generating implementations from Protobuf files"
 	@$(protoImage) sh ./scripts/generate_protos.sh
+	@$(protoImage) sh ./scripts/generate_protos_pulsar.sh
 
 proto-format:
 	@echo "formatting Protobuf files"

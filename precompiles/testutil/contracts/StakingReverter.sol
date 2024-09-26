@@ -13,10 +13,21 @@ contract StakingReverter {
 
         for (uint i = 0; i < numTimes; i++) {
             try
-                StakingReverter(address(this)).performDelegation(
-                    validatorAddress
-                )
+            StakingReverter(address(this)).performDelegation(
+                validatorAddress
+            )
             {} catch {}
+        }
+    }
+
+    function multipleDelegations(
+        uint numTimes,
+        string calldata validatorAddress
+    ) external {
+        counter++;
+
+        for (uint i = 0; i < numTimes; i++) {
+            StakingReverter(address(this)).performDelegation(validatorAddress);
         }
     }
 

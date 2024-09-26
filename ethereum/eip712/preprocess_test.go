@@ -6,19 +6,19 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/evmos/os/testutil/constants"
+
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/codec/address"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/ante"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-
 	"github.com/evmos/os/encoding"
 	"github.com/evmos/os/ethereum/eip712"
-	app "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
 	"github.com/stretchr/testify/require"
@@ -27,17 +27,16 @@ import (
 // Testing Constants
 var (
 	// chainID is used in EIP-712 tests.
-	chainID = testutil.ExampleChainID
+	chainID = constants.ExampleChainID
 
-	// ctx is the default context used in EIP-712 tests.
 	ctx = client.Context{}.WithTxConfig(
-		encoding.MakeConfig(app.ModuleBasics).TxConfig,
+		encoding.MakeConfig().TxConfig,
 	)
 
 	// feePayerAddress is the address of the fee payer used in EIP-712 tests.
 	feePayerAddress = fmt.Sprintf(
 		"%s17xpfvakm2amg962yls6f84z3kell8c5ljcjw34",
-		testutil.ExampleBech32Prefix,
+		constants.ExampleBech32Prefix,
 	)
 )
 
@@ -53,7 +52,7 @@ type TestCaseStruct struct {
 
 func TestLedgerPreprocessing(t *testing.T) {
 	// Update bech32 prefix
-	sdk.GetConfig().SetBech32PrefixForAccount(testutil.ExampleBech32Prefix, "")
+	sdk.GetConfig().SetBech32PrefixForAccount(constants.ExampleBech32Prefix, "")
 
 	testCases := []TestCaseStruct{
 		createBasicTestCase(t),
@@ -101,9 +100,16 @@ func TestLedgerPreprocessing(t *testing.T) {
 		// Verify tx fields are unchanged
 		tx := tc.txBuilder.GetTx()
 
-		require.Equal(t, tx.FeePayer().String(), tc.expectedFeePayer)
+		addrCodec := address.Bech32Codec{
+			Bech32Prefix: sdk.GetConfig().GetBech32AccountAddrPrefix(),
+		}
+
+		txFeePayer, err := addrCodec.BytesToString(tx.FeePayer())
+		require.NoError(t, err)
+
+		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(testutil.ExampleAttoDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(constants.ExampleAttoDenom), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -201,7 +207,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
 		sdk.NewCoin(
-			testutil.ExampleAttoDenom,
+			constants.ExampleAttoDenom,
 			feeAmount,
 		)))
 
@@ -213,7 +219,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				testutil.ExampleAttoDenom,
+				constants.ExampleAttoDenom,
 				math.NewInt(10000000),
 			),
 		),

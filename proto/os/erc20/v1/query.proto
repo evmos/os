@@ -3,6 +3,7 @@
 syntax = "proto3";
 package os.erc20.v1;
 
+import "amino/amino.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
@@ -40,7 +41,8 @@ message QueryTokenPairsRequest {
 // method.
 message QueryTokenPairsResponse {
   // token_pairs is a slice of registered token pairs for the erc20 module
-  repeated TokenPair token_pairs = 1 [ (gogoproto.nullable) = false ];
+  repeated TokenPair token_pairs = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
   // pagination defines the pagination in the response.
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
@@ -57,7 +59,8 @@ message QueryTokenPairRequest {
 message QueryTokenPairResponse {
   // token_pairs returns the info about a registered token pair for the erc20
   // module
-  TokenPair token_pair = 1 [ (gogoproto.nullable) = false ];
+  TokenPair token_pair = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }
 
 // QueryParamsRequest is the request type for the Query/Params RPC method.
@@ -67,5 +70,6 @@ message QueryParamsRequest {}
 // method.
 message QueryParamsResponse {
   // params are the erc20 module parameters
-  Params params = 1 [ (gogoproto.nullable) = false ];
+  Params params = 1
+      [ (gogoproto.nullable) = false, (amino.dont_omitempty) = true ];
 }

@@ -4,14 +4,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/evmos/os/testutil/constants"
+
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	"github.com/cometbft/cometbft/version"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
 	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20"
@@ -41,9 +42,9 @@ func (suite *GenesisTestSuite) SetupTest() {
 	// consensus key
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
-	chainID := testutil.ExampleChainID
-	suite.app = exampleapp.Setup(suite.T(), false, chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	chainID := constants.ExampleChainID
+	suite.app = exampleapp.Setup(suite.T(), chainID)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Now().UTC(),

@@ -9,6 +9,8 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/evmos/os/testutil/constants"
+
 	"cosmossdk.io/math"
 	"github.com/stretchr/testify/suite"
 
@@ -22,7 +24,7 @@ import (
 	auxTx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	bankTypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/wallets/ledger"
 	"github.com/evmos/os/wallets/ledger/mocks"
 	"github.com/evmos/os/wallets/usbwallet"
@@ -35,6 +37,13 @@ type LedgerTestSuite struct {
 	ledger     ledger.EvmosSECP256K1
 	mockWallet *mocks.Wallet
 	hrp        string
+}
+
+// Load encoding config for sign doc encoding/decoding
+// This is done on app instantiation.
+// We use the testutil network to load the encoding config
+func init() {
+	network.New()
 }
 
 func TestLedgerTestSuite(t *testing.T) {
@@ -79,12 +88,12 @@ func (suite *LedgerTestSuite) getMockTxAmino() []byte {
 				"type":"cosmos-sdk/MsgSend",
 				"value":{
 					"amount":[{"amount":"150","denom":"atom"}],
-					"from_address":"cosmos1r5sckdd808qvg7p8d0auaw896zcluqfd7djffp",
-					"to_address":"cosmos10t8ca2w09ykd6ph0agdz5stvgau47whhaggl9a"
+					"from_address":"evmos10jmp6sgh4cc6zt3e8gw05wavvejgr5pwjnpcky",
+					"to_address":"evmos1fx944mzagwdhx0wz7k9tfztc8g3lkfk6rrgv6l"
 				}
 			}],
 			"sequence":"6"
-		}`, testutil.ExampleChainID),
+		}`, constants.ExampleChainID),
 		"",
 	)
 
@@ -96,8 +105,8 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 
 	memo := "memo"
 	msg := bankTypes.NewMsgSend(
-		sdk.MustAccAddressFromBech32("cosmos1r5sckdd808qvg7p8d0auaw896zcluqfd7djffp"),
-		sdk.MustAccAddressFromBech32("cosmos10t8ca2w09ykd6ph0agdz5stvgau47whhaggl9a"),
+		sdk.MustAccAddressFromBech32("evmos1r5sckdd808qvg7p8d0auaw896zcluqfduvr8nf"),
+		sdk.MustAccAddressFromBech32("evmos10t8ca2w09ykd6ph0agdz5stvgau47whhlfe3l4"),
 		[]sdk.Coin{
 			{
 				Denom:  "atom",
@@ -148,7 +157,7 @@ func (suite *LedgerTestSuite) getMockTxProtobuf() []byte {
 	signBytes, err := auxTx.DirectSignBytes(
 		bodyBytes,
 		authInfoBytes,
-		testutil.ExampleChainID,
+		constants.ExampleChainID,
 		0,
 	)
 	suite.Require().NoError(err)

@@ -8,7 +8,6 @@ import (
 	"testing"
 	"time"
 
-	"cosmossdk.io/simapp/params"
 	"github.com/cometbft/cometbft/crypto/tmhash"
 	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	tmversion "github.com/cometbft/cometbft/proto/tendermint/version"
@@ -22,13 +21,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdktestutil "github.com/cosmos/cosmos-sdk/types/module/testutil"
 	"github.com/ethereum/go-ethereum/common"
 	clientkeys "github.com/evmos/os/client/keys"
 	"github.com/evmos/os/crypto/hd"
 	evmoskeyring "github.com/evmos/os/crypto/keyring"
-	example_app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/tests/integration/ledger/mocks"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/suite"
@@ -44,7 +44,7 @@ var s *LedgerTestSuite
 type LedgerTestSuite struct {
 	suite.Suite
 
-	app *example_app.ExampleChain
+	app *exampleapp.ExampleChain
 	ctx sdk.Context
 
 	ledger       *mocks.SECP256K1
@@ -84,9 +84,9 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	consAddress := sdk.ConsAddress(utiltx.GenerateAddress().Bytes())
 
 	// init app
-	chainID := testutil.ExampleChainID
-	suite.app = example_app.Setup(suite.T(), false, chainID)
-	suite.ctx = suite.app.BaseApp.NewContext(false, tmproto.Header{
+	chainID := constants.ExampleChainID
+	suite.app = exampleapp.Setup(suite.T(), chainID)
+	suite.ctx = suite.app.BaseApp.NewContextLegacy(false, tmproto.Header{
 		Height:          1,
 		ChainID:         chainID,
 		Time:            time.Now().UTC(),
@@ -112,7 +112,7 @@ func (suite *LedgerTestSuite) SetupEvmosApp() {
 	})
 }
 
-func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, encCfg params.EncodingConfig) (keyring.Keyring, client.Context, context.Context) {
+func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, encCfg sdktestutil.TestEncodingConfig) (keyring.Keyring, client.Context, context.Context) {
 	kr, err := keyring.New(
 		sdk.KeyringServiceName(),
 		keyring.BackendTest,
@@ -132,8 +132,9 @@ func (suite *LedgerTestSuite) NewKeyringAndCtxs(krHome string, input io.Reader, 
 		WithLedgerHasProtobuf(true).
 		WithUseLedger(true).
 		WithKeyring(kr).
-		WithClient(mocks.MockTendermintRPC{Client: rpcclientmock.Client{}}).
-		WithChainID(testutil.ExampleChainIDPrefix + "-13")
+		WithClient(mocks.MockCometRPC{Client: rpcclientmock.Client{}}).
+		WithChainID(constants.ExampleChainIDPrefix + "-13").
+		WithSignModeStr(flags.SignModeLegacyAminoJSON)
 
 	srvCtx := server.NewDefaultContext()
 	ctx := context.Background()
@@ -152,7 +153,7 @@ func (suite *LedgerTestSuite) evmosAddKeyCmd() *cobra.Command {
 	err := algoFlag.Value.Set(string(hd.EthSecp256k1Type))
 	suite.Require().NoError(err)
 
-	cmd.Flags().AddFlagSet(keys.Commands("home").PersistentFlags())
+	cmd.Flags().AddFlagSet(keys.Commands().PersistentFlags())
 
 	cmd.RunE = func(cmd *cobra.Command, args []string) error {
 		clientCtx := client.GetClientContextFromCmd(cmd).WithKeyringOptions(hd.EthSecp256k1Option())

@@ -3,17 +3,18 @@
 //
 // This file contains all utility function that require the access to the unit
 // test network and should only be used in unit tests.
+
 package utils
 
 import (
 	"fmt"
 
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	transfertypes "github.com/cosmos/ibc-go/v7/modules/apps/transfer/types"
-	"github.com/evmos/os/testutil"
+	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	"github.com/evmos/os/testutil/integration/os/network"
 	erc20types "github.com/evmos/os/x/erc20/types"
 )
@@ -30,10 +31,13 @@ func RegisterEvmosERC20Coins(
 	network network.UnitTestNetwork,
 	tokenReceiver sdk.AccAddress,
 ) (erc20types.TokenPair, error) {
-	bondDenom := network.App.StakingKeeper.BondDenom(network.GetContext())
+	bondDenom, err := network.App.StakingKeeper.BondDenom(network.GetContext())
+	if err != nil {
+		return erc20types.TokenPair{}, err
+	}
 
-	coin := sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(TokenToMint))
-	err := network.App.BankKeeper.MintCoins(
+	coin := sdk.NewCoin(bondDenom, math.NewInt(TokenToMint))
+	err = network.App.BankKeeper.MintCoins(
 		network.GetContext(),
 		minttypes.ModuleName,
 		sdk.NewCoins(coin),
@@ -51,7 +55,7 @@ func RegisterEvmosERC20Coins(
 		return erc20types.TokenPair{}, err
 	}
 
-	evmosMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), testutil.ExampleAttoDenom)
+	evmosMetadata, found := network.App.BankKeeper.GetDenomMetaData(network.GetContext(), bondDenom)
 	if !found {
 		return erc20types.TokenPair{}, fmt.Errorf("expected evmos denom metadata")
 	}
@@ -74,6 +78,8 @@ func RegisterEvmosERC20Coins(
 // ERC20 token. The function performs all the required steps for the registration
 // like registering the denom trace in the transfer keeper and minting the token
 // with the bank. Returns the TokenPair or an error.
+//
+// TODO: why is this not yet used
 func RegisterIBCERC20Coins(
 	network *network.UnitTestNetwork,
 	tokenReceiver sdk.AccAddress,

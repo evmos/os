@@ -3,16 +3,14 @@ package keeper_test
 import (
 	"encoding/json"
 	"math/big"
-	"time"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/server/config"
+	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/evm/keeper/testdata"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -20,30 +18,18 @@ import (
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	rsp, _ := suite.queryClient.Params(ctx, &evmtypes.QueryParamsRequest{})
+	ctx := suite.network.GetContext()
+	rsp, _ := suite.network.GetEvmClient().Params(ctx, &evmtypes.QueryParamsRequest{})
 	return rsp.Params.EvmDenom
 }
 
-// Commit and begin new block
-func (suite *KeeperTestSuite) Commit() {
-	var err error
-	suite.ctx, err = chainutil.CommitAndCreateNewCtx(suite.ctx, suite.app, 0*time.Second, nil)
-	suite.Require().NoError(err)
-
-	queryHelper := baseapp.NewQueryServerTestHelper(suite.ctx, suite.app.InterfaceRegistry())
-	evmtypes.RegisterQueryServer(queryHelper, suite.app.EVMKeeper)
-	suite.queryClient = evmtypes.NewQueryClient(queryHelper)
-}
-
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
-	return statedb.New(suite.ctx, suite.app.EVMKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.ctx.HeaderHash().Bytes())))
+	return statedb.New(suite.network.GetContext(), suite.network.App.EVMKeeper, statedb.NewEmptyTxConfig(common.BytesToHash(suite.network.GetContext().HeaderHash())))
 }
 
 // DeployTestContract deploy a test erc20 contract and returns the contract address
-func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner common.Address, supply *big.Int) common.Address {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EVMKeeper.ChainID()
+func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, ctx sdk.Context, owner common.Address, supply *big.Int) common.Address {
+	chainID := suite.network.App.EVMKeeper.ChainID()
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -51,19 +37,20 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 	ctorArgs, err := erc20Contract.ABI.Pack("", owner, supply)
 	require.NoError(t, err)
 
-	nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
+	addr := suite.keyring.GetAddr(0)
+	nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), addr)
 
 	data := erc20Contract.Bin
 	data = append(data, ctorArgs...)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
-		From: &suite.address,
+		From: &addr,
 		Data: (*hexutil.Bytes)(&data),
 	})
 	require.NoError(t, err)
-	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
+	res, err := suite.network.GetEvmClient().EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
 		GasCap:          config.DefaultGasCap,
-		ProposerAddress: suite.ctx.BlockHeader().ProposerAddress,
+		ProposerAddress: suite.network.GetContext().BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
 
@@ -73,7 +60,7 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 			ChainID:   chainID,
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
-			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
 			GasTipCap: big.NewInt(1),
 			Input:     data,
 			Accesses:  &ethtypes.AccessList{},
@@ -89,18 +76,19 @@ func (suite *KeeperTestSuite) DeployTestContract(t require.TestingT, owner commo
 		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
+	erc20DeployTx.From = addr.Hex()
+	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), krSigner)
 	require.NoError(t, err)
-	rsp, err := suite.app.EVMKeeper.EthereumTx(ctx, erc20DeployTx)
+	rsp, err := suite.network.App.EVMKeeper.EthereumTx(ctx, erc20DeployTx)
 	require.NoError(t, err)
 	require.Empty(t, rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
+	return crypto.CreateAddress(addr, nonce)
 }
 
 func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAddr, from, to common.Address, amount *big.Int) *evmtypes.MsgEthereumTx {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EVMKeeper.ChainID()
+	ctx := suite.network.GetContext()
+	chainID := suite.network.App.EVMKeeper.ChainID()
 
 	erc20Contract, err := testdata.LoadERC20Contract()
 	require.NoError(t, err, "failed to load contract")
@@ -109,14 +97,14 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 	require.NoError(t, err)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{To: &contractAddr, From: &from, Data: (*hexutil.Bytes)(&transferData)})
 	require.NoError(t, err)
-	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
+	res, err := suite.network.GetEvmClient().EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
 		GasCap:          25_000_000,
-		ProposerAddress: suite.ctx.BlockHeader().ProposerAddress,
+		ProposerAddress: suite.network.GetContext().BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
 
-	nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
+	nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 
 	var ercTransferTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
@@ -125,7 +113,7 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 			Nonce:     nonce,
 			To:        &contractAddr,
 			GasLimit:  res.Gas,
-			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
 			GasTipCap: big.NewInt(1),
 			Input:     transferData,
 			Accesses:  &ethtypes.AccessList{},
@@ -142,10 +130,12 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 		ercTransferTx = evmtypes.NewTx(ethTxParams)
 	}
 
-	ercTransferTx.From = suite.address.Hex()
-	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	addr := suite.keyring.GetAddr(0)
+	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
+	ercTransferTx.From = addr.Hex()
+	err = ercTransferTx.Sign(ethtypes.LatestSignerForChainID(chainID), krSigner)
 	require.NoError(t, err)
-	rsp, err := suite.app.EVMKeeper.EthereumTx(ctx, ercTransferTx)
+	rsp, err := suite.network.App.EVMKeeper.EthereumTx(ctx, ercTransferTx)
 	require.NoError(t, err)
 	require.Empty(t, rsp.VmError)
 	return ercTransferTx
@@ -153,27 +143,28 @@ func (suite *KeeperTestSuite) TransferERC20Token(t require.TestingT, contractAdd
 
 // DeployTestMessageCall deploy a test erc20 contract and returns the contract address
 func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.Address {
-	ctx := sdk.WrapSDKContext(suite.ctx)
-	chainID := suite.app.EVMKeeper.ChainID()
+	ctx := suite.network.GetContext()
+	chainID := suite.network.App.EVMKeeper.ChainID()
 
-	testMessageCallContract, err := testdata.LoadMessageCallContract()
-	require.NoError(t, err, "failed to load contract")
+	testMsgCall, err := testdata.LoadMessageCallContract()
+	require.NoError(t, err)
 
-	data := testMessageCallContract.Bin
+	data := testMsgCall.Bin
+	addr := suite.keyring.GetAddr(0)
 	args, err := json.Marshal(&evmtypes.TransactionArgs{
-		From: &suite.address,
+		From: &addr,
 		Data: (*hexutil.Bytes)(&data),
 	})
 	require.NoError(t, err)
 
-	res, err := suite.queryClient.EstimateGas(ctx, &evmtypes.EthCallRequest{
+	res, err := suite.network.GetEvmClient().EstimateGas(ctx, &evmtypes.EthCallRequest{
 		Args:            args,
 		GasCap:          config.DefaultGasCap,
-		ProposerAddress: suite.ctx.BlockHeader().ProposerAddress,
+		ProposerAddress: suite.network.GetContext().BlockHeader().ProposerAddress,
 	})
 	require.NoError(t, err)
 
-	nonce := suite.app.EVMKeeper.GetNonce(suite.ctx, suite.address)
+	nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), addr)
 
 	var erc20DeployTx *evmtypes.MsgEthereumTx
 	if suite.enableFeemarket {
@@ -182,7 +173,7 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 			Nonce:     nonce,
 			GasLimit:  res.Gas,
 			Input:     data,
-			GasFeeCap: suite.app.FeeMarketKeeper.GetBaseFee(suite.ctx),
+			GasFeeCap: suite.network.App.FeeMarketKeeper.GetBaseFee(suite.network.GetContext()),
 			Accesses:  &ethtypes.AccessList{},
 			GasTipCap: big.NewInt(1),
 		}
@@ -197,11 +188,12 @@ func (suite *KeeperTestSuite) DeployTestMessageCall(t require.TestingT) common.A
 		erc20DeployTx = evmtypes.NewTx(ethTxParams)
 	}
 
-	erc20DeployTx.From = suite.address.Hex()
-	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), suite.signer)
+	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
+	erc20DeployTx.From = addr.Hex()
+	err = erc20DeployTx.Sign(ethtypes.LatestSignerForChainID(chainID), krSigner)
 	require.NoError(t, err)
-	rsp, err := suite.app.EVMKeeper.EthereumTx(ctx, erc20DeployTx)
+	rsp, err := suite.network.App.EVMKeeper.EthereumTx(ctx, erc20DeployTx)
 	require.NoError(t, err)
 	require.Empty(t, rsp.VmError)
-	return crypto.CreateAddress(suite.address, nonce)
+	return crypto.CreateAddress(addr, nonce)
 }

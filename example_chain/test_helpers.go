@@ -6,30 +6,24 @@ package example_chain
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"testing"
 
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
 	"github.com/cosmos/cosmos-sdk/server"
 	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
 	"github.com/cosmos/cosmos-sdk/testutil/mock"
-	"github.com/cosmos/cosmos-sdk/testutil/network"
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module/testutil"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	ibctesting "github.com/cosmos/ibc-go/v7/testing"
+	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	"github.com/evmos/os/cmd/config"
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
@@ -69,7 +63,7 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*ExampleChain
 }
 
 // Setup initializes a new ExampleChain. A Nop logger is set in ExampleChain.
-func Setup(t *testing.T, isCheckTx bool, chainID string) *ExampleChain {
+func Setup(t *testing.T, chainID string) *ExampleChain {
 	t.Helper()
 
 	privVal := mock.NewPV()
@@ -77,15 +71,15 @@ func Setup(t *testing.T, isCheckTx bool, chainID string) *ExampleChain {
 	require.NoError(t, err)
 
 	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+	validator := cmttypes.NewValidator(pubKey, 1)
+	valSet := cmttypes.NewValidatorSet([]*cmttypes.Validator{validator})
 
 	// generate genesis account
 	senderPrivKey := secp256k1.GenPrivKey()
 	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	balance := banktypes.Balance{
 		Address: acc.GetAddress().String(),
-		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
+		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100000000000000))),
 	}
 
 	app := SetupWithGenesisValSet(t, chainID, valSet, []authtypes.GenesisAccount{acc}, balance)
@@ -97,7 +91,7 @@ func Setup(t *testing.T, isCheckTx bool, chainID string) *ExampleChain {
 // that also act as delegators. For simplicity, each validator is bonded with a delegation
 // of one consensus engine unit in the default token of the simapp from first genesis
 // account. A Nop logger is set in ExampleChain.
-func SetupWithGenesisValSet(t *testing.T, chainID string, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *ExampleChain {
+func SetupWithGenesisValSet(t *testing.T, chainID string, valSet *cmttypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *ExampleChain {
 	t.Helper()
 
 	app, genesisState := setup(true, 5, chainID)
@@ -108,112 +102,22 @@ func SetupWithGenesisValSet(t *testing.T, chainID string, valSet *tmtypes.Valida
 	require.NoError(t, err)
 
 	// init chain will set the validator set and initialize the genesis accounts
-	app.InitChain(
-		abci.RequestInitChain{
+	if _, err = app.InitChain(
+		&abci.RequestInitChain{
 			Validators:      []abci.ValidatorUpdate{},
 			ConsensusParams: simtestutil.DefaultConsensusParams,
 			AppStateBytes:   stateBytes,
 			ChainId:         chainID,
 		},
-	)
+	); err != nil {
+		panic(fmt.Sprintf("app.InitChain failed: %v", err))
+	}
 
 	// NOTE: we are NOT committing the changes here as opposed to the function from simapp
 	// because that would already adjust e.g. the base fee in the params.
 	// We want to keep the genesis state as is for the tests unless we commit the changes manually.
 
 	return app
-}
-
-// GenesisStateWithSingleValidator initializes GenesisState with a single validator and genesis accounts
-// that also act as delegators.
-func GenesisStateWithSingleValidator(t *testing.T, app *ExampleChain) GenesisState {
-	t.Helper()
-
-	privVal := mock.NewPV()
-	pubKey, err := privVal.GetPubKey()
-	require.NoError(t, err)
-
-	// create validator set with single validator
-	validator := tmtypes.NewValidator(pubKey, 1)
-	valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
-
-	// generate genesis account
-	senderPrivKey := secp256k1.GenPrivKey()
-	acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
-	balances := []banktypes.Balance{
-		{
-			Address: acc.GetAddress().String(),
-			Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
-		},
-	}
-
-	genesisState := app.DefaultGenesis()
-	genesisState, err = simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balances...)
-	require.NoError(t, err)
-
-	return genesisState
-}
-
-// AddTestAddrsIncremental constructs and returns accNum amount of accounts with an
-// initial balance of accAmt in random order
-func AddTestAddrsIncremental(app *ExampleChain, ctx sdk.Context, accNum int, accAmt math.Int) []sdk.AccAddress {
-	return addTestAddrs(app, ctx, accNum, accAmt, simtestutil.CreateIncrementalAccounts)
-}
-
-func addTestAddrs(app *ExampleChain, ctx sdk.Context, accNum int, accAmt math.Int, strategy simtestutil.GenerateAccountStrategy) []sdk.AccAddress {
-	testAddrs := strategy(accNum)
-
-	initCoins := sdk.NewCoins(sdk.NewCoin(app.StakingKeeper.BondDenom(ctx), accAmt))
-
-	for _, addr := range testAddrs {
-		initAccountWithCoins(app, ctx, addr, initCoins)
-	}
-
-	return testAddrs
-}
-
-func initAccountWithCoins(app *ExampleChain, ctx sdk.Context, addr sdk.AccAddress, coins sdk.Coins) {
-	err := app.BankKeeper.MintCoins(ctx, minttypes.ModuleName, coins)
-	if err != nil {
-		panic(err)
-	}
-
-	err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, minttypes.ModuleName, addr, coins)
-	if err != nil {
-		panic(err)
-	}
-}
-
-// NewTestNetworkFixture returns a new simapp AppConstructor for network simulation tests
-func NewTestNetworkFixture() network.TestFixture {
-	dir, err := os.MkdirTemp("", "simapp")
-	if err != nil {
-		panic(fmt.Sprintf("failed creating temporary directory: %v", err))
-	}
-	defer os.RemoveAll(dir)
-
-	app := NewExampleApp(log.NewNopLogger(), dbm.NewMemDB(), nil, true, simtestutil.NewAppOptionsWithFlagHome(dir))
-
-	appCtr := func(val network.ValidatorI) servertypes.Application {
-		return NewExampleApp(
-			val.GetCtx().Logger, dbm.NewMemDB(), nil, true,
-			simtestutil.NewAppOptionsWithFlagHome(val.GetCtx().Config.RootDir),
-			bam.SetPruning(pruningtypes.NewPruningOptionsFromString(val.GetAppConfig().Pruning)),
-			bam.SetMinGasPrices(val.GetAppConfig().MinGasPrices),
-			bam.SetChainID(val.GetCtx().Viper.GetString(flags.FlagChainID)),
-		)
-	}
-
-	return network.TestFixture{
-		AppConstructor: appCtr,
-		GenesisState:   app.DefaultGenesis(),
-		EncodingConfig: testutil.TestEncodingConfig{
-			InterfaceRegistry: app.InterfaceRegistry(),
-			Codec:             app.AppCodec(),
-			TxConfig:          app.TxConfig(),
-			Amino:             app.LegacyAmino(),
-		},
-	}
 }
 
 // SetupTestingApp initializes the IBC-go testing application

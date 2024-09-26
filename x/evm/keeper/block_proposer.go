@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
@@ -11,16 +12,17 @@ import (
 
 // GetCoinbaseAddress returns the block proposer's validator operator address.
 func (k Keeper) GetCoinbaseAddress(ctx sdk.Context, proposerAddress sdk.ConsAddress) (common.Address, error) {
-	validator, found := k.stakingKeeper.GetValidatorByConsAddr(ctx, GetProposerAddress(ctx, proposerAddress))
-	if !found {
+	validator, err := k.stakingKeeper.GetValidatorByConsAddr(ctx, GetProposerAddress(ctx, proposerAddress))
+	if err != nil {
 		return common.Address{}, errorsmod.Wrapf(
 			stakingtypes.ErrNoValidatorFound,
-			"failed to retrieve validator from block proposer address %s",
+			"failed to retrieve validator from block proposer address %s. Error: %s",
 			proposerAddress.String(),
+			err.Error(),
 		)
 	}
 
-	coinbase := common.BytesToAddress(validator.GetOperator())
+	coinbase := common.BytesToAddress([]byte(validator.GetOperator()))
 	return coinbase, nil
 }
 

@@ -41,7 +41,7 @@ func (n *UnitTestNetwork) GetStateDB() *statedb.StateDB {
 	return statedb.New(
 		n.GetContext(),
 		n.app.EVMKeeper,
-		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash.Bytes())),
+		statedb.NewEmptyTxConfig(common.BytesToHash(headerHash)),
 	)
 }
 

@@ -44,21 +44,27 @@ func (p *Precompile) ClaimRewards(
 		return nil, err
 	}
 
-	maxVals := p.stakingKeeper.MaxValidators(ctx)
+	maxVals, err := p.stakingKeeper.MaxValidators(ctx)
+	if err != nil {
+		return nil, err
+	}
 	if maxRetrieve > maxVals {
 		return nil, fmt.Errorf("maxRetrieve (%d) parameter exceeds the maximum number of validators (%d)", maxRetrieve, maxVals)
 	}
 
 	// If the contract is the delegator, we don't need an origin check
 	// Otherwise check if the origin matches the delegator address
-	isContractDelegator := contract.CallerAddress == delegatorAddr && origin != delegatorAddr
+	isContractDelegator := (contract.CallerAddress == delegatorAddr) && (origin != delegatorAddr)
 	if !isContractDelegator && origin != delegatorAddr {
 		return nil, fmt.Errorf(cmn.ErrDelegatorDifferentOrigin, origin.String(), delegatorAddr.String())
 	}
 
-	validators := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	res, err := p.stakingKeeper.GetDelegatorValidators(ctx, delegatorAddr.Bytes(), maxRetrieve)
+	if err != nil {
+		return nil, err
+	}
 	totalCoins := sdk.Coins{}
-	for _, validator := range validators {
+	for _, validator := range res.Validators {
 		// Convert the validator operator address into an ValAddress
 		valAddr, err := sdk.ValAddressFromBech32(validator.OperatorAddress)
 		if err != nil {
@@ -79,7 +85,11 @@ func (p *Precompile) ClaimRewards(
 	// this happens when the precompile is called from a smart contract
 	if contract.CallerAddress != origin {
 		// rewards go to the withdrawer address
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, delegatorAddr)
+		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorAddr)
+		if err != nil {
+			return nil, err
+		}
+
 		evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(evmDenom).BigInt(), cmn.Add))
 	}
@@ -113,7 +123,7 @@ func (p Precompile) SetWithdrawAddress(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	if _, err = msgSrv.SetWithdrawAddress(sdk.WrapSDKContext(ctx), msg); err != nil {
+	if _, err = msgSrv.SetWithdrawAddress(ctx, msg); err != nil {
 		return nil, err
 	}
 
@@ -146,7 +156,7 @@ func (p *Precompile) WithdrawDelegatorRewards(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	res, err := msgSrv.WithdrawDelegatorReward(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.WithdrawDelegatorReward(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +166,11 @@ func (p *Precompile) WithdrawDelegatorRewards(
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
 		// rewards go to the withdrawer address
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, delegatorHexAddr)
+		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, delegatorHexAddr)
+		if err != nil {
+			return nil, err
+		}
+
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
 	}
 
@@ -189,7 +203,7 @@ func (p *Precompile) WithdrawValidatorCommission(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	res, err := msgSrv.WithdrawValidatorCommission(sdk.WrapSDKContext(ctx), msg)
+	res, err := msgSrv.WithdrawValidatorCommission(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -199,7 +213,11 @@ func (p *Precompile) WithdrawValidatorCommission(
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
 		// commissions go to the withdrawer address
-		withdrawerHexAddr := p.getWithdrawerHexAddr(ctx, validatorHexAddr)
+		withdrawerHexAddr, err := p.getWithdrawerHexAddr(ctx, validatorHexAddr)
+		if err != nil {
+			return nil, err
+		}
+
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
 	}
 
@@ -233,7 +251,7 @@ func (p *Precompile) FundCommunityPool(
 	}
 
 	msgSrv := distributionkeeper.NewMsgServerImpl(p.distributionKeeper)
-	_, err = msgSrv.FundCommunityPool(sdk.WrapSDKContext(ctx), msg)
+	_, err = msgSrv.FundCommunityPool(ctx, msg)
 	if err != nil {
 		return nil, err
 	}
@@ -254,7 +272,11 @@ func (p *Precompile) FundCommunityPool(
 
 // getWithdrawerHexAddr is a helper function to get the hex address
 // of the withdrawer for the specified account address
-func (p Precompile) getWithdrawerHexAddr(ctx sdk.Context, delegatorAddr common.Address) common.Address {
-	withdrawerAccAddr := p.distributionKeeper.GetDelegatorWithdrawAddr(ctx, delegatorAddr.Bytes())
-	return common.BytesToAddress(withdrawerAccAddr)
+func (p Precompile) getWithdrawerHexAddr(ctx sdk.Context, delegatorAddr common.Address) (common.Address, error) {
+	withdrawerAccAddr, err := p.distributionKeeper.GetDelegatorWithdrawAddr(ctx, delegatorAddr.Bytes())
+	if err != nil {
+		return common.Address{}, err
+	}
+
+	return common.BytesToAddress(withdrawerAccAddr), nil
 }

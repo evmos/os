@@ -1,15 +1,14 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
 //
-// The config package provides a convinient way to modify x/evm params and values.
+// The config package provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
 package config
 
 import (
 	"fmt"
-
-	"golang.org/x/exp/slices"
+	"slices"
 
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/types"

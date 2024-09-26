@@ -134,6 +134,8 @@ func (m *TokenPair) GetContractOwner() Owner {
 // Deprecated: RegisterCoinProposal is a gov Content type to register a token
 // pair for a native Cosmos coin. We're keeping it to remove the existing
 // proposals from store. After that, remove this message.
+//
+// NOTE: Keep this message for backwards compatibility on proposals query
 type RegisterCoinProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -245,8 +247,10 @@ func (m *ProposalMetadata) GetMetadata() []types.Metadata {
 	return nil
 }
 
-// RegisterERC20Proposal is a gov Content type to register a token pair for an
-// ERC20 token
+// Deprecated: RegisterERC20Proposal is a gov Content type to register a token
+// pair for an ERC20 token.
+//
+// NOTE: Keep this message for backwards compatibility on proposals query
 type RegisterERC20Proposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
@@ -310,8 +314,10 @@ func (m *RegisterERC20Proposal) GetErc20Addresses() []string {
 	return nil
 }
 
-// ToggleTokenConversionProposal is a gov Content type to toggle the conversion
-// of a token pair.
+// Deprecated: ToggleTokenConversionProposal is a gov Content type to toggle the
+// conversion of a token pair.
+//
+// NOTE: Keep this message for backwards compatibility on proposals query
 type ToggleTokenConversionProposal struct {
 	// title of the proposal
 	Title string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`

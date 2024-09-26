@@ -1,25 +1,25 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
+	"cosmossdk.io/log"
 	"cosmossdk.io/math"
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/store/prefix"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/evmos/os/x/evm/core/vm"
-
 	evmostypes "github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 	"github.com/evmos/os/x/evm/types"
 )
@@ -153,7 +153,7 @@ func (k Keeper) GetAuthority() sdk.AccAddress {
 // GetBlockBloomTransient returns bloom bytes for the current block height
 func (k Keeper) GetBlockBloomTransient(ctx sdk.Context) *big.Int {
 	store := prefix.NewStore(ctx.TransientStore(k.transientKey), types.KeyPrefixTransientBloom)
-	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
+	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight())) //nolint:gosec // G115 // won't exceed uint64
 	bz := store.Get(heightBz)
 	if len(bz) == 0 {
 		return big.NewInt(0)
@@ -166,7 +166,7 @@ func (k Keeper) GetBlockBloomTransient(ctx sdk.Context) *big.Int {
 // every block.
 func (k Keeper) SetBlockBloomTransient(ctx sdk.Context, bloom *big.Int) {
 	store := prefix.NewStore(ctx.TransientStore(k.transientKey), types.KeyPrefixTransientBloom)
-	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight()))
+	heightBz := sdk.Uint64ToBigEndian(uint64(ctx.BlockHeight())) //nolint:gosec // G115 // won't exceed uint64
 	store.Set(heightBz, bloom.Bytes())
 }
 

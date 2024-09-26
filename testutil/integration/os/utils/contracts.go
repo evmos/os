@@ -1,20 +1,20 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package utils
 
 import (
 	"fmt"
 	"slices"
 
-	"github.com/evmos/os/testutil/integration/os/factory"
-
 	abcitypes "github.com/cometbft/cometbft/abci/types"
+	"github.com/evmos/os/testutil/integration/os/factory"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // CheckTxTopics checks if all expected topics are present in the transaction response
-func CheckTxTopics(res abcitypes.ResponseDeliverTx, expectedTopics []string) error {
-	msgEthResponse, err := DecodeResponseDeliverTx(res)
+func CheckTxTopics(res abcitypes.ExecTxResult, expectedTopics []string) error {
+	msgEthResponse, err := DecodeExecTxResult(res)
 	if err != nil {
 		return err
 	}
@@ -35,8 +35,8 @@ func CheckTxTopics(res abcitypes.ResponseDeliverTx, expectedTopics []string) err
 }
 
 // DecodeContractCallResponse decodes the response of a contract call query
-func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs, res abcitypes.ResponseDeliverTx) error {
-	msgEthResponse, err := DecodeResponseDeliverTx(res)
+func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs, res abcitypes.ExecTxResult) error {
+	msgEthResponse, err := DecodeExecTxResult(res)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,7 @@ func DecodeContractCallResponse(response interface{}, callArgs factory.CallArgs,
 	return nil
 }
 
-func DecodeResponseDeliverTx(res abcitypes.ResponseDeliverTx) (*evmtypes.MsgEthereumTxResponse, error) {
+func DecodeExecTxResult(res abcitypes.ExecTxResult) (*evmtypes.MsgEthereumTxResponse, error) {
 	msgEthResponse, err := evmtypes.DecodeTxResponse(res.Data)
 	if err != nil {
 		return nil, err

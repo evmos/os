@@ -4,8 +4,11 @@
 package tx
 
 import (
+	"context"
 	"encoding/json"
 	"math/big"
+
+	testconstants "github.com/evmos/os/testutil/constants"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
@@ -18,9 +21,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/server/config"
-	"github.com/evmos/os/testutil"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -28,13 +30,13 @@ import (
 // It returns the signed transaction and an error
 func PrepareEthTx(
 	txCfg client.TxConfig,
-	app *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (authsigning.Tx, error) {
 	txBuilder := txCfg.NewTxBuilder()
 
-	signer := ethtypes.LatestSignerForChainID(app.EVMKeeper.ChainID())
+	signer := ethtypes.LatestSignerForChainID(exampleApp.EVMKeeper.ChainID())
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
 
@@ -55,7 +57,7 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: testutil.ExampleAttoDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		txFee = txFee.Add(sdk.Coin{Denom: testconstants.ExampleAttoDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
 	}
 
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
@@ -91,7 +93,7 @@ func PrepareEthTx(
 // Should this not be the case, just pass in zero.
 func CreateEthTx(
 	ctx sdk.Context,
-	app *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	privKey cryptotypes.PrivKey,
 	from sdk.AccAddress,
 	dest sdk.AccAddress,
@@ -100,17 +102,17 @@ func CreateEthTx(
 ) (*evmtypes.MsgEthereumTx, error) {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
-	chainID := app.EVMKeeper.ChainID()
+	chainID := exampleApp.EVMKeeper.ChainID()
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
-	nonce := app.EVMKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement)
+	nonce := exampleApp.EVMKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //#nosec G115 -- will not exceed uint64
 	evmTxParams := &evmtypes.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		To:        &toAddr,
 		Amount:    amount,
 		GasLimit:  100000,
-		GasFeeCap: app.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: exampleApp.FeeMarketKeeper.GetBaseFee(ctx),
 		GasTipCap: big.NewInt(1),
 		Accesses:  &ethtypes.AccessList{},
 	}
@@ -119,7 +121,7 @@ func CreateEthTx(
 
 	// If we are creating multiple eth Tx's with different senders, we need to sign here rather than later.
 	if privKey != nil {
-		signer := ethtypes.LatestSignerForChainID(app.EVMKeeper.ChainID())
+		signer := ethtypes.LatestSignerForChainID(exampleApp.EVMKeeper.ChainID())
 		err := msgEthereumTx.Sign(signer, NewSigner(privKey))
 		if err != nil {
 			return nil, err
@@ -132,7 +134,7 @@ func CreateEthTx(
 // GasLimit estimates the gas limit for the provided parameters. To achieve
 // this, need to provide the corresponding QueryClient to call the
 // `eth_estimateGas` rpc method. If not provided, returns a default value
-func GasLimit(ctx sdk.Context, from common.Address, data evmtypes.HexString, queryClientEvm evmtypes.QueryClient) (uint64, error) {
+func GasLimit(ctx context.Context, from common.Address, data evmtypes.HexString, queryClientEvm evmtypes.QueryClient) (uint64, error) {
 	// default gas limit (used if no queryClientEvm is provided)
 	gas := uint64(100000000000)
 
@@ -145,8 +147,7 @@ func GasLimit(ctx sdk.Context, from common.Address, data evmtypes.HexString, que
 			return gas, err
 		}
 
-		goCtx := sdk.WrapSDKContext(ctx)
-		res, err := queryClientEvm.EstimateGas(goCtx, &evmtypes.EthCallRequest{
+		res, err := queryClientEvm.EstimateGas(ctx, &evmtypes.EthCallRequest{
 			Args:   args,
 			GasCap: config.DefaultGasCap,
 		})

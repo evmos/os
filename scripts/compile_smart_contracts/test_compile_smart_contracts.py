@@ -85,11 +85,11 @@ def test_copy_to_contracts_directory(
     tmp_path,
 ):
     target = tmp_path
-    wd = Path(os.getcwd())
+    current_dir = Path(os.getcwd())
     assert is_os_repo(
-        wd
+        current_dir
     ), "This test should be executed from the top level of the Evmos repo"
-    contracts = find_solidity_contracts(wd)
+    contracts = find_solidity_contracts(current_dir)
 
     assert os.listdir(target) == []
     assert copy_to_contracts_directory(target, contracts) is True

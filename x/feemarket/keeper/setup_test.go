@@ -1,58 +1,45 @@
 package keeper_test
 
 import (
-	"testing"
-
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/ginkgo/v2"
-	//nolint:revive // dot imports are fine for Ginkgo
-	. "github.com/onsi/gomega"
-
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/ethereum/go-ethereum/common"
-	ethtypes "github.com/ethereum/go-ethereum/core/types"
-	app "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
-	"github.com/evmos/os/x/feemarket/types"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/evmos/os/testutil/integration/os/factory"
+	"github.com/evmos/os/testutil/integration/os/grpc"
+	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
+	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/stretchr/testify/suite"
 )
 
 type KeeperTestSuite struct {
 	suite.Suite
 
-	ctx         sdk.Context
-	app         *app.ExampleChain
-	queryClient types.QueryClient
-	address     common.Address
-	consAddress sdk.ConsAddress
+	network     *network.UnitTestNetwork
+	factory     factory.TxFactory
+	grpcHandler grpc.Handler
+	keyring     testkeyring.Keyring
 
-	// for generate test tx
-	clientCtx client.Context
-	ethSigner ethtypes.Signer
-
-	appCodec codec.Codec
-	signer   keyring.Signer
-	denom    string
-}
-
-var s *KeeperTestSuite
-
-func TestKeeperTestSuite(t *testing.T) {
-	s = new(KeeperTestSuite)
-	suite.Run(t, s)
-
-	// Run Ginkgo integration tests
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Keeper Suite")
+	denom string
 }
 
 // SetupTest setup test environment
 func (suite *KeeperTestSuite) SetupTest() {
-	checkTx := false
-	chainID := testutil.ExampleChainID
-	suite.app = app.Setup(suite.T(), checkTx, chainID)
-	suite.SetupApp(checkTx, chainID)
+	keyring := testkeyring.New(2)
+	nw := network.NewUnitTestNetwork(
+		network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
+		network.WithCustomBaseAppOpts(baseapp.SetMinGasPrices("10aevmos")),
+	)
+	grpcHandler := grpc.NewIntegrationHandler(nw)
+	txFactory := factory.New(nw, grpcHandler)
+
+	ctx := nw.GetContext()
+	sk := nw.App.StakingKeeper
+	bondDenom, err := sk.BondDenom(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	suite.denom = bondDenom
+	suite.factory = txFactory
+	suite.grpcHandler = grpcHandler
+	suite.keyring = keyring
+	suite.network = nw
 }

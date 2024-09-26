@@ -1,21 +1,15 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package factory
 
 import (
 	"strings"
 
-	"github.com/ethereum/go-ethereum/common"
-	evmtypes "github.com/evmos/os/x/evm/types"
-
 	errorsmod "cosmossdk.io/errors"
-	amino "github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
-	testutiltypes "github.com/cosmos/cosmos-sdk/types/module/testutil"
-	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
-	enccodec "github.com/evmos/os/encoding/codec"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/testutil"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // buildMsgEthereumTx builds an Ethereum transaction from the given arguments and populates the From field.
@@ -23,26 +17,6 @@ func buildMsgEthereumTx(txArgs evmtypes.EvmTxArgs, fromAddr common.Address) evmt
 	msgEthereumTx := evmtypes.NewTx(&txArgs)
 	msgEthereumTx.From = fromAddr.String()
 	return *msgEthereumTx
-}
-
-// makeConfig creates an EncodingConfig for testing
-func makeConfig(mb module.BasicManager) testutiltypes.TestEncodingConfig {
-	cdc := amino.NewLegacyAmino()
-	interfaceRegistry := codectypes.NewInterfaceRegistry()
-	codec := amino.NewProtoCodec(interfaceRegistry)
-
-	encodingConfig := testutiltypes.TestEncodingConfig{
-		InterfaceRegistry: interfaceRegistry,
-		Codec:             codec,
-		TxConfig:          authtx.NewTxConfig(codec, authtx.DefaultSignModes),
-		Amino:             cdc,
-	}
-
-	enccodec.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	mb.RegisterLegacyAminoCodec(encodingConfig.Amino)
-	enccodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	mb.RegisterInterfaces(encodingConfig.InterfaceRegistry)
-	return encodingConfig
 }
 
 // CheckError is a helper function to check if the error is the expected one.
@@ -57,6 +31,8 @@ func CheckError(err error, logCheckArgs testutil.LogCheckArgs) error {
 	case logCheckArgs.ErrContains == "":
 		// NOTE: if err contains is empty, we return the error as it is
 		return errorsmod.Wrap(err, "ErrContains needs to be filled")
+	case err == nil:
+		panic("unexpected state: err is nil; this should not happen")
 	case !strings.Contains(err.Error(), logCheckArgs.ErrContains):
 		return errorsmod.Wrapf(err, "expected different error; wanted %q", logCheckArgs.ErrContains)
 	}

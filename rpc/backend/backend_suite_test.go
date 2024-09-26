@@ -7,9 +7,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	dbm "github.com/cometbft/cometbft-db"
-
-	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
+	cmtrpctypes "github.com/cometbft/cometbft/rpc/core/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -18,11 +17,11 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/crypto/hd"
 	"github.com/evmos/os/encoding"
-	app "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
+	testnetwork "github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
@@ -41,7 +40,7 @@ func TestBackendTestSuite(t *testing.T) {
 	suite.Run(t, new(BackendTestSuite))
 }
 
-var ChainID = testutil.ExampleChainID
+var ChainID = constants.ExampleChainID
 
 // SetupTest is executed before every BackendTestSuite test
 func (suite *BackendTestSuite) SetupTest() {
@@ -70,7 +69,8 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.signer = utiltx.NewSigner(priv)
 	suite.Require().NoError(err)
 
-	encodingConfig := encoding.MakeConfig(app.ModuleBasics)
+	nw := testnetwork.New()
+	encodingConfig := nw.GetEncodingConfig()
 	clientCtx := client.Context{}.WithChainID(ChainID).
 		WithHeight(1).
 		WithTxConfig(encodingConfig.TxConfig).
@@ -91,8 +91,7 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.backend.ctx = rpctypes.ContextWithHeight(1)
 
 	// Add codec
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
-	suite.backend.clientCtx.Codec = encCfg.Codec
+	suite.backend.clientCtx.Codec = encodingConfig.Codec
 }
 
 // buildEthereumTx returns an example legacy Ethereum transaction
@@ -121,16 +120,16 @@ func (suite *BackendTestSuite) buildEthereumTx() (*evmtypes.MsgEthereumTx, []byt
 
 // buildFormattedBlock returns a formatted block for testing
 func (suite *BackendTestSuite) buildFormattedBlock(
-	blockRes *tmrpctypes.ResultBlockResults,
-	resBlock *tmrpctypes.ResultBlock,
+	blockRes *cmtrpctypes.ResultBlockResults,
+	resBlock *cmtrpctypes.ResultBlock,
 	fullTx bool,
 	tx *evmtypes.MsgEthereumTx,
 	validator sdk.AccAddress,
 	baseFee *big.Int,
 ) map[string]interface{} {
 	header := resBlock.Block.Header
-	gasLimit := int64(^uint32(0)) // for `MaxGas = -1` (DefaultConsensusParams)
-	gasUsed := new(big.Int).SetUint64(uint64(blockRes.TxsResults[0].GasUsed))
+	gasLimit := int64(^uint32(0))                                             // for `MaxGas = -1` (DefaultConsensusParams)
+	gasUsed := new(big.Int).SetUint64(uint64(blockRes.TxsResults[0].GasUsed)) //nolint:gosec // G115 // won't exceed uint64
 
 	root := common.Hash{}.Bytes()
 	receipt := ethtypes.NewReceipt(root, false, gasUsed.Uint64())
@@ -142,7 +141,7 @@ func (suite *BackendTestSuite) buildFormattedBlock(
 			rpcTx, err := rpctypes.NewRPCTransaction(
 				tx.AsTransaction(),
 				common.BytesToHash(header.Hash()),
-				uint64(header.Height),
+				uint64(header.Height), //nolint:gosec // G115 // won't exceed uint64
 				uint64(0),
 				baseFee,
 				suite.backend.chainID,
@@ -168,7 +167,7 @@ func (suite *BackendTestSuite) buildFormattedBlock(
 
 func (suite *BackendTestSuite) generateTestKeyring(clientDir string) (keyring.Keyring, error) {
 	buf := bufio.NewReader(os.Stdin)
-	encCfg := encoding.MakeConfig(app.ModuleBasics)
+	encCfg := encoding.MakeConfig()
 	return keyring.New(sdk.KeyringServiceName(), keyring.BackendTest, clientDir, buf, encCfg.Codec, []keyring.Option{hd.EthSecp256k1Option()}...)
 }
 

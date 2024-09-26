@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package tx
 
 import (
@@ -10,14 +11,14 @@ import (
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/tx/signing"
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 	"github.com/cosmos/cosmos-sdk/x/auth/migrations/legacytx"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
 	cryptocodec "github.com/evmos/os/crypto/codec"
 	"github.com/evmos/os/ethereum/eip712"
-	app "github.com/evmos/os/example_chain"
+	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/types"
 )
 
@@ -44,12 +45,12 @@ type signatureV2Args struct {
 // It returns the signed transaction and an error
 func CreateEIP712CosmosTx(
 	ctx sdk.Context,
-	app *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	args EIP712TxArgs,
 ) (sdk.Tx, error) {
 	builder, err := PrepareEIP712CosmosTx(
 		ctx,
-		app,
+		exampleApp,
 		args,
 	)
 	return builder.GetTx(), err
@@ -60,7 +61,7 @@ func CreateEIP712CosmosTx(
 // It returns the tx builder with the signed transaction and an error
 func PrepareEIP712CosmosTx(
 	ctx sdk.Context,
-	exampleApp *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	args EIP712TxArgs,
 ) (client.TxBuilder, error) {
 	txArgs := args.CosmosTxArgs
@@ -83,7 +84,7 @@ func PrepareEIP712CosmosTx(
 	fee := legacytx.NewStdFee(txArgs.Gas, txArgs.Fees) //nolint:all
 
 	msgs := txArgs.Msgs
-	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, msgs, "", nil)
+	data := legacytx.StdSignBytes(ctx.ChainID(), accNumber, nonce, 0, fee, msgs, "")
 
 	typedDataArgs := typedDataArgs{
 		chainID:        chainIDNum,
@@ -123,7 +124,7 @@ func PrepareEIP712CosmosTx(
 // the provided private key and the typed data
 func signCosmosEIP712Tx(
 	ctx sdk.Context,
-	exampleApp *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	args EIP712TxArgs,
 	builder authtx.ExtensionOptionsTxBuilder,
 	data apitypes.TypedData,
@@ -142,7 +143,7 @@ func signCosmosEIP712Tx(
 	}
 
 	keyringSigner := NewSigner(priv)
-	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash)
+	signature, pubKey, err := keyringSigner.SignByAddress(from, sigHash, signingtypes.SignMode_SIGN_MODE_DIRECT)
 	if err != nil {
 		return nil, err
 	}
@@ -191,13 +192,13 @@ func createTypedData(args typedDataArgs, useLegacy bool) (apitypes.TypedData, er
 
 // getTxSignatureV2 returns the SignatureV2 object corresponding to
 // the arguments, using the legacy implementation as needed.
-func getTxSignatureV2(args signatureV2Args) signing.SignatureV2 {
+func getTxSignatureV2(args signatureV2Args) signingtypes.SignatureV2 {
 	// Must use SIGN_MODE_DIRECT, since Amino has some trouble parsing certain Any values from a SignDoc
 	// with the Legacy EIP-712 TypedData encodings. This is not an issue with the latest encoding.
-	return signing.SignatureV2{
+	return signingtypes.SignatureV2{
 		PubKey: args.pubKey,
-		Data: &signing.SingleSignatureData{
-			SignMode:  signing.SignMode_SIGN_MODE_DIRECT,
+		Data: &signingtypes.SingleSignatureData{
+			SignMode:  signingtypes.SignMode_SIGN_MODE_DIRECT,
 			Signature: args.signature,
 		},
 		Sequence: args.nonce,

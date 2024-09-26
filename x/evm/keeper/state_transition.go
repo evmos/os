@@ -1,11 +1,12 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keeper
 
 import (
 	"math/big"
 
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 
 	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
@@ -97,7 +98,7 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 
 			// only recompute the hash if not set (eg: checkTxState)
 			contextBlockHeader := ctx.BlockHeader()
-			header, err := tmtypes.HeaderFromProto(&contextBlockHeader)
+			header, err := cmttypes.HeaderFromProto(&contextBlockHeader)
 			if err != nil {
 				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}
@@ -109,13 +110,13 @@ func (k Keeper) GetHashFn(ctx sdk.Context) vm.GetHashFunc {
 		case ctx.BlockHeight() > h:
 			// Case 2: if the chain is not the current height we need to retrieve the hash from the store for the
 			// current chain epoch. This only applies if the current height is greater than the requested height.
-			histInfo, found := k.stakingKeeper.GetHistoricalInfo(ctx, h)
-			if !found {
-				k.Logger(ctx).Debug("historical info not found", "height", h)
+			histInfo, err := k.stakingKeeper.GetHistoricalInfo(ctx, h)
+			if err != nil {
+				k.Logger(ctx).Debug("error while getting historical info", "height", h, "error", err.Error())
 				return common.Hash{}
 			}
 
-			header, err := tmtypes.HeaderFromProto(&histInfo.Header)
+			header, err := cmttypes.HeaderFromProto(&histInfo.Header)
 			if err != nil {
 				k.Logger(ctx).Error("failed to cast tendermint header from proto", "error", err)
 				return common.Hash{}

@@ -5,6 +5,7 @@ package utils
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -42,6 +43,10 @@ func GetERC20Balance(nw network.Network, tokenAddress, accountAddress common.Add
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("got ret: ", ethRes.Ret)
+	fmt.Println("got eth call logs: ", ethRes.Logs)
+	fmt.Println("got eth call error: ", ethRes.VmError)
 
 	var balance *big.Int
 	err = contracts.ERC20MinterBurnerDecimalsContract.ABI.UnpackIntoInterface(&balance, "balanceOf", ethRes.Ret)

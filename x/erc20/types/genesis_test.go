@@ -4,7 +4,8 @@ import (
 	"testing"
 
 	exampleapp "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
+
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -57,8 +58,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: testconstants.WEVMOSContractMainnet,
+						Denom:        testconstants.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -81,8 +82,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: testconstants.WEVMOSContractMainnet,
+						Denom:        testconstants.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -105,8 +106,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: testconstants.WEVMOSContractMainnet,
+						Denom:        testconstants.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -129,8 +130,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: testconstants.WEVMOSContractMainnet,
+						Denom:        testconstants.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},
@@ -148,8 +149,8 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						Enabled:      true,
 					},
 					{
-						Erc20Address: testutil.WEVMOSContractMainnet,
-						Denom:        testutil.ExampleAttoDenom,
+						Erc20Address: testconstants.WEVMOSContractMainnet,
+						Denom:        testconstants.ExampleAttoDenom,
 						Enabled:      true,
 					},
 				},

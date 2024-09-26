@@ -1,11 +1,14 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package backend
 
 import (
 	"errors"
 	"fmt"
 	"math/big"
+
+	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
 
 	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -16,7 +19,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -125,7 +127,7 @@ func (b *Backend) Sign(address common.Address, data hexutil.Bytes) (hexutil.Byte
 	}
 
 	// Sign the requested hash with the wallet
-	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data)
+	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, data, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 	if err != nil {
 		b.logger.Error("keyring.SignByAddress failed", "address", address.Hex())
 		return nil, err
@@ -151,7 +153,7 @@ func (b *Backend) SignTypedData(address common.Address, typedData apitypes.Typed
 	}
 
 	// Sign the requested hash with the wallet
-	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, sigHash)
+	signature, _, err := b.clientCtx.Keyring.SignByAddress(from, sigHash, signingtypes.SignMode_SIGN_MODE_TEXTUAL)
 	if err != nil {
 		b.logger.Error("keyring.SignByAddress failed", "address", address.Hex())
 		return nil, err

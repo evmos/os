@@ -11,11 +11,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authsigning "github.com/cosmos/cosmos-sdk/x/auth/signing"
-	app "github.com/evmos/os/example_chain"
-	"github.com/evmos/os/testutil"
+	exampleapp "github.com/evmos/os/example_chain"
+	"github.com/evmos/os/testutil/constants"
+	protov2 "google.golang.org/protobuf/proto"
 )
 
-var DefaultFee = sdk.NewCoin(testutil.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AEVMOS
+var DefaultFee = sdk.NewCoin(constants.ExampleAttoDenom, sdkmath.NewInt(1e16)) // 0.01 AEVMOS
 
 // CosmosTxArgs contains the params to create a cosmos tx
 type CosmosTxArgs struct {
@@ -41,7 +42,7 @@ type CosmosTxArgs struct {
 // It returns the signed transaction and an error
 func PrepareCosmosTx(
 	ctx sdk.Context,
-	app *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	args CosmosTxArgs,
 ) (authsigning.Tx, error) {
 	txBuilder := args.TxCfg.NewTxBuilder()
@@ -50,7 +51,7 @@ func PrepareCosmosTx(
 
 	var fees sdk.Coins
 	if args.GasPrice != nil {
-		fees = sdk.Coins{{Denom: testutil.ExampleAttoDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}} //#nosec G115 -- int overflow is not a concern here
+		fees = sdk.Coins{{Denom: constants.ExampleAttoDenom, Amount: args.GasPrice.MulRaw(int64(args.Gas))}} //#nosec G115
 	} else {
 		fees = sdk.Coins{DefaultFee}
 	}
@@ -64,7 +65,7 @@ func PrepareCosmosTx(
 
 	return signCosmosTx(
 		ctx,
-		app,
+		exampleApp,
 		args,
 		txBuilder,
 	)
@@ -74,12 +75,17 @@ func PrepareCosmosTx(
 // the provided private key
 func signCosmosTx(
 	ctx sdk.Context,
-	app *app.ExampleChain,
+	exampleApp *exampleapp.ExampleChain,
 	args CosmosTxArgs,
 	txBuilder client.TxBuilder,
 ) (authsigning.Tx, error) {
 	addr := sdk.AccAddress(args.Priv.PubKey().Address().Bytes())
-	seq, err := app.AccountKeeper.GetSequence(ctx, addr)
+	seq, err := exampleApp.AccountKeeper.GetSequence(ctx, addr)
+	if err != nil {
+		return nil, err
+	}
+
+	signMode, err := authsigning.APISignModeToInternal(args.TxCfg.SignModeHandler().DefaultMode())
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +95,7 @@ func signCosmosTx(
 	sigV2 := signing.SignatureV2{
 		PubKey: args.Priv.PubKey(),
 		Data: &signing.SingleSignatureData{
-			SignMode:  args.TxCfg.SignModeHandler().DefaultMode(),
+			SignMode:  signMode,
 			Signature: nil,
 		},
 		Sequence: seq,
@@ -102,14 +108,15 @@ func signCosmosTx(
 	}
 
 	// Second round: all signer infos are set, so each signer can sign.
-	accNumber := app.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
+	accNumber := exampleApp.AccountKeeper.GetAccount(ctx, addr).GetAccountNumber()
 	signerData := authsigning.SignerData{
 		ChainID:       args.ChainID,
 		AccountNumber: accNumber,
 		Sequence:      seq,
 	}
 	sigV2, err = tx.SignWithPrivKey(
-		args.TxCfg.SignModeHandler().DefaultMode(),
+		ctx,
+		signMode,
 		signerData,
 		txBuilder, args.Priv, args.TxCfg,
 		seq,
@@ -133,6 +140,7 @@ var _ sdk.Tx = &InvalidTx{}
 // NOTE: This is used for testing purposes, to serve the edge case of invalid data being passed to functions.
 type InvalidTx struct{}
 
-func (InvalidTx) GetMsgs() []sdk.Msg { return []sdk.Msg{nil} }
+func (InvalidTx) GetMsgs() []sdk.Msg                    { return nil }
+func (InvalidTx) GetMsgsV2() ([]protov2.Message, error) { return nil, nil }
 
 func (InvalidTx) ValidateBasic() error { return nil }

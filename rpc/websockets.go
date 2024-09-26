@@ -1,5 +1,6 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package rpc
 
 import (
@@ -14,9 +15,9 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/cometbft/cometbft/libs/log"
+	"cosmossdk.io/log"
 	rpcclient "github.com/cometbft/cometbft/rpc/jsonrpc/client"
-	tmtypes "github.com/cometbft/cometbft/types"
+	cmttypes "github.com/cometbft/cometbft/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
@@ -397,7 +398,7 @@ func (api *pubSubAPI) subscribeNewHeads(wsConn *wsConn, subID rpc.ID) (pubsub.Un
 					return
 				}
 
-				data, ok := event.Data.(tmtypes.EventDataNewBlockHeader)
+				data, ok := event.Data.(cmttypes.EventDataNewBlockHeader)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", event.Data))
 					continue
@@ -570,7 +571,7 @@ func (api *pubSubAPI) subscribeLogs(wsConn *wsConn, subID rpc.ID, extra interfac
 					return
 				}
 
-				dataTx, ok := event.Data.(tmtypes.EventDataTx)
+				dataTx, ok := event.Data.(cmttypes.EventDataTx)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", event.Data))
 					continue
@@ -630,7 +631,7 @@ func (api *pubSubAPI) subscribePendingTransactions(wsConn *wsConn, subID rpc.ID)
 		for {
 			select {
 			case ev := <-txsCh:
-				data, ok := ev.Data.(tmtypes.EventDataTx)
+				data, ok := ev.Data.(cmttypes.EventDataTx)
 				if !ok {
 					api.logger.Debug("event data type mismatch", "type", fmt.Sprintf("%T", ev.Data))
 					continue

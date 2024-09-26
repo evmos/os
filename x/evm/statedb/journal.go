@@ -21,9 +21,9 @@ import (
 	"math/big"
 	"sort"
 
-	"github.com/ethereum/go-ethereum/common"
-
+	storetypes "cosmossdk.io/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 // JournalEntry is a modification entry in the state change journal that can be
@@ -71,7 +71,7 @@ func (j *journal) append(entry JournalEntry) {
 	}
 }
 
-// Revert undoes a batch of journalled modifications along with any Reverted
+// Revert undoes a batch of journaled modifications along with any Reverted
 // dirty handling too.
 func (j *journal) Revert(statedb *StateDB, snapshot int) {
 	for i := len(j.entries) - 1; i >= snapshot; i-- {
@@ -140,7 +140,7 @@ type (
 		slot    *common.Hash
 	}
 	precompileCallChange struct {
-		multiStore sdk.CacheMultiStore
+		multiStore storetypes.CacheMultiStore
 		events     sdk.Events
 	}
 )

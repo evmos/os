@@ -1,18 +1,17 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package eth
 
 import (
 	"context"
 
-	"github.com/cometbft/cometbft/libs/log"
-
+	"cosmossdk.io/log"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
-
 	"github.com/evmos/os/rpc/backend"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/types"

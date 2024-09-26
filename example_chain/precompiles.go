@@ -11,7 +11,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
-	channelkeeper "github.com/cosmos/ibc-go/v7/modules/core/04-channel/keeper"
+	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
 	bankprecompile "github.com/evmos/os/precompiles/bank"
 	"github.com/evmos/os/precompiles/bech32"
@@ -27,7 +27,7 @@ import (
 
 const bech32PrecompileBaseGas = 6_000
 
-// AvailableStaticPrecompiles returns the list of all available static precompiled contracts from evmOS.
+// NewAvailableStaticPrecompiles returns the list of all available static precompiled contracts from evmOS.
 //
 // NOTE: this should only be used during initialization of the Keeper.
 func NewAvailableStaticPrecompiles(

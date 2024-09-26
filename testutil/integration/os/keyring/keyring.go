@@ -1,14 +1,14 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
+
 package keyring
 
 import (
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
-
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
+	"github.com/ethereum/go-ethereum/common"
 	utiltx "github.com/evmos/os/testutil/tx"
 )
 
@@ -38,6 +38,8 @@ type Keyring interface {
 	GetAllAccAddrs() []sdktypes.AccAddress
 	// GetKey returns the key at the given keyring index
 	GetKey(index int) Key
+	// GetKeys returns all the keys
+	GetKeys() []Key
 
 	// AddKey adds a new account to the keyring
 	AddKey() int
@@ -89,16 +91,22 @@ func (kr *IntegrationKeyring) GetAllAccAddrs() []sdktypes.AccAddress {
 	return accs
 }
 
-// GetKey returns the key specified by index
+// GetKey returns the key specified by index.
 func (kr *IntegrationKeyring) GetKey(index int) Key {
 	return kr.keys[index]
 }
 
-// AddKey adds a new account to the keyring. It returns the index for the key
+// GetKeys returns all keys from the keyring.
+func (kr *IntegrationKeyring) GetKeys() []Key {
+	return kr.keys
+}
+
+// AddKey adds a new account to the keyring. It returns the index for the key.
 func (kr *IntegrationKeyring) AddKey() int {
 	acc := NewKey()
 	index := len(kr.keys)
 	kr.keys = append(kr.keys, acc)
+
 	return index
 }
 

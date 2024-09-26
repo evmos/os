@@ -19,10 +19,13 @@ TMP_GENESIS="$CHAINDIR/config/tmp_genesis.json"
 APP_TOML="$CHAINDIR/config/app.toml"
 CONFIG_TOML="$CHAINDIR/config/config.toml"
 
+# make sure to reset chain directory before test
+rm -rf "$CHAINDIR"
+
 # validate dependencies are installed
 command -v jq >/dev/null 2>&1 || {
-  echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
-  exit 1
+	echo >&2 "jq not installed. More info: https://stedolan.github.io/jq/download/"
+	exit 1
 }
 
 # used to exit on first error (any non-zero exit code)
@@ -30,6 +33,10 @@ set -e
 
 # feemarket params basefee
 BASEFEE=1000000000
+
+# Set client config
+osd config set client chain-id "$CHAINID" --home "$CHAINDIR"
+osd config set client keyring-backend "$KEYRING" --home "$CHAINDIR"
 
 # myKey address 0x7cb61d4117ae31a12e393a1cfa3bac666481d02e
 VAL_KEY="mykey"
@@ -51,21 +58,11 @@ USER3_MNEMONIC="will wear settle write dance topic tape sea glory hotel oppose r
 USER4_KEY="user4"
 USER4_MNEMONIC="doll midnight silk carpet brush boring pluck office gown inquiry duck chief aim exit gain never tennis crime fragile ship cloud surface exotic patch"
 
-# Set client config
-osd config keyring-backend "$KEYRING" --home "$CHAINDIR"
-osd config chain-id "$CHAINID" --home "$CHAINDIR"
-
 # Import keys from mnemonics
-echo "Adding val key"
-echo "adding mnemonic: $VAL_MNEMONIC"
 echo "$VAL_MNEMONIC" | osd keys add "$VAL_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user1 key"
 echo "$USER1_MNEMONIC" | osd keys add "$USER1_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user2 key"
 echo "$USER2_MNEMONIC" | osd keys add "$USER2_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user3 key"
 echo "$USER3_MNEMONIC" | osd keys add "$USER3_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
-echo "Adding user4 key"
 echo "$USER4_MNEMONIC" | osd keys add "$USER4_KEY" --recover --keyring-backend "$KEYRING" --algo "$KEYALGO" --home "$CHAINDIR"
 
 # Set moniker and chain-id for Evmos (Moniker can be anything, chain-id must be an integer)
@@ -81,17 +78,10 @@ jq '.app_state["mint"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENES
 # Enable precompiles in EVM params
 jq '.app_state["evm"]["params"]["active_static_precompiles"]=["0x0000000000000000000000000000000000000100","0x0000000000000000000000000000000000000400","0x0000000000000000000000000000000000000800","0x0000000000000000000000000000000000000801","0x0000000000000000000000000000000000000802","0x0000000000000000000000000000000000000803","0x0000000000000000000000000000000000000804"]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
-# set gov proposing && voting period
-jq '.app_state.gov.deposit_params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-jq '.app_state.gov.voting_params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-
-# When upgrade to cosmos-sdk v0.47, use gov.params to edit the deposit params
-# check if the 'params' field exists in the genesis file
-if jq '.app_state.gov.params != null' "$GENESIS" | grep -q "true"; then
-  jq '.app_state.gov.params.min_deposit[0].denom="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.max_deposit_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-  jq '.app_state.gov.params.voting_period="10s"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
-fi
+# Change proposal periods to pass within a reasonable time for local testing
+sed -i.bak 's/"max_deposit_period": "172800s"/"max_deposit_period": "30s"/g' "$GENESIS"
+sed -i.bak 's/"voting_period": "172800s"/"voting_period": "30s"/g' "$GENESIS"
+sed -i.bak 's/"expedited_voting_period": "86400s"/"expedited_voting_period": "15s"/g' "$GENESIS"
 
 # Set gas limit in genesis
 jq '.consensus_params.block.max_gas="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -111,9 +101,9 @@ osd genesis add-genesis-account "$(osd keys show "$USER4_KEY" -a --keyring-backe
 
 # set custom pruning settings
 if [ "$PRUNING" = "custom" ]; then
-  sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
-  sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
-  sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
+	sed -i.bak 's/pruning = "default"/pruning = "custom"/g' "$APP_TOML"
+	sed -i.bak 's/pruning-keep-recent = "0"/pruning-keep-recent = "2"/g' "$APP_TOML"
+	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 fi
 
 # make sure the localhost IP is 0.0.0.0
@@ -146,8 +136,8 @@ osd genesis validate-genesis --home "$CHAINDIR"
 
 # Start the node
 osd start "$TRACE" \
-  --log_level $LOGLEVEL \
-  --minimum-gas-prices=0.0001aevmos \
-  --json-rpc.api eth,txpool,personal,net,debug,web3 \
-  --chain-id "$CHAINID" \
-  --home "$CHAINDIR"
+	--log_level $LOGLEVEL \
+	--minimum-gas-prices=0.0001aevmos \
+	--json-rpc.api eth,txpool,personal,net,debug,web3 \
+	--chain-id "$CHAINID" \
+	--home "$CHAINDIR"

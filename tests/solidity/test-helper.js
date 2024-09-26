@@ -246,6 +246,12 @@ async function main () {
   console.log(`Running Tests: ${allTests.join()}`)
 
   const proc = await setupNetwork({ runConfig, timeout: 50000 })
+
+  // sleep for 20s to wait blocks being produced
+  //
+  // TODO: this should be handled more gracefully, i.e. check for block height
+  await new Promise((resolve) => setTimeout(resolve, 20000))
+
   await performTests({ allTests, runConfig })
 
   if (proc) {

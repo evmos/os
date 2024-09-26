@@ -8,7 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
-	"github.com/evmos/os/testutil"
+	"github.com/evmos/os/testutil/constants"
 )
 
 // FundAccount is a utility function that funds an account by minting and
@@ -27,7 +27,7 @@ func FundAccount(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddr
 // TODO: as per Freddy these methods should be replaced with a bank transfer from a main account, not by minting in the process
 func FundAccountWithBaseDenom(ctx sdk.Context, bankKeeper bankkeeper.Keeper, addr sdk.AccAddress, amount int64) error {
 	coins := sdk.NewCoins(
-		sdk.NewCoin(testutil.ExampleAttoDenom, math.NewInt(amount)),
+		sdk.NewCoin(constants.ExampleAttoDenom, math.NewInt(amount)),
 	)
 	return FundAccount(ctx, bankKeeper, addr, coins)
 }

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/os/testutil/constants"
+
 	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/rpc/backend/mocks"
-	"github.com/evmos/os/testutil"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc/metadata"
 )
@@ -30,7 +31,7 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParamsWithoutHeaderError(queryClient, 1)
 			},
-			testutil.DefaultGasPrice,
+			constants.DefaultGasPrice,
 			true,
 		},
 		{
@@ -39,7 +40,7 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				RegisterParamsWithoutHeader(queryClient, 1)
 			},
-			testutil.DefaultGasPrice,
+			constants.DefaultGasPrice,
 			true,
 		},
 	}
@@ -255,7 +256,7 @@ func (suite *BackendTestSuite) TestSetEtherbase() {
 				RegisterStatus(client)
 				RegisterValidatorAccount(queryClient, suite.acc)
 				RegisterParams(queryClient, &header, 1)
-				c := sdk.NewDecCoin(testutil.ExampleAttoDenom, math.NewIntFromBigInt(big.NewInt(1)))
+				c := sdk.NewDecCoin(constants.ExampleAttoDenom, math.NewIntFromBigInt(big.NewInt(1)))
 				suite.backend.cfg.SetMinGasPrices(sdk.DecCoins{c})
 				delAddr, _ := suite.backend.GetCoinbase()
 				// account, _ := suite.backend.clientCtx.AccountRetriever.GetAccount(suite.backend.clientCtx, delAddr)
@@ -280,7 +281,7 @@ func (suite *BackendTestSuite) TestSetEtherbase() {
 		//		queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 		//		RegisterStatus(client)
 		//		RegisterValidatorAccount(queryClient, suite.acc)
-		//		c := sdk.NewDecCoin(testutil.ExampleAttoDenom, math.NewIntFromBigInt(big.NewInt(1)))
+		//		c := sdk.NewDecCoin(testconstants.ExampleAttoDenom, math.NewIntFromBigInt(big.NewInt(1)))
 		//		suite.backend.cfg.SetMinGasPrices(sdk.DecCoins{c})
 		//		delAddr, _ := suite.backend.GetCoinbase()
 		//		account, _ := suite.backend.clientCtx.AccountRetriever.GetAccount(suite.backend.clientCtx, delAddr)

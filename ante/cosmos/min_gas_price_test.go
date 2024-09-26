@@ -3,7 +3,10 @@ package cosmos_test
 import (
 	"fmt"
 
+	"github.com/evmos/os/testutil/constants"
+
 	"cosmossdk.io/math"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	cosmosante "github.com/evmos/os/ante/cosmos"
@@ -21,12 +24,14 @@ var execTypes = []struct {
 }
 
 func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
-	denom := testutil.ExampleAttoDenom
+	denom := constants.ExampleAttoDenom
 	testMsg := banktypes.MsgSend{
 		FromAddress: "evmos1x8fhpj9nmhqk8z9kpgjt95ck2xwyue0ptzkucp",
 		ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
 		Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(10), Denom: denom}},
 	}
+	nw := suite.GetNetwork()
+	ctx := nw.GetContext()
 
 	testCases := []struct {
 		name                string
@@ -47,9 +52,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyZeroDec()
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(0), denom, &testMsg)
@@ -62,9 +67,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice > 0",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyZeroDec()
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), denom, &testMsg)
@@ -77,9 +82,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 10, gasPrice = 10",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyNewDec(10)
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), denom, &testMsg)
@@ -92,9 +97,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"invalid cosmos tx with MinGasPrices = 10, gasPrice = 0",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyNewDec(10)
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(0), denom, &testMsg)
@@ -107,9 +112,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"invalid cosmos tx with stake denom",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyNewDec(10)
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilder(math.NewInt(10), sdk.DefaultBondDenom, &testMsg)
@@ -122,9 +127,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, valid fee",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyZeroDec()
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(sdk.Coins{sdk.Coin{Amount: math.NewInt(0), Denom: denom}}, &testMsg)
@@ -137,9 +142,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, nil fees, means len(fees) == 0",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyZeroDec()
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(nil, &testMsg)
@@ -152,9 +157,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, empty fees, means len(fees) == 0",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyZeroDec()
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				txBuilder := suite.CreateTestCosmosTxBuilderWithFees(sdk.Coins{}, &testMsg)
@@ -167,9 +172,9 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 		{
 			"valid cosmos tx with MinGasPrices = 0, gasPrice = 0, invalid fees",
 			func() sdk.Tx {
-				params := suite.app.FeeMarketKeeper.GetParams(suite.ctx)
+				params := nw.App.FeeMarketKeeper.GetParams(ctx)
 				params.MinGasPrice = math.LegacyZeroDec()
-				err := suite.app.FeeMarketKeeper.SetParams(suite.ctx, params)
+				err := nw.App.FeeMarketKeeper.SetParams(ctx, params)
 				suite.Require().NoError(err)
 
 				fees := sdk.Coins{sdk.Coin{Amount: math.NewInt(0), Denom: denom}, sdk.Coin{Amount: math.NewInt(10), Denom: "stake"}}
@@ -185,9 +190,8 @@ func (suite *AnteTestSuite) TestMinGasPriceDecorator() {
 	for _, et := range execTypes {
 		for _, tc := range testCases {
 			suite.Run(et.name+"_"+tc.name, func() {
-				// s.SetupTest(et.isCheckTx)
-				ctx := suite.ctx.WithIsReCheckTx(et.isCheckTx)
-				dec := cosmosante.NewMinGasPriceDecorator(suite.app.FeeMarketKeeper, suite.app.EVMKeeper)
+				ctx := ctx.WithIsReCheckTx(et.isCheckTx)
+				dec := cosmosante.NewMinGasPriceDecorator(nw.App.FeeMarketKeeper, nw.App.EVMKeeper)
 				_, err := dec.AnteHandle(ctx, tc.malleate(), et.simulate, testutil.NoOpNextFn)
 
 				if (et.name == "deliverTx" && tc.expPass) || (et.name == "deliverTxSimulate" && et.simulate && tc.allowPassOnSimulate) {
