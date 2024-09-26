@@ -10,8 +10,13 @@ import (
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
-// RejectMessagesDecorator prevents invalid msg types from being executed
+// RejectMessagesDecorator prevents invalid msg types from being executed.
 type RejectMessagesDecorator struct{}
+
+// NewRejectMessagesDecorator creates a new RejectMessagesDecorator.
+func NewRejectMessagesDecorator() sdk.AnteDecorator {
+	return RejectMessagesDecorator{}
+}
 
 // AnteHandle rejects messages that requires ethereum-specific authentication.
 // For example `MsgEthereumTx` requires fee to be deducted in the antehandler in
