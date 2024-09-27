@@ -4,6 +4,7 @@
 package keeper
 
 import (
+	"fmt"
 	"math/big"
 
 	errorsmod "cosmossdk.io/errors"
@@ -119,7 +120,7 @@ func (k *Keeper) WithChainID(ctx sdk.Context) {
 	}
 
 	if k.eip155ChainID != nil && k.eip155ChainID.Cmp(chainID) != 0 {
-		panic("chain id already set")
+		panic(fmt.Sprintf("eip-155 chain id already set (%s); cannot change to %s", k.eip155ChainID, chainID))
 	}
 
 	k.eip155ChainID = chainID
