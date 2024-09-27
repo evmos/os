@@ -202,7 +202,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		decUtils.TxFee = txFee
 		decUtils.TxGasLimit += gas
 
-		// 10. increment sequence
+		// 9. increment sequence
 		acc := md.accountKeeper.GetAccount(ctx, from)
 		if acc == nil {
 			// safety check: shouldn't happen
@@ -214,12 +214,12 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 
-		// 11. gas wanted
+		// 10. gas wanted
 		if err := CheckGasWanted(ctx, md.feeMarketKeeper, tx, decUtils.Rules.IsLondon); err != nil {
 			return ctx, err
 		}
 
-		// 12. emit events
+		// 11. emit events
 		txIdx := uint64(i) //nolint:gosec // G115
 		EmitTxHashEvent(ctx, ethMsg, decUtils.BlockTxIndex, txIdx)
 	}
