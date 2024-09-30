@@ -18,7 +18,7 @@ type AccountKeeper interface {
 	SetAccount(ctx context.Context, account sdk.AccountI)
 	RemoveAccount(ctx context.Context, account sdk.AccountI)
 	GetParams(ctx context.Context) (params authtypes.Params)
-	GetSequence(ctx context.Context, account sdk.AccAddress) (uint64, error)
+	GetSequence(ctx context.Context, addr sdk.AccAddress) (uint64, error)
 	AddressCodec() addresscodec.Codec
 }
 

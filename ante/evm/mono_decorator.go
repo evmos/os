@@ -206,8 +206,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		acc := md.accountKeeper.GetAccount(ctx, from)
 		if acc == nil {
 			// safety check: shouldn't happen
-			return ctx, errorsmod.Wrapf(errortypes.ErrUnknownAddress,
-				"account %s does not exist", acc)
+			return ctx, errorsmod.Wrapf(
+				errortypes.ErrUnknownAddress,
+				"account %s does not exist",
+				from,
+			)
 		}
 
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {

@@ -19,10 +19,10 @@ import (
 	ethcrypto "github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/secp256k1"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	anteinterfaces "github.com/evmos/os/ante/interfaces"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 var evmosCodec codec.ProtoCodecMarshaler
@@ -40,12 +40,12 @@ func init() {
 // CONTRACT: Pubkeys are set in context for all signers before this decorator runs
 // CONTRACT: Tx must implement SigVerifiableTx interface
 type LegacyEip712SigVerificationDecorator struct {
-	ak evmtypes.AccountKeeper
+	ak anteinterfaces.AccountKeeper
 }
 
 // Deprecated: NewLegacyEip712SigVerificationDecorator creates a new LegacyEip712SigVerificationDecorator
 func NewLegacyEip712SigVerificationDecorator(
-	ak evmtypes.AccountKeeper,
+	ak anteinterfaces.AccountKeeper,
 ) LegacyEip712SigVerificationDecorator {
 	return LegacyEip712SigVerificationDecorator{
 		ak: ak,
