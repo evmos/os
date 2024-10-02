@@ -98,23 +98,22 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.Require().NotNil(suite.network.App.AppCodec())
 
-	anteHandler := chainante.NewAnteHandler(chainante.HandlerOptions{
+	options := chainante.HandlerOptions{
 		Cdc:                    suite.network.App.AppCodec(),
 		AccountKeeper:          suite.network.App.AccountKeeper,
 		BankKeeper:             suite.network.App.BankKeeper,
-		DistributionKeeper:     suite.network.App.DistrKeeper,
 		EvmKeeper:              suite.network.App.EVMKeeper,
 		FeegrantKeeper:         suite.network.App.FeeGrantKeeper,
 		IBCKeeper:              suite.network.App.IBCKeeper,
-		StakingKeeper:          suite.network.App.StakingKeeper,
 		FeeMarketKeeper:        suite.network.App.FeeMarketKeeper,
 		SignModeHandler:        encodingConfig.TxConfig.SignModeHandler(),
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.network.App.EVMKeeper),
-	})
+	}
+	suite.Require().NoError(options.Validate(), "invalid ante handler options")
 
-	suite.anteHandler = anteHandler
+	suite.anteHandler = chainante.NewAnteHandler(options)
 }
 
 func (suite *AnteTestSuite) WithFeemarketEnabled(enabled bool) {

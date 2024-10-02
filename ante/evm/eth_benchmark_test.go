@@ -65,12 +65,6 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 				vmdb = testutil.NewStateDB(cacheCtx, s.GetNetwork().App.EVMKeeper)
 				cacheCtx = s.prepareAccount(cacheCtx, addr.Bytes(), tc.balance, tc.rewards)
 				s.Require().NoError(vmdb.Commit())
-				keepers := ethante.ConsumeGasKeepers{
-					Bank:         s.GetNetwork().App.BankKeeper,
-					Distribution: s.GetNetwork().App.DistrKeeper,
-					Evm:          s.GetNetwork().App.EVMKeeper,
-					Staking:      s.GetNetwork().App.StakingKeeper,
-				}
 
 				baseFee := s.GetNetwork().App.FeeMarketKeeper.GetParams(ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
@@ -83,7 +77,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				err := ethante.ConsumeFeesAndEmitEvent(
 					cacheCtx.WithIsCheckTx(true).WithGasMeter(storetypes.NewInfiniteGasMeter()),
-					&keepers,
+					s.GetNetwork().App.EVMKeeper,
 					fees,
 					bechAddr,
 				)

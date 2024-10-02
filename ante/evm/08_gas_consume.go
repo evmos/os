@@ -36,23 +36,16 @@ func UpdateCumulativeGasWanted(
 	return cumulativeGasWanted
 }
 
-type ConsumeGasKeepers struct {
-	Bank         anteinterfaces.BankKeeper
-	Distribution anteinterfaces.DistributionKeeper
-	Evm          anteinterfaces.EVMKeeper
-	Staking      anteinterfaces.StakingKeeper
-}
-
 // ConsumeFeesAndEmitEvent deduces fees from sender and emits the event
 func ConsumeFeesAndEmitEvent(
 	ctx sdktypes.Context,
-	keepers *ConsumeGasKeepers,
+	evmKeeper anteinterfaces.EVMKeeper,
 	fees sdktypes.Coins,
 	from sdktypes.AccAddress,
 ) error {
 	if err := deductFees(
 		ctx,
-		keepers,
+		evmKeeper,
 		fees,
 		from,
 	); err != nil {
@@ -69,10 +62,9 @@ func ConsumeFeesAndEmitEvent(
 }
 
 // deductFee checks if the fee payer has enough funds to pay for the fees and deducts them.
-// If the spendable balance is not enough, it tries to claim enough staking rewards to cover the fees.
 func deductFees(
 	ctx sdktypes.Context,
-	keepers *ConsumeGasKeepers,
+	evmKeeper anteinterfaces.EVMKeeper,
 	fees sdktypes.Coins,
 	feePayer sdktypes.AccAddress,
 ) error {
@@ -80,13 +72,14 @@ func deductFees(
 		return nil
 	}
 
-	if err := keepers.Evm.DeductTxCostsFromUserBalance(
+	if err := evmKeeper.DeductTxCostsFromUserBalance(
 		ctx,
 		fees,
 		common.BytesToAddress(feePayer),
 	); err != nil {
 		return errorsmod.Wrapf(err, "failed to deduct transaction costs from user balance")
 	}
+
 	return nil
 }
 

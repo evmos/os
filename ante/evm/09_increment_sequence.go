@@ -7,13 +7,13 @@ import (
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	anteinterfaces "github.com/evmos/os/ante/interfaces"
 )
 
 // IncrementNonce increments the sequence of the account.
 func IncrementNonce(
 	ctx sdk.Context,
-	accountKeeper evmtypes.AccountKeeper,
+	accountKeeper anteinterfaces.AccountKeeper,
 	account sdk.AccountI,
 	txNonce uint64,
 ) error {

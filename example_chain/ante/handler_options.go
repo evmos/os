@@ -14,18 +14,15 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	ibckeeper "github.com/cosmos/ibc-go/v8/modules/core/keeper"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // HandlerOptions defines the list of module keepers required to run the Evmos
 // AnteHandler decorators.
 type HandlerOptions struct {
 	Cdc                    codec.BinaryCodec
-	AccountKeeper          evmtypes.AccountKeeper
-	BankKeeper             evmtypes.BankKeeper
-	DistributionKeeper     anteinterfaces.DistributionKeeper
+	AccountKeeper          anteinterfaces.AccountKeeper
+	BankKeeper             anteinterfaces.BankKeeper
 	IBCKeeper              *ibckeeper.Keeper
-	StakingKeeper          anteinterfaces.StakingKeeper
 	FeeMarketKeeper        anteinterfaces.FeeMarketKeeper
 	EvmKeeper              anteinterfaces.EVMKeeper
 	FeegrantKeeper         ante.FeegrantKeeper
@@ -47,9 +44,6 @@ func (options HandlerOptions) Validate() error {
 	if options.BankKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "bank keeper is required for AnteHandler")
 	}
-	if options.StakingKeeper == nil {
-		return errorsmod.Wrap(errortypes.ErrLogic, "staking keeper is required for AnteHandler")
-	}
 	if options.IBCKeeper == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "ibc keeper is required for AnteHandler")
 	}
@@ -64,9 +58,6 @@ func (options HandlerOptions) Validate() error {
 	}
 	if options.SignModeHandler == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "sign mode handler is required for AnteHandler")
-	}
-	if options.DistributionKeeper == nil {
-		return errorsmod.Wrap(errortypes.ErrLogic, "distribution keeper is required for AnteHandler")
 	}
 	if options.TxFeeChecker == nil {
 		return errorsmod.Wrap(errortypes.ErrLogic, "tx fee checker is required for AnteHandler")
