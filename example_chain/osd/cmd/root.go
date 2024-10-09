@@ -38,7 +38,6 @@ import (
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	evmoscmd "github.com/evmos/os/client"
 	evmoscmdconfig "github.com/evmos/os/cmd/config"
-	"github.com/evmos/os/crypto/hd"
 	evmoskeyring "github.com/evmos/os/crypto/keyring"
 	"github.com/evmos/os/example_chain"
 	cmdcfg "github.com/evmos/os/example_chain/osd/config"
@@ -231,7 +230,7 @@ func initRootCmd(rootCmd *cobra.Command, osApp *example_chain.ExampleChain) {
 
 	// add evmOS key commands
 	rootCmd.AddCommand(
-		evmoscmd.KeyCommands(example_chain.DefaultNodeHome, string(hd.EthSecp256k1Type)),
+		evmoscmd.KeyCommands(example_chain.DefaultNodeHome, true),
 	)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
