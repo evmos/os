@@ -8,6 +8,7 @@ This changelog was created using the `clu` binary
 
 ### Improvements
 
+- (cli) [#53](https://github.com/evmos/os/pull/53) Enable specifying default key type for adding keys.
 - (ante) [#52](https://github.com/evmos/os/pull/52) Refactor ante handlers to be easier to use in partner chains.
 - (all) [#48](https://github.com/evmos/os/pull/48) Move latest changes from evmOS main (f943af3b incl. SDK v50).
 - (all) [#43](https://github.com/evmos/os/pull/43) Update with latest evmOS main changes (2b7a8e2).
