@@ -47,7 +47,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgUpdateParams{},
 	)
 	registry.RegisterInterface(
-		"ethermint.evm.v1.TxData",
+		"os.evm.v1.TxData",
 		(*TxData)(nil),
 		&DynamicFeeTx{},
 		&AccessListTx{},
