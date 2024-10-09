@@ -32,6 +32,7 @@ set -e
 # Parse input flags
 install=true
 overwrite=""
+BUILD_FOR_DEBUG=false
 
 while [[ $# -gt 0 ]]; do
 	key="$1"
@@ -51,6 +52,11 @@ while [[ $# -gt 0 ]]; do
 		install=false
 		shift # Move past the flag
 		;;
+	--remote-debugging)
+		echo "Flag --remote-debugging passed -> Building with remote debugging options."
+		BUILD_FOR_DEBUG=true
+		shift # Move past the flag
+		;;
 	*)
 		echo "Unknown flag passed: $key -> Exiting script!"
 		exit 1
@@ -59,11 +65,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $install == true ]]; then
-	# (Re-)install daemon
-	make install
-
-	# # Build for remote debugging
-	# make install COSMOS_BUILD_OPTIONS=nooptimization,nostrip
+	if [[ $BUILD_FOR_DEBUG == true ]]; then
+		# for remote debugging the optimization should be disabled and the debug info should not be stripped
+		make install COSMOS_BUILD_OPTIONS=nooptimization,nostrip
+	else
+		make install
+	fi
 fi
 
 # User prompt if neither -y nor -n was passed as a flag
