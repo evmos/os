@@ -61,6 +61,9 @@ done
 if [[ $install == true ]]; then
 	# (Re-)install daemon
 	make install
+
+	# # Build for remote debugging
+	# make install COSMOS_BUILD_OPTIONS=nooptimization,nostrip
 fi
 
 # User prompt if neither -y nor -n was passed as a flag
