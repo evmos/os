@@ -19,7 +19,12 @@ import (
 
 // KeyCommands registers a subtree of commands to interact with
 // local private key storage.
-func KeyCommands(defaultNodeHome string) *cobra.Command {
+//
+// The defaultToEthKeys boolean indicates whether to use
+// Ethereum compatible keys by default or stick with the Cosmos SDK default.
+//
+// TODO: (on follow up PR) adjust Tendermint mentions to CometBFT
+func KeyCommands(defaultNodeHome string, defaultToEthKeys bool) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "keys",
 		Short: "Manage your application's keys",
@@ -50,12 +55,16 @@ The pass backend requires GnuPG: https://gnupg.org/
 	// support adding Ethereum supported keys
 	addCmd := keys.AddKeyCommand()
 
-	// update the default signing algorithm value to "eth_secp256k1"
-	algoFlag := addCmd.Flag(flags.FlagKeyType)
-	algoFlag.DefValue = string(hd.EthSecp256k1Type)
-	err := algoFlag.Value.Set(string(hd.EthSecp256k1Type))
-	if err != nil {
-		panic(err)
+	if defaultToEthKeys {
+		ethSecp256k1Str := string(hd.EthSecp256k1Type)
+
+		// update the default signing algorithm value to "eth_secp256k1"
+		algoFlag := addCmd.Flag(flags.FlagKeyType)
+		algoFlag.DefValue = ethSecp256k1Str
+		err := algoFlag.Value.Set(ethSecp256k1Str)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	addCmd.RunE = runAddCmd

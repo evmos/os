@@ -34,6 +34,7 @@ Available flags are:
 - `-y`: Overwrite previous database
 - `-n`: Do **not** overwrite previous database
 - `--no-install`: Skip installation of the binary
+- `--remote-debugging`: Build a binary suitable for remote debugging
 
 ## Available Cosmos SDK Modules
 

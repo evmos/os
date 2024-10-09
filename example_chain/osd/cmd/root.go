@@ -230,7 +230,7 @@ func initRootCmd(rootCmd *cobra.Command, osApp *example_chain.ExampleChain) {
 
 	// add evmOS key commands
 	rootCmd.AddCommand(
-		evmoscmd.KeyCommands(example_chain.DefaultNodeHome),
+		evmoscmd.KeyCommands(example_chain.DefaultNodeHome, true),
 	)
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands

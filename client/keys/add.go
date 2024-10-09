@@ -97,7 +97,7 @@ func RunAddCmd(ctx client.Context, cmd *cobra.Command, args []string, inBuf *buf
 			}
 
 			if !response {
-				return errors.New("aborted")
+				return fmt.Errorf("key overwrite confirmation for %q aborted", name)
 			}
 
 			err2 = kb.Delete(name)
