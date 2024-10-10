@@ -26,7 +26,7 @@ var (
 
 const (
 	// Amino names
-	updateParamsName = "os/MsgUpdateParams"
+	updateParamsName = "os/evm/MsgUpdateParams"
 )
 
 // NOTE: This is required for the GetSignBytes function
@@ -47,7 +47,7 @@ func RegisterInterfaces(registry codectypes.InterfaceRegistry) {
 		&MsgUpdateParams{},
 	)
 	registry.RegisterInterface(
-		"ethermint.evm.v1.TxData",
+		"os.evm.v1.TxData",
 		(*TxData)(nil),
 		&DynamicFeeTx{},
 		&AccessListTx{},

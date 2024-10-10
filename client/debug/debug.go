@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	cosmosclientdebug "github.com/cosmos/cosmos-sdk/client/debug"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/version"
@@ -35,10 +36,18 @@ func Cmd() *cobra.Command {
 		RunE:  client.ValidateCmd,
 	}
 
-	cmd.AddCommand(PubkeyCmd())
-	cmd.AddCommand(AddrCmd())
-	cmd.AddCommand(RawBytesCmd())
-	cmd.AddCommand(LegacyEIP712Cmd())
+	cmd.AddCommand(
+		// default Cosmos SDK debug commands
+		cosmosclientdebug.CodecCmd(),
+		cosmosclientdebug.PrefixesCmd(),
+		cosmosclientdebug.PubkeyRawCmd(), // TODO: support eth_secp256k1 pubkeys for this one too?
+
+		// evmOS adjusted debug commands
+		PubkeyCmd(),
+		AddrCmd(),
+		RawBytesCmd(),
+		LegacyEIP712Cmd(),
+	)
 
 	return cmd
 }

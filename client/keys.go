@@ -22,14 +22,12 @@ import (
 //
 // The defaultToEthKeys boolean indicates whether to use
 // Ethereum compatible keys by default or stick with the Cosmos SDK default.
-//
-// TODO: (on follow up PR) adjust Tendermint mentions to CometBFT
 func KeyCommands(defaultNodeHome string, defaultToEthKeys bool) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "keys",
 		Short: "Manage your application's keys",
 		Long: `Keyring management commands. These keys may be in any format supported by the
-Tendermint crypto library and can be used by light-clients, full nodes, or any other application
+CometBFT crypto library and can be used by light-clients, full nodes, or any other application
 that needs to sign with a private key.
 
 The keyring supports the following backends:
