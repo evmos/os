@@ -74,6 +74,11 @@ benchmark:
 
 .PHONY: benchmark
 
+test-nix:
+	@nix-shell ./tests/nix_tests/shell.nix --run ./scripts/run-nix-tests.sh
+
+.PHONY: run-nix-tests
+
 ###############################################################################
 ###                                Linting                                  ###
 ###############################################################################
