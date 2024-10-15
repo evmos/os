@@ -1,6 +1,6 @@
 module github.com/evmos/os
 
-go 1.22.5
+go 1.22.2
 
 require (
 	cosmossdk.io/api v0.7.5
