@@ -8,7 +8,7 @@ This changelog was created using the `clu` binary
 
 ### Improvements
 
-- (erc20) [#57](https://github.com/evmos/os/pull/57) Add reference to EIP-7528 (native asset address) to default ERC-20 params.
+- (erc20) [#57](https://github.com/evmos/os/pull/57) Add reference to EIP-7528 (native asset address) to default ERC-20 params and use in example chain.
 - (cli) [#55](https://github.com/evmos/os/pull/55) Add missing list key types subcommand.
 - (cli) [#54](https://github.com/evmos/os/pull/54) Align debug CLI commands with Cosmos SDK plus other minor clean up.
 - (cli) [#53](https://github.com/evmos/os/pull/53) Enable specifying default key type for adding keys.
