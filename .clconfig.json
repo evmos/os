@@ -24,10 +24,10 @@
     "types"
   ],
   "change_types": {
-    "API Breaking": "api\\s*breaking",
-    "Bug Fixes": "bug\\s*fixes",
-    "Improvements": "improvements",
-    "State Machine Breaking": "state\\s*machine\\s*breaking"
+    "API Breaking": "feat-api",
+    "Bug Fixes": "fix",
+    "Improvements": "imp",
+    "State Machine Breaking": "feat-smb"
   },
   "expected_spellings": {
     "ABI": "abi",
