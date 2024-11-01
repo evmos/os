@@ -19,7 +19,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	clientcfg "github.com/cosmos/cosmos-sdk/client/config"
-	"github.com/cosmos/cosmos-sdk/client/debug"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/pruning"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -37,6 +36,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	evmoscmd "github.com/evmos/os/client"
+	evmosdebug "github.com/evmos/os/client/debug"
 	evmoscmdconfig "github.com/evmos/os/cmd/config"
 	evmoskeyring "github.com/evmos/os/crypto/keyring"
 	"github.com/evmos/os/example_chain"
@@ -207,6 +207,7 @@ func initRootCmd(rootCmd *cobra.Command, osApp *example_chain.ExampleChain) {
 	cfg := sdk.GetConfig()
 	cfg.Seal()
 
+	// add Cosmos native CLI commands
 	rootCmd.AddCommand(
 		genutilcli.InitCmd(
 			osApp.BasicModuleManager,
@@ -214,7 +215,6 @@ func initRootCmd(rootCmd *cobra.Command, osApp *example_chain.ExampleChain) {
 		),
 		genutilcli.Commands(osApp.TxConfig(), osApp.BasicModuleManager, example_chain.DefaultNodeHome),
 		cmtcli.NewCompletionCmd(rootCmd, true),
-		debug.Cmd(),
 		confixcmd.ConfigCommand(),
 		pruning.Cmd(newApp, example_chain.DefaultNodeHome),
 		snapshot.Cmd(newApp),
@@ -232,6 +232,9 @@ func initRootCmd(rootCmd *cobra.Command, osApp *example_chain.ExampleChain) {
 	rootCmd.AddCommand(
 		evmoscmd.KeyCommands(example_chain.DefaultNodeHome, true),
 	)
+
+	// add evmOS' flavored debug command
+	rootCmd.AddCommand(evmosdebug.Cmd())
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
