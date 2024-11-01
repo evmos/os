@@ -8,6 +8,7 @@ This changelog was created using the `clu` binary
 
 ### Improvements
 
+- (cli) [#58](https://github.com/evmos/os/pull/58) Use evmOS' flavored debug subcommands in example chain.
 - (cli) [#55](https://github.com/evmos/os/pull/55) Add missing list key types subcommand.
 - (cli) [#54](https://github.com/evmos/os/pull/54) Align debug CLI commands with Cosmos SDK plus other minor clean up.
 - (cli) [#53](https://github.com/evmos/os/pull/53) Enable specifying default key type for adding keys.
