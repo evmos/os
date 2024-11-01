@@ -20,6 +20,11 @@ var (
 )
 
 var (
+	// NOTE: We strongly recommend to use the canonical address for the ERC-20 representation
+	// of the chain's native denomination as defined by
+	// [ERC-7528](https://eips.ethereum.org/EIPS/eip-7528).
+	//
+	// 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
 	DefaultNativePrecompiles  []string
 	DefaultDynamicPrecompiles []string
 )
