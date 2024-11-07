@@ -15,7 +15,7 @@ let
   go_1_22 = nixpkgs.pkgs.go_1_22.overrideAttrs {
     pname = "golang";
     version = "go1.22.8";
-    src = fetchFromGitHub {
+    src = nixpkgs.fetchFromGitHub {
       owner = "golang";
       repo = "go";
       rev = "aeccd613c896d39f582036aa52917c85ecf0b0c0";

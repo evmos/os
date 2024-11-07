@@ -40,18 +40,17 @@ let
       repo = "go";
       rev = "aeccd613c896d39f582036aa52917c85ecf0b0c0";
       sha256 = "sha256-N3uG+FLMgThIAr1aDJSq+X+VKCz8dw6az35um3Mr3D0=";
-
     };
   };
 in
 buildGoApplication rec {
   inherit pname version buildInputs tags ldflags;
   go = go_1_22;
-  src = ./.;
+  src = ./example_chain;
   modules = ./example_chain/gomod2nix.toml;
   doCheck = false;
   pwd = src; # needed to support replace
-  subPackages = [ "example_chain/cmd/osd" ];
+  subPackages = [ "osd" ];
   CGO_ENABLED = "1";
 
   postFixup = if dbBackend == "rocksdb" then
