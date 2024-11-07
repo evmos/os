@@ -15,7 +15,7 @@ let
   pname = "osd";
   tags = [ "ledger" "netgo" ] ++ lib.optionals (dbBackend == "rocksdb") [ "rocksdb" "grocksdb_clean_link" ];
   ldflags = lib.concatStringsSep "\n" ([
-    "-X github.com/cosmos/cosmos-sdk/version.Name=evmos"
+    "-X github.com/cosmos/cosmos-sdk/version.Name=evmOS"
     "-X github.com/cosmos/cosmos-sdk/version.AppName=${pname}"
     "-X github.com/cosmos/cosmos-sdk/version.Version=${version}"
     "-X github.com/cosmos/cosmos-sdk/version.BuildTags=${lib.concatStringsSep "," tags}"
@@ -28,29 +28,30 @@ let
   # but we can import the needed packages from the newer version
   nixpkgsUrl = "https://github.com/NixOS/nixpkgs/archive/master.tar.gz";
   nixpkgs = import (fetchTarball nixpkgsUrl) {};
-  # the go_1_22 nixpkgs is v1.22.1
-  # but we need the v1.22.2. 
+  # the go_1_22 nixpkgs is v1.22.6
+  # but we need the v1.22.8. 
   # This overrides the pkg to use
-  # the v1.22.2 version  
+  # the v1.22.8 version  
   go_1_22 = nixpkgs.pkgs.go_1_22.overrideAttrs {
     pname = "golang";
-    version = "go1.22.2";
+    version = "go1.22.8";
     src = fetchFromGitHub {
       owner = "golang";
       repo = "go";
-      rev = "dddf0ae40fa0c1223aba191d73a44425a08e1035";
-      sha256 = "sha256-gWJ4txAt2TkobDo1EGotWDOSP2pGqLCNqpn+Smgr21w=";
+      rev = "aeccd613c896d39f582036aa52917c85ecf0b0c0";
+      sha256 = "sha256-N3uG+FLMgThIAr1aDJSq+X+VKCz8dw6az35um3Mr3D0=";
+
     };
-  };  
+  };
 in
 buildGoApplication rec {
   inherit pname version buildInputs tags ldflags;
   go = go_1_22;
   src = ./.;
-  modules = ./gomod2nix.toml;
+  modules = ./example_chain/gomod2nix.toml;
   doCheck = false;
   pwd = src; # needed to support replace
-  subPackages = [ "cmd/osd" ];
+  subPackages = [ "example_chain/cmd/osd" ];
   CGO_ENABLED = "1";
 
   postFixup = if dbBackend == "rocksdb" then
