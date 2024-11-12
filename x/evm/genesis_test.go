@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/os/testutil/constants"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -50,9 +49,6 @@ func TestInitGenesis(t *testing.T) {
 
 	address := common.HexToAddress(privkey.PubKey().Address().String())
 
-	defaultGenesisWithEVMDenom := types.DefaultGenesisState()
-	defaultGenesisWithEVMDenom.Params.EvmDenom = constants.ExampleAttoDenom
-
 	var (
 		vmdb *statedb.StateDB
 		ctx  sdk.Context
@@ -66,15 +62,9 @@ func TestInitGenesis(t *testing.T) {
 		expPanic bool
 	}{
 		{
-			name:     "fail - default",
+			name:     "pass - default",
 			malleate: func(_ *testnetwork.UnitTestNetwork) {},
 			genState: types.DefaultGenesisState(),
-			expPanic: true, // NOTE: we're expecting a panic here because the EVM denom needs to be set
-		},
-		{
-			name:     "pass - default with EVM denom",
-			malleate: func(_ *testnetwork.UnitTestNetwork) {},
-			genState: defaultGenesisWithEVMDenom,
 			expPanic: false,
 		},
 		{
@@ -83,7 +73,7 @@ func TestInitGenesis(t *testing.T) {
 				vmdb.AddBalance(address, big.NewInt(1))
 			},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -99,7 +89,7 @@ func TestInitGenesis(t *testing.T) {
 			name:     "account not found",
 			malleate: func(_ *testnetwork.UnitTestNetwork) {},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -115,7 +105,7 @@ func TestInitGenesis(t *testing.T) {
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -132,7 +122,7 @@ func TestInitGenesis(t *testing.T) {
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),

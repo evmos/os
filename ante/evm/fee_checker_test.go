@@ -35,7 +35,7 @@ func (m MockEVMKeeper) GetBaseFee(_ sdk.Context, _ *params.ChainConfig) *big.Int
 }
 
 func (m MockEVMKeeper) GetParams(_ sdk.Context) evmtypes.Params {
-	return evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+	return evmtypes.DefaultParams()
 }
 
 func (m MockEVMKeeper) ChainID() *big.Int {

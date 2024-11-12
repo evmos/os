@@ -13,6 +13,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
@@ -251,8 +252,7 @@ func BenchmarkApplyMessage(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	params := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
-	ethCfg := params.ChainConfig.EthereumConfig(suite.network.App.EVMKeeper.ChainID())
+	ethCfg := config.GetChainConfig()
 	signer := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
 
 	b.ResetTimer()
@@ -288,8 +288,7 @@ func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	params := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
-	ethCfg := params.ChainConfig.EthereumConfig(suite.network.App.EVMKeeper.ChainID())
+	ethCfg := config.GetChainConfig()
 	signer := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
 
 	b.ResetTimer()
@@ -305,7 +304,7 @@ func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 			ethCfg,
 			krSigner,
 			signer,
-			ethtypes.LegacyTxType,
+			ethtypes.AccessListTxType,
 			nil,
 			nil,
 		)
@@ -324,8 +323,7 @@ func BenchmarkApplyMessageWithDynamicFeeTx(b *testing.B) {
 	suite := KeeperTestSuite{enableFeemarket: true, enableLondonHF: true}
 	suite.SetupTest()
 
-	params := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
-	ethCfg := params.ChainConfig.EthereumConfig(suite.network.App.EVMKeeper.ChainID())
+	ethCfg := config.GetChainConfig()
 	signer := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
 
 	b.ResetTimer()

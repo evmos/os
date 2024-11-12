@@ -9,7 +9,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/ante/evm"
-	"github.com/evmos/os/testutil/constants"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -33,7 +32,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 			expectedError: errortypes.ErrInvalidRequest,
 			getFunctionParams: func() validateMsgParams {
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    nil,
 					from:      keyring.GetAccAddr(0),
 				}
@@ -47,7 +46,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
 					from:      nil,
 				}
@@ -61,7 +60,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
@@ -80,7 +79,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
 					from:      nil,
 				}
@@ -94,7 +93,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -112,7 +111,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -130,7 +129,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
 					from:      nil,
 				}
@@ -144,7 +143,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -162,7 +161,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{

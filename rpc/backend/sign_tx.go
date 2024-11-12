@@ -19,6 +19,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/signer/core/apitypes"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -68,15 +69,10 @@ func (b *Backend) SendTransaction(args evmtypes.TransactionArgs) (common.Hash, e
 		return common.Hash{}, err
 	}
 
-	// Query params to use the EVM denomination
-	res, err := b.queryClient.QueryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		b.logger.Error("failed to query evm params", "error", err.Error())
-		return common.Hash{}, err
-	}
+	baseDenom := config.GetDenom()
 
 	// Assemble transaction from fields
-	tx, err := msg.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), res.Params.EvmDenom)
+	tx, err := msg.BuildTx(b.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	if err != nil {
 		b.logger.Error("build cosmos tx failed", "error", err.Error())
 		return common.Hash{}, err

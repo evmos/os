@@ -8,7 +8,6 @@ import (
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/utils"
 	"github.com/evmos/os/x/evm/types"
 )
@@ -101,7 +100,7 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 			getMsg: func() *types.MsgUpdateParams {
 				return &types.MsgUpdateParams{
 					Authority: authtypes.NewModuleAddress(govtypes.ModuleName).String(),
-					Params:    types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
+					Params:    types.DefaultParams(),
 				}
 			},
 			expectedErr: nil,

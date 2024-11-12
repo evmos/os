@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"math/big"
 
-	testconstants "github.com/evmos/os/testutil/constants"
-
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -23,6 +21,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/server/config"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -39,6 +38,8 @@ func PrepareEthTx(
 	signer := ethtypes.LatestSignerForChainID(exampleApp.EVMKeeper.ChainID())
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
+
+	baseDenom := evmconfig.GetDenom()
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {
@@ -57,7 +58,7 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: testconstants.ExampleAttoDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		txFee = txFee.Add(sdk.Coin{Denom: baseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
 	}
 
 	if err := txBuilder.SetMsgs(msgs...); err != nil {

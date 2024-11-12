@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
 )
 
@@ -90,8 +91,7 @@ func (p *Precompile) ClaimRewards(
 			return nil, err
 		}
 
-		evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(evmDenom).BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -171,7 +171,7 @@ func (p *Precompile) WithdrawDelegatorRewards(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
@@ -218,7 +218,7 @@ func (p *Precompile) WithdrawValidatorCommission(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
@@ -237,7 +237,7 @@ func (p *Precompile) FundCommunityPool(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
+	evmDenom := config.GetDenom()
 	msg, depositorHexAddr, err := NewMsgFundCommunityPool(evmDenom, args)
 	if err != nil {
 		return nil, err

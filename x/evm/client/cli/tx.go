@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 
-	rpctypes "github.com/evmos/os/rpc/types"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/types"
 )
 
@@ -60,12 +60,9 @@ func NewRawTxCmd() *cobra.Command {
 				return err
 			}
 
-			rsp, err := rpctypes.NewQueryClient(clientCtx).Params(cmd.Context(), &types.QueryParamsRequest{})
-			if err != nil {
-				return err
-			}
+			baseDenom := config.GetDenom()
 
-			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), rsp.Params.EvmDenom)
+			tx, err := msg.BuildTx(clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 			if err != nil {
 				return err
 			}

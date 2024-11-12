@@ -14,12 +14,13 @@ import (
 	evmante "github.com/evmos/os/ante/evm"
 	chainante "github.com/evmos/os/example_chain/ante"
 	chainutil "github.com/evmos/os/example_chain/testutil"
-	testconstants "github.com/evmos/os/testutil/constants"
+	"github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
@@ -60,16 +61,21 @@ func (suite *AnteTestSuite) SetupTest() {
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
 	evmGenesis := evmtypes.DefaultGenesisState()
-	evmGenesis.Params.EvmDenom = testconstants.ExampleAttoDenom
+	chainConfig := config.DefaultChainConfig(constants.ExampleChainID)
 	if !suite.enableLondonHF {
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
+		maxInt := sdkmath.NewInt(math.MaxInt64).BigInt()
+		chainConfig.LondonBlock = maxInt
+		chainConfig.ArrowGlacierBlock = maxInt
+		chainConfig.GrayGlacierBlock = maxInt
+		chainConfig.MergeNetsplitBlock = maxInt
+		chainConfig.ShanghaiBlock = maxInt
+		chainConfig.CancunBlock = maxInt
 	}
+	err := config.NewEVMConfigurator().
+		WithChainConfig(chainConfig).
+		Configure()
+	suite.Require().NoError(err)
+
 	if suite.evmParamsOption != nil {
 		suite.evmParamsOption(&evmGenesis.Params)
 	}

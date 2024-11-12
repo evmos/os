@@ -17,8 +17,9 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/encoding"
-	testconstants "github.com/evmos/os/testutil/constants"
+	exampleapp "github.com/evmos/os/example_chain"
 	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -52,6 +53,9 @@ func (suite *MsgsTestSuite) SetupTest() {
 
 	encodingConfig := encoding.MakeConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(encodingConfig.TxConfig)
+
+	err := exampleapp.InitializeAppConfiguration("evmos_9001-1")
+	suite.Require().NoError(err)
 }
 
 func (suite *MsgsTestSuite) TestMsgEthereumTx_Constructor() {
@@ -113,7 +117,9 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			tc.msg.Data = nil
 		}
 
-		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), testconstants.ExampleAttoDenom)
+		baseDenom := config.GetDenom()
+
+		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 		if tc.expError {
 			suite.Require().Error(err)
 		} else {
@@ -122,7 +128,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			suite.Require().Empty(tx.GetMemo())
 			suite.Require().Empty(tx.GetTimeoutHeight())
 			suite.Require().Equal(uint64(100000), tx.GetGas())
-			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(100000))), tx.GetFee())
+			suite.Require().Equal(sdk.NewCoins(sdk.NewCoin(baseDenom, sdkmath.NewInt(100000))), tx.GetFee())
 		}
 	}
 }

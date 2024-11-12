@@ -102,6 +102,9 @@ var _ = Describe("Calling staking precompile directly", func() {
 		defaultLogCheck = testutil.LogCheckArgs{ABIEvents: s.precompile.ABI.Events}
 		passCheck = defaultLogCheck.WithExpPass(true)
 		outOfGasCheck = defaultLogCheck.WithErrContains(vm.ErrOutOfGas.Error())
+
+		oneE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(1e18))
+		twoE18Coin = sdk.NewCoin(s.bondDenom, math.NewInt(2e18))
 	})
 
 	Describe("when the precompile is not enabled in the EVM params", func() {

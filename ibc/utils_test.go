@@ -9,6 +9,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	precompilestestutil "github.com/evmos/os/precompiles/testutil"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -235,6 +236,8 @@ func TestGetReceivedCoin(t *testing.T) {
 }
 
 func TestGetSentCoin(t *testing.T) {
+	baseDenom := config.GetDenom()
+
 	testCases := []struct {
 		name      string
 		rawDenom  string
@@ -243,9 +246,9 @@ func TestGetSentCoin(t *testing.T) {
 	}{
 		{
 			"get unwrapped aevmos coin",
-			"aevmos",
+			baseDenom,
 			"10",
-			sdk.Coin{Denom: "aevmos", Amount: math.NewInt(10)},
+			sdk.Coin{Denom: baseDenom, Amount: math.NewInt(10)},
 		},
 		{
 			"get ibc wrapped aevmos coin",

@@ -9,12 +9,11 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/params"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
-	evmtypes "github.com/evmos/os/x/evm/types"
+	"github.com/evmos/os/x/evm/config"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -62,22 +61,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
-	if !s.enableLondonHF {
-		evmGenesis := evmtypes.DefaultGenesisState()
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.EvmDenom = testconstants.ExampleAttoDenom
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-		customGenesis[evmtypes.ModuleName] = evmGenesis
-	}
-
 	if s.mintFeeCollector {
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(config.GetDenom(), sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
 			{
 				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
@@ -100,4 +86,20 @@ func (suite *KeeperTestSuite) SetupTest() {
 	s.factory = tf
 	s.handler = gh
 	s.keyring = keys
+
+	chainConfig := config.DefaultChainConfig(suite.network.GetChainID())
+	if !s.enableLondonHF {
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = maxInt.BigInt()
+		chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+		chainConfig.GrayGlacierBlock = maxInt.BigInt()
+		chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+		chainConfig.ShanghaiBlock = maxInt.BigInt()
+		chainConfig.CancunBlock = maxInt.BigInt()
+	}
+
+	err := config.NewEVMConfigurator().
+		WithChainConfig(chainConfig).
+		Configure()
+	suite.Require().NoError(err)
 }

@@ -59,13 +59,8 @@ func (AccessType) EnumDescriptor() ([]byte, []int) {
 
 // Params defines the EVM module parameters
 type Params struct {
-	// evm_denom represents the token denomination used to run the EVM state
-	// transitions.
-	EvmDenom string `protobuf:"bytes,1,opt,name=evm_denom,json=evmDenom,proto3" json:"evm_denom,omitempty" yaml:"evm_denom"`
 	// extra_eips defines the additional EIPs for the vm.Config
 	ExtraEIPs []string `protobuf:"bytes,4,rep,name=extra_eips,json=extraEips,proto3" json:"extra_eips,omitempty" yaml:"extra_eips"`
-	// chain_config defines the EVM chain configuration parameters
-	ChainConfig ChainConfig `protobuf:"bytes,5,opt,name=chain_config,json=chainConfig,proto3" json:"chain_config" yaml:"chain_config"`
 	// allow_unprotected_txs defines if replay-protected (i.e non EIP155
 	// signed) transactions can be executed on the state machine.
 	AllowUnprotectedTxs bool `protobuf:"varint,6,opt,name=allow_unprotected_txs,json=allowUnprotectedTxs,proto3" json:"allow_unprotected_txs,omitempty"`
@@ -111,25 +106,11 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
-func (m *Params) GetEvmDenom() string {
-	if m != nil {
-		return m.EvmDenom
-	}
-	return ""
-}
-
 func (m *Params) GetExtraEIPs() []string {
 	if m != nil {
 		return m.ExtraEIPs
 	}
 	return nil
-}
-
-func (m *Params) GetChainConfig() ChainConfig {
-	if m != nil {
-		return m.ChainConfig
-	}
-	return ChainConfig{}
 }
 
 func (m *Params) GetAllowUnprotectedTxs() bool {
@@ -1042,16 +1023,6 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x30
 	}
-	{
-		size, err := m.ChainConfig.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintEvm(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0x2a
 	if len(m.ExtraEIPs) > 0 {
 		for iNdEx := len(m.ExtraEIPs) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.ExtraEIPs[iNdEx])
@@ -1060,13 +1031,6 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			i--
 			dAtA[i] = 0x22
 		}
-	}
-	if len(m.EvmDenom) > 0 {
-		i -= len(m.EvmDenom)
-		copy(dAtA[i:], m.EvmDenom)
-		i = encodeVarintEvm(dAtA, i, uint64(len(m.EvmDenom)))
-		i--
-		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -1814,18 +1778,12 @@ func (m *Params) Size() (n int) {
 	}
 	var l int
 	_ = l
-	l = len(m.EvmDenom)
-	if l > 0 {
-		n += 1 + l + sovEvm(uint64(l))
-	}
 	if len(m.ExtraEIPs) > 0 {
 		for _, s := range m.ExtraEIPs {
 			l = len(s)
 			n += 1 + l + sovEvm(uint64(l))
 		}
 	}
-	l = m.ChainConfig.Size()
-	n += 1 + l + sovEvm(uint64(l))
 	if m.AllowUnprotectedTxs {
 		n += 2
 	}
@@ -2169,38 +2127,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: Params: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field EvmDenom", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvm
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthEvm
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvm
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.EvmDenom = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
 		case 4:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field ExtraEIPs", wireType)
@@ -2232,39 +2158,6 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 				return io.ErrUnexpectedEOF
 			}
 			m.ExtraEIPs = append(m.ExtraEIPs, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ChainConfig", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowEvm
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthEvm
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthEvm
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.ChainConfig.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
 			iNdEx = postIndex
 		case 6:
 			if wireType != 0 {

@@ -3,8 +3,6 @@ package backend
 import (
 	"fmt"
 
-	"github.com/evmos/os/testutil/constants"
-
 	"cosmossdk.io/log"
 	abci "github.com/cometbft/cometbft/abci/types"
 	tmrpctypes "github.com/cometbft/cometbft/rpc/core/types"
@@ -16,6 +14,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/indexer"
 	"github.com/evmos/os/rpc/backend/mocks"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -28,10 +27,6 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 
 	priv, _ := ethsecp256k1.GenerateKey()
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
-
-	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	RegisterParamsWithoutHeader(queryClient, 1)
-
 	armor := crypto.EncryptArmorPrivKey(priv, "", "eth_secp256k1")
 	_ = suite.backend.clientCtx.Keyring.ImportPrivKey("test_key", armor, "")
 
@@ -42,13 +37,15 @@ func (suite *BackendTestSuite) TestTraceTransaction() {
 	msgEthereumTx.From = from.String()
 	_ = msgEthereumTx.Sign(ethSigner, suite.signer)
 
-	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
+	baseDenom := config.GetDenom()
+
+	tx, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txBz, _ := txEncoder(tx)
 
 	msgEthereumTx2.From = from.String()
 	_ = msgEthereumTx2.Sign(ethSigner, suite.signer)
 
-	tx2, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
+	tx2, _ := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txBz2, _ := txEncoder(tx2)
 
 	testCases := []struct {

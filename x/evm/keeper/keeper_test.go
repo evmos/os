@@ -8,6 +8,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 
 	"github.com/evmos/os/utils"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/keeper"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -80,8 +81,8 @@ func (suite *KeeperTestSuite) TestBaseFee() {
 			suite.enableLondonHF = tc.enableLondonHF
 			suite.SetupTest()
 			suite.Require().NoError(suite.network.App.EVMKeeper.BeginBlock(suite.network.GetContext()))
-			params := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
-			ethCfg := params.ChainConfig.EthereumConfig(suite.network.App.EVMKeeper.ChainID())
+
+			ethCfg := evmconfig.GetChainConfig()
 			baseFee := suite.network.App.EVMKeeper.GetBaseFee(suite.network.GetContext(), ethCfg)
 			suite.Require().Equal(tc.expectBaseFee, baseFee)
 		})

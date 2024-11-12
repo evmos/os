@@ -4,7 +4,6 @@
 package config
 
 import (
-	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -40,15 +39,4 @@ func SetBech32Prefixes(config *sdk.Config) {
 	config.SetBech32PrefixForAccount(Bech32PrefixAccAddr, Bech32PrefixAccPub)
 	config.SetBech32PrefixForValidator(Bech32PrefixValAddr, Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(Bech32PrefixConsAddr, Bech32PrefixConsPub)
-}
-
-// RegisterDenoms registers the base and display denominations to the SDK.
-func RegisterDenoms() {
-	if err := sdk.RegisterDenom(DisplayDenom, math.LegacyOneDec()); err != nil {
-		panic(err)
-	}
-
-	if err := sdk.RegisterDenom(BaseDenom, math.LegacyNewDecWithPrec(1, BaseDenomUnit)); err != nil {
-		panic(err)
-	}
 }

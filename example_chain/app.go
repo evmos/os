@@ -280,6 +280,11 @@ func NewExampleApp(
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
 
+	// initialize the evmOS application configuration
+	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
+		panic(err)
+	}
+
 	keys := storetypes.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,

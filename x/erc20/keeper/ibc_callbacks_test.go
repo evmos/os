@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"math/big"
 
-	testconstants "github.com/evmos/os/testutil/constants"
-
 	"cosmossdk.io/math"
 	"github.com/evmos/os/x/erc20/keeper"
 
@@ -58,9 +56,11 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 	packet := mockPacket
 	expAck := ibcmock.MockAcknowledgement
 
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err, "failed to get base denom")
 	registeredDenom := cosmosTokenBase
 	coins := sdk.NewCoins(
-		sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1000)),
+		sdk.NewCoin(baseDenom, math.NewInt(1000)),
 		sdk.NewCoin(registeredDenom, math.NewInt(1000)), // some ERC20 token
 		sdk.NewCoin(ibcBase, math.NewInt(1000)),         // some IBC coin with a registered token pair
 	)
@@ -213,7 +213,7 @@ func (suite *KeeperTestSuite) TestOnRecvPacket() {
 			receiver:   ethsecpAddr,
 			expErc20s:  big.NewInt(0),
 			expCoins: sdk.NewCoins(
-				sdk.NewCoin(testconstants.ExampleAttoDenom, math.NewInt(1000)),
+				sdk.NewCoin(baseDenom, math.NewInt(1000)),
 				sdk.NewCoin(registeredDenom, math.NewInt(0)),
 				sdk.NewCoin(ibcBase, math.NewInt(1000)),
 			),
@@ -316,6 +316,9 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 	var ctx sdk.Context
 	senderAddr := "evmos1x2w87cvt5mqjncav4lxy8yfreynn273xn5335v"
 
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err)
+
 	testCases := []struct {
 		name     string
 		malleate func() transfertypes.FungibleTokenPacketData
@@ -325,14 +328,14 @@ func (suite *KeeperTestSuite) TestConvertCoinToERC20FromPacket() {
 		{
 			name: "error - invalid sender",
 			malleate: func() transfertypes.FungibleTokenPacketData {
-				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", "", "", "")
+				return transfertypes.NewFungibleTokenPacketData(baseDenom, "10", "", "", "")
 			},
 			expPass: false,
 		},
 		{
 			name: "pass - is base denom",
 			malleate: func() transfertypes.FungibleTokenPacketData {
-				return transfertypes.NewFungibleTokenPacketData("aevmos", "10", senderAddr, "", "")
+				return transfertypes.NewFungibleTokenPacketData(baseDenom, "10", senderAddr, "", "")
 			},
 			expPass: true,
 		},

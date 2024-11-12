@@ -14,10 +14,10 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/os/server/config"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	ethlogger "github.com/evmos/os/x/evm/core/logger"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/keeper/testdata"
@@ -30,6 +30,7 @@ import (
 const invalidAddress = "0x0000"
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
+	baseDenom := evmconfig.GetDenom()
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -49,7 +50,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 		{
 			"success",
 			func() *types.QueryAccountRequest {
-				amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, 100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(baseDenom, 100)}
 
 				// Add new unfunded key
 				index := suite.keyring.AddKey()
@@ -187,6 +188,8 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
+	baseDenom := evmconfig.GetDenom()
+
 	testCases := []struct {
 		msg           string
 		getReqAndResp func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse)
@@ -209,7 +212,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 				addr := suite.keyring.GetAddr(newIndex)
 
 				balance := int64(100)
-				amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, balance)}
+				amt := sdk.Coins{sdk.NewInt64Coin(baseDenom, balance)}
 
 				err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 				suite.Require().NoError(err)
@@ -434,7 +437,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := suite.network.GetContext()
-	expParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+	expParams := types.DefaultParams()
 	expParams.ActiveStaticPrecompiles = types.AvailableStaticPrecompiles
 
 	res, err := suite.network.GetEvmClient().Params(ctx, &types.QueryParamsRequest{})
@@ -609,7 +612,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), "aevmos")
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetDenom())
 				value := balance.Amount.Add(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -628,7 +631,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), "aevmos")
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), evmconfig.GetDenom())
 				value := balance.Amount.Sub(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -1151,25 +1154,13 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			// expFinalGas:   26744, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
-		{
-			msg: "invalid chain id",
-			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceTxRequest(suite.network)
-				defaultRequest.ChainId = -1
-				return defaultRequest
-			},
-			getPredecessors: func() []*types.MsgEthereumTx {
-				return nil
-			},
-			expPass: false,
-		},
 	}
 
 	for _, tc := range testCases {
 		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Clean up per test
-			defaultEvmParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultEvmParams := types.DefaultParams()
 			err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 
@@ -1349,19 +1340,6 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = tracer not found\"}]",
 		},
-		{
-			msg: "invalid chain id",
-			getRequest: func() types.QueryTraceBlockRequest {
-				defaultReq := getDefaultTraceBlockRequest(suite.network)
-				defaultReq.ChainId = -1
-				return defaultReq
-			},
-			getAdditionalTxs: func() []*types.MsgEthereumTx {
-				return nil
-			},
-			expPass:       true,
-			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = invalid chain id for signer\"}]",
-		},
 	}
 
 	for _, tc := range testCases {
@@ -1491,7 +1469,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				evmDefault := types.DefaultParams()
 				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
 			},
 
@@ -1506,16 +1484,18 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				chainConfig := evmconfig.DefaultChainConfig(suite.network.GetChainID())
 				maxInt := sdkmath.NewInt(math.MaxInt64)
-				evmDefault.ChainConfig.LondonBlock = &maxInt
-				evmDefault.ChainConfig.LondonBlock = &maxInt
-				evmDefault.ChainConfig.ArrowGlacierBlock = &maxInt
-				evmDefault.ChainConfig.GrayGlacierBlock = &maxInt
-				evmDefault.ChainConfig.MergeNetsplitBlock = &maxInt
-				evmDefault.ChainConfig.ShanghaiBlock = &maxInt
-				evmDefault.ChainConfig.CancunBlock = &maxInt
-				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
+				chainConfig.LondonBlock = maxInt.BigInt()
+				chainConfig.ArrowGlacierBlock = maxInt.BigInt()
+				chainConfig.GrayGlacierBlock = maxInt.BigInt()
+				chainConfig.MergeNetsplitBlock = maxInt.BigInt()
+				chainConfig.ShanghaiBlock = maxInt.BigInt()
+				chainConfig.CancunBlock = maxInt.BigInt()
+				err := evmconfig.NewEVMConfigurator().
+					WithChainConfig(chainConfig).
+					Configure()
+				suite.Require().NoError(err)
 			},
 			true,
 		},
@@ -1530,7 +1510,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault.NoBaseFee = true
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				evmDefault := types.DefaultParams()
 				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
 			},
 			true,
@@ -1560,6 +1540,9 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 
 			suite.Require().NoError(suite.network.NextBlock())
+			err = evmconfig.NewEVMConfigurator().
+				Configure()
+			suite.Require().NoError(err)
 		})
 	}
 }
@@ -1666,7 +1649,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			}
 
 			// Reset params
-			defaultEvmParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultEvmParams := types.DefaultParams()
 			err = suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 		})

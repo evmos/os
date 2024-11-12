@@ -11,6 +11,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -32,10 +33,8 @@ func NewEthSigVerificationDecorator(ek anteinterfaces.EVMKeeper) EthSigVerificat
 // Failure in RecheckTx will prevent tx to be included into block, especially when CheckTx succeed, in which case user
 // won't see the error message.
 func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	chainID := esvd.evmKeeper.ChainID()
 	evmParams := esvd.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(chainID)
+	ethCfg := config.GetChainConfig()
 	blockNum := big.NewInt(ctx.BlockHeight())
 	signer := ethtypes.MakeSigner(ethCfg, blockNum)
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()

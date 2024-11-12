@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/evmos/os/testutil/constants"
+	evmconfig "github.com/evmos/os/x/evm/config"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -109,7 +110,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(constants.ExampleAttoDenom), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(evmconfig.GetDenom()), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -207,7 +208,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
 		sdk.NewCoin(
-			constants.ExampleAttoDenom,
+			evmconfig.GetDenom(),
 			feeAmount,
 		)))
 
@@ -219,7 +220,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				constants.ExampleAttoDenom,
+				evmconfig.GetDenom(),
 				math.NewInt(10000000),
 			),
 		),

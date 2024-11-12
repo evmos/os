@@ -20,6 +20,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	evmostypes "github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 	"github.com/evmos/os/x/evm/types"
@@ -284,14 +285,8 @@ func (k *Keeper) GetNonce(ctx sdk.Context, addr common.Address) uint64 {
 // GetBalance load account's balance of gas token
 func (k *Keeper) GetBalance(ctx sdk.Context, addr common.Address) *big.Int {
 	cosmosAddr := sdk.AccAddress(addr.Bytes())
-	evmParams := k.GetParams(ctx)
-	evmDenom := evmParams.GetEvmDenom()
-	// if node is pruned, params is empty. Return invalid value
-	// TODO: if the params are empty, why not return an error here instead of an "invalid value"?
-	if evmDenom == "" {
-		return big.NewInt(-1)
-	}
-	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, evmDenom)
+	baseDenom := config.GetDenom()
+	coin := k.bankKeeper.GetBalance(ctx, cosmosAddr, baseDenom)
 	return coin.Amount.BigInt()
 }
 

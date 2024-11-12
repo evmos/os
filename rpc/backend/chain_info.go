@@ -18,6 +18,7 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/types"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 	"github.com/pkg/errors"
@@ -45,12 +46,7 @@ func (b *Backend) ChainID() (*hexutil.Big, error) {
 
 // ChainConfig returns the latest ethereum chain configuration
 func (b *Backend) ChainConfig() *params.ChainConfig {
-	params, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		return nil
-	}
-
-	return params.Params.ChainConfig.EthereumConfig(b.chainID)
+	return config.GetChainConfig()
 }
 
 // GlobalMinGasPrice returns MinGasPrice param from FeeMarket

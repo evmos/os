@@ -19,13 +19,13 @@ import (
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	exampleapp "github.com/evmos/os/example_chain"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/testutil/integration/os/utils"
 	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/keeper"
 	"github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
@@ -255,12 +255,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			params := suite.network.App.EVMKeeper.GetParams(
-				suite.network.GetContext(),
-			)
-			ethCfg := params.ChainConfig.EthereumConfig(
-				suite.network.App.EVMKeeper.ChainID(),
-			)
+			ethCfg := config.GetChainConfig()
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
 			signer := gethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
@@ -365,8 +360,10 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 	// for refund to work
 	// NOTE: everything should happen within the same block for
 	// feecollector account to remain funded
+	baseDenom := config.GetDenom()
+
 	coins := sdk.NewCoins(sdk.NewCoin(
-		testconstants.ExampleAttoDenom,
+		baseDenom,
 		sdkmath.NewInt(6e18),
 	))
 	balances := []banktypes.Balance{
@@ -541,24 +538,21 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	defaultChainEVMParams := exampleapp.NewEVMGenesisState().Params
 
 	proposerAddress := suite.network.GetContext().BlockHeader().ProposerAddress
-	eip155ChainID := suite.network.GetEIP155ChainID()
 	cfg, err := suite.network.App.EVMKeeper.EVMConfig(
 		suite.network.GetContext(),
 		proposerAddress,
-		eip155ChainID,
 	)
 	suite.Require().NoError(err)
 	suite.Require().Equal(defaultChainEVMParams, cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(defaultChainEVMParams.ChainConfig.EthereumConfig(big.NewInt(testconstants.ExampleEIP155ChainID)), cfg.ChainConfig)
+	suite.Require().Equal(config.GetChainConfig(), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
 
-	networkChainID := suite.network.GetEIP155ChainID()
-	networkConfig := defaultChainEVMParams.ChainConfig.EthereumConfig(networkChainID)
+	networkConfig := config.GetChainConfig()
 	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 
@@ -571,7 +565,6 @@ func (suite *KeeperTestSuite) TestApplyMessage() {
 	config, err := suite.network.App.EVMKeeper.EVMConfig(
 		suite.network.GetContext(),
 		proposerAddress,
-		suite.network.GetEIP155ChainID(),
 	)
 	suite.Require().NoError(err)
 
@@ -632,9 +625,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 				return msg
 			},
-			func() types.Params {
-				return types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
-			},
+			types.DefaultParams,
 			feemarkettypes.DefaultParams,
 			false,
 			false,
@@ -654,7 +645,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return msg
 			},
 			func() types.Params {
-				defaultParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				defaultParams := types.DefaultParams()
 				defaultParams.AccessControl = types.AccessControl{
 					Call: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
@@ -679,7 +670,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				return msg
 			},
 			func() types.Params {
-				defaultParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				defaultParams := types.DefaultParams()
 				defaultParams.AccessControl = types.AccessControl{
 					Create: types.AccessControlType{
 						AccessType: types.AccessTypeRestricted,
@@ -704,9 +695,7 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 				suite.Require().NoError(err)
 				return msg
 			},
-			func() types.Params {
-				return types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
-			},
+			types.DefaultParams,
 			func() feemarkettypes.Params {
 				paramsRes, err := suite.handler.GetFeeMarketParams()
 				suite.Require().NoError(err)
@@ -744,7 +733,6 @@ func (suite *KeeperTestSuite) TestApplyMessageWithConfig() {
 			config, err := suite.network.App.EVMKeeper.EVMConfig(
 				suite.network.GetContext(),
 				proposerAddress,
-				suite.network.GetEIP155ChainID(),
 			)
 			suite.Require().NoError(err)
 

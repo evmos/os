@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	signingtypes "github.com/cosmos/cosmos-sdk/types/tx/signing"
-	"github.com/evmos/os/testutil/constants"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/crypto"
@@ -17,6 +16,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/rpc/backend/mocks"
 	utiltx "github.com/evmos/os/testutil/tx"
+	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"
 )
@@ -85,7 +85,6 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 				_, err = RegisterBlockResults(client, 1)
 				suite.Require().NoError(err)
 				RegisterBaseFee(queryClient, baseFee)
-				RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			evmtypes.TransactionArgs{
 				From:     &from,
@@ -126,8 +125,7 @@ func (suite *BackendTestSuite) TestSendTransaction() {
 
 			if tc.expPass {
 				// Sign the transaction and get the hash
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeader(queryClient, 1)
+
 				ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 				msg := callArgsDefault.ToTransaction()
 				err := msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
@@ -254,12 +252,12 @@ func broadcastTx(suite *BackendTestSuite, priv *ethsecp256k1.PrivKey, baseFee ma
 	_, err = RegisterBlockResults(client, 1)
 	suite.Require().NoError(err)
 	RegisterBaseFee(queryClient, baseFee)
-	RegisterParamsWithoutHeader(queryClient, 1)
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	msg := callArgsDefault.ToTransaction()
 	err = msg.Sign(ethSigner, suite.backend.clientCtx.Keyring)
 	suite.Require().NoError(err)
-	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
+	baseDenom := config.GetDenom()
+	tx, _ := msg.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()
 	txBytes, _ = txEncoder(tx)
 	return client, txBytes

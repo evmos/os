@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
+	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
 
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
@@ -233,7 +234,7 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if !isCallerOrigin {
+	if !isCallerOrigin && msg.Amount.Denom == config.GetDenom() {
 		// get the delegator address from the message
 		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 		delHexAddr := common.BytesToAddress(delAccAddr)

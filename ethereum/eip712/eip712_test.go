@@ -7,6 +7,7 @@ import (
 
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"github.com/evmos/os/testutil/constants"
+	evmconfig "github.com/evmos/os/x/evm/config"
 
 	"cosmossdk.io/math"
 
@@ -69,7 +70,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	nw := network.New()
 	suite.config = nw.GetEncodingConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = constants.ExampleAttoDenom
+	suite.denom = evmconfig.GetDenom()
 
 	sdk.GetConfig().SetBech32PrefixForAccount(chainconfig.Bech32Prefix, "")
 }

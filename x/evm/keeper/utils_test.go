@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/server/config"
 	utiltx "github.com/evmos/os/testutil/tx"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/keeper/testdata"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -18,9 +19,7 @@ import (
 )
 
 func (suite *KeeperTestSuite) EvmDenom() string {
-	ctx := suite.network.GetContext()
-	rsp, _ := suite.network.GetEvmClient().Params(ctx, &evmtypes.QueryParamsRequest{})
-	return rsp.Params.EvmDenom
+	return evmconfig.GetDenom()
 }
 
 func (suite *KeeperTestSuite) StateDB() *statedb.StateDB {
