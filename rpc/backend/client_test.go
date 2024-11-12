@@ -285,7 +285,6 @@ func RegisterHeaderByHashNotFound(client *mocks.Client, _ common.Hash, _ []byte)
 		Return(nil, nil)
 }
 
-
 func RegisterABCIQueryWithOptions(client *mocks.Client, height int64, path string, data bytes.HexBytes, opts cmtrpcclient.ABCIQueryOptions) {
 	client.On("ABCIQueryWithOptions", context.Background(), path, data, opts).
 		Return(&cmtrpctypes.ResultABCIQuery{

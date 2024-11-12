@@ -1307,7 +1307,7 @@ func (suite *BackendTestSuite) TestHeaderByNumber() {
 }
 
 func (suite *BackendTestSuite) TestHeaderByHash() {
-  var expResultHeader *cmtrpctypes.ResultHeader
+	var expResultHeader *cmtrpctypes.ResultHeader
 
 	_, bz := suite.buildEthereumTx()
 	block := cmttypes.MakeBlock(1, []cmttypes.Tx{bz}, nil, nil)

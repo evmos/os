@@ -412,7 +412,7 @@ func (e *PublicAPI) Sign(address common.Address, data hexutil.Bytes) (hexutil.By
 func (e *PublicAPI) GetTransactionLogs(txHash common.Hash) ([]*ethtypes.Log, error) {
 	e.logger.Debug("eth_getTransactionLogs", "hash", txHash)
 
-  return e.backend.GetTransactionLogs(txHash)
+	return e.backend.GetTransactionLogs(txHash)
 }
 
 // SignTypedData signs EIP-712 conformant typed data

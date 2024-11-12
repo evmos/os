@@ -170,7 +170,7 @@ func (b *Backend) GetTransactionReceipt(hash common.Hash) (map[string]interface{
 	}
 
 	cumulativeGasUsed := uint64(0)
-  blockRes, err := b.rpcClient.BlockResults(b.ctx, &res.Height)
+	blockRes, err := b.rpcClient.BlockResults(b.ctx, &res.Height)
 	if err != nil {
 		b.logger.Debug("failed to retrieve block results", "height", res.Height, "error", err.Error())
 		return nil, nil

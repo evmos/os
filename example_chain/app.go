@@ -568,6 +568,7 @@ func NewExampleApp(
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
 			app.EVMKeeper,
+			app.GovKeeper,
 		),
 	)
 

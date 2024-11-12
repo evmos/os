@@ -5,9 +5,10 @@ package backend
 import (
 	"context"
 	"fmt"
-	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 	"math/big"
 	"time"
+
+	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/math"
