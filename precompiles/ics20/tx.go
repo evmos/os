@@ -69,7 +69,7 @@ func (p *Precompile) Transfer(
 		return nil, err
 	}
 
-	evmDenom := config.GetDenom()
+	evmDenom := config.GetEVMCoinDenom()
 	if contract.CallerAddress != origin && msg.Token.Denom == evmDenom {
 		// escrow address is also changed on this tx, and it is not a module account
 		// so we need to account for this on the UpdateDirties

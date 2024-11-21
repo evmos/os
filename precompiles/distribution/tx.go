@@ -91,7 +91,7 @@ func (p *Precompile) ClaimRewards(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(config.GetEVMCoinDenom()).BigInt(), cmn.Add))
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -171,7 +171,7 @@ func (p *Precompile) WithdrawDelegatorRewards(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(config.GetEVMCoinDenom()).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
@@ -218,7 +218,8 @@ func (p *Precompile) WithdrawValidatorCommission(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(config.GetDenom()).BigInt(), cmn.Add))
+		// TODO: check in all methods here if evm denom is the correct denom to use!
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount.AmountOf(config.GetEVMCoinDenom()).BigInt(), cmn.Add))
 	}
 
 	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
@@ -237,8 +238,13 @@ func (p *Precompile) FundCommunityPool(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	evmDenom := config.GetDenom()
-	msg, depositorHexAddr, err := NewMsgFundCommunityPool(evmDenom, args)
+	// TODO: check if this is correct? Community pool should be funded with sdk base denom instead of evm denom right?
+	baseDenom, err := sdk.GetBaseDenom()
+	if err != nil {
+		return nil, err
+	}
+
+	msg, depositorHexAddr, err := NewMsgFundCommunityPool(baseDenom, args)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +266,8 @@ func (p *Precompile) FundCommunityPool(
 	// when calling the precompile from a smart contract
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Sub))
+		// TODO: check if correct - should the balance change in the state DB be for the evm denom?? do we need scaling here?
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, msg.Amount.AmountOf(baseDenom).BigInt(), cmn.Sub))
 	}
 
 	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {

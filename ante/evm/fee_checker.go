@@ -15,7 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
 	evmostypes "github.com/evmos/os/types"
-	"github.com/evmos/os/x/evm/config"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -39,8 +39,8 @@ func NewDynamicFeeChecker(k anteinterfaces.DynamicFeeEVMKeeper) authante.TxFeeCh
 			// genesis transactions: fallback to min-gas-price logic
 			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 		}
-		denom := config.GetDenom()
-		ethCfg := config.GetChainConfig()
+		denom := evmconfig.GetEVMCoinDenom()
+		ethCfg := evmconfig.GetChainConfig()
 
 		return FeeChecker(ctx, k, denom, ethCfg, feeTx)
 	}

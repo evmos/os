@@ -16,6 +16,7 @@ import (
 	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/types"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
@@ -54,7 +55,8 @@ func TestSDKTxFeeChecker(t *testing.T) {
 	//      london hardfork enableness
 	nw := network.New()
 	encodingConfig := nw.GetEncodingConfig()
-	minGasPrices := sdk.NewDecCoins(sdk.NewDecCoin(testconstants.ExampleAttoDenom, math.NewInt(10)))
+	evmDenom := evmconfig.GetEVMCoinDenom()
+	minGasPrices := sdk.NewDecCoins(sdk.NewDecCoin(evmDenom, math.NewInt(10)))
 
 	genesisCtx := sdk.NewContext(nil, tmproto.Header{}, false, log.NewNopLogger())
 	checkTxCtx := sdk.NewContext(nil, tmproto.Header{Height: 1}, true, log.NewNopLogger()).WithMinGasPrices(minGasPrices)

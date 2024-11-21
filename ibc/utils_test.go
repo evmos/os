@@ -9,7 +9,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
 	precompilestestutil "github.com/evmos/os/precompiles/testutil"
-	"github.com/evmos/os/x/evm/config"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -236,7 +236,7 @@ func TestGetReceivedCoin(t *testing.T) {
 }
 
 func TestGetSentCoin(t *testing.T) {
-	baseDenom := config.GetDenom()
+	baseDenom := evmconfig.GetEVMCoinDenom()
 
 	testCases := []struct {
 		name      string

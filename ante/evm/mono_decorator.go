@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmkeeper "github.com/evmos/os/x/evm/keeper"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -57,6 +58,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			return ctx, err
 		}
 	}
+
+	evmDenom := evmconfig.GetEVMCoinDenom()
 
 	// 1. setup ctx
 	ctx, err = SetupContext(ctx, tx, md.evmKeeper)
@@ -159,7 +162,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// 8. gas consumption
 		msgFees, err := evmkeeper.VerifyFee(
 			txData,
-			decUtils.EvmDenom,
+			evmDenom,
 			decUtils.BaseFee,
 			decUtils.Rules.IsHomestead,
 			decUtils.Rules.IsIstanbul,
@@ -197,7 +200,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		txFee := UpdateCumulativeTxFee(
 			decUtils.TxFee,
 			txData.Fee(),
-			decUtils.EvmDenom,
+			evmDenom,
 		)
 		decUtils.TxFee = txFee
 		decUtils.TxGasLimit += gas

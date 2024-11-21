@@ -13,7 +13,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	"github.com/evmos/os/x/evm/config"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -25,7 +25,6 @@ type DecoratorUtils struct {
 	Rules              params.Rules
 	Signer             ethtypes.Signer
 	BaseFee            *big.Int
-	EvmDenom           string
 	MempoolMinGasPrice sdkmath.LegacyDec
 	GlobalMinGasPrice  sdkmath.LegacyDec
 	BlockTxIndex       uint64
@@ -46,8 +45,8 @@ func NewMonoDecoratorUtils(
 	fmk anteinterfaces.FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
-	ethCfg := config.GetChainConfig()
-	evmDenom := config.GetDenom()
+	ethCfg := evmconfig.GetChainConfig()
+	evmDenom := evmconfig.GetEVMCoinDenom()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx, ethCfg)
@@ -68,7 +67,6 @@ func NewMonoDecoratorUtils(
 		BaseFee:            baseFee,
 		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(evmDenom),
 		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
-		EvmDenom:           evmDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
 		GasWanted:          0,

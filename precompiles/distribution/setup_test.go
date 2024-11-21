@@ -87,7 +87,8 @@ func (s *PrecompileTestSuite) SetupTest() {
 	}
 
 	s.bondDenom = bondDenom
-	s.baseDenom = evmconfig.GetDenom()
+	// TODO: check if this is correct?
+	s.baseDenom = evmconfig.GetEVMCoinDenom()
 
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler

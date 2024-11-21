@@ -70,7 +70,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	nw := network.New()
 	suite.config = nw.GetEncodingConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = evmconfig.GetDenom()
+	suite.denom = evmconfig.GetEVMCoinDenom()
 
 	sdk.GetConfig().SetBech32PrefixForAccount(chainconfig.Bech32Prefix, "")
 }

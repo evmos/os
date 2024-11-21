@@ -110,7 +110,7 @@ func (p *Precompile) transfer(
 		return nil, err
 	}
 
-	evmDenom := config.GetDenom()
+	evmDenom := config.GetEVMCoinDenom()
 	if p.tokenPair.Denom == evmDenom {
 		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Sub),
 			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Add))
