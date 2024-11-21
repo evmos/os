@@ -15,6 +15,7 @@ import (
 	exampleapp "github.com/evmos/os/example_chain"
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	precompiletestutil "github.com/evmos/os/precompiles/testutil"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -69,7 +70,7 @@ func Call(ctx sdk.Context, app *exampleapp.ExampleChain, args CallArgs) (res abc
 
 	// Create MsgEthereumTx that calls the contract
 	msg := evmtypes.NewTx(&evmtypes.EvmTxArgs{
-		ChainID:   app.EVMKeeper.ChainID(),
+		ChainID:   evmconfig.GetChainConfig().ChainID,
 		Nonce:     nonce,
 		To:        &args.ContractAddr,
 		Amount:    args.Amount,

@@ -8,6 +8,7 @@ import (
 
 	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/precompiles/gov"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -87,7 +88,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			contractAddr := contract.Address()
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.network.App.EVMKeeper.ChainID(),
+				ChainID:   evmconfig.GetChainConfig().ChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,

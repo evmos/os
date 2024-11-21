@@ -13,7 +13,7 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/config"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
@@ -164,7 +164,7 @@ func BenchmarkApplyTransaction(b *testing.B) { //nolint:dupl
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethSigner := ethtypes.LatestSignerForChainID(evmconfig.GetChainConfig().ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -193,7 +193,7 @@ func BenchmarkApplyTransactionWithLegacyTx(b *testing.B) { //nolint:dupl
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethSigner := ethtypes.LatestSignerForChainID(evmconfig.GetChainConfig().ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -222,7 +222,7 @@ func BenchmarkApplyTransactionWithDynamicFeeTx(b *testing.B) {
 	suite := KeeperTestSuite{enableFeemarket: true, enableLondonHF: true}
 	suite.SetupTest()
 
-	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethSigner := ethtypes.LatestSignerForChainID(evmconfig.GetChainConfig().ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -252,8 +252,8 @@ func BenchmarkApplyMessage(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := config.GetChainConfig()
-	signer := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethCfg := evmconfig.GetChainConfig()
+	signer := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -288,8 +288,8 @@ func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := config.GetChainConfig()
-	signer := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethCfg := evmconfig.GetChainConfig()
+	signer := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -323,8 +323,8 @@ func BenchmarkApplyMessageWithDynamicFeeTx(b *testing.B) {
 	suite := KeeperTestSuite{enableFeemarket: true, enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := config.GetChainConfig()
-	signer := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethCfg := evmconfig.GetChainConfig()
+	signer := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()

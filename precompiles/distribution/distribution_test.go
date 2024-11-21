@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/precompiles/distribution"
+	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -225,7 +226,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			contractAddr := contract.Address()
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.network.App.EVMKeeper.ChainID(),
+				ChainID:   evmconfig.GetChainConfig().ChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
