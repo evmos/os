@@ -55,8 +55,7 @@ func setBaseDenomWithChainID() error {
 	if err := sdk.RegisterDenom(chainconfig.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
-	if err := sdk.RegisterDenom(chainconfig.BaseDenom, math.LegacyNewDecWithPrec(1, chainconfig.BaseDenomUnit)); err != nil {
-		return err
-	}
-	return sdk.SetBaseDenom(chainconfig.BaseDenom)
+
+	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
+	return sdk.RegisterDenom(chainconfig.BaseDenom, math.LegacyNewDecWithPrec(1, chainconfig.BaseDenomUnit))
 }
