@@ -12,6 +12,9 @@ const (
 	// ExampleAttoDenom provides an example denom for use in tests
 	ExampleAttoDenom = "aevmos"
 
+	// ExampleMicroDenom provides an example denom for use in tests
+	ExampleMicroDenom = "uevmos"
+
 	// ExampleDisplayDenom provides an example display denom for use in tests
 	ExampleDisplayDenom = "evmos"
 
