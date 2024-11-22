@@ -10,17 +10,38 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/os/example_chain/eips"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/evm/core/vm"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
+
+// ChainsCoinInfo is a map of the chain id and its corresponding EvmCoinInfo
+// that allows initializing the app with different coin info based on the
+// chain id
+var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
+	EighteenDecimalsChainID: {
+		Denom:        ExampleChainDenom,
+		DisplayDenom: ExampleChainDenom,
+		Decimals:     evmtypes.EighteenDecimals,
+	},
+	SixDecimalsChainID: {
+		Denom:        testconstants.ExampleMicroDenom,
+		DisplayDenom: testconstants.ExampleDisplayDenom,
+		Decimals:     evmtypes.SixDecimals,
+	},
+}
 
 // InitializeAppConfiguration allows to setup the global configuration
 // for tests within the Evmos EVM. We're not using the sealed flag
 // and resetting the configuration to the provided one on every test setup
 func InitializeAppConfiguration(chainID string) error {
+	coinInfo, found := evmtypes.ChainsCoinInfo[chainID]
+	if !found {
+		// default to mainnet
+		coinInfo = evmtypes.ChainsCoinInfo[EighteenDecimalsChainID]
+	}
+
 	// set the base denom considering if its mainnet or testnet
-	if err := setBaseDenomWithChainID(chainID); err != nil {
+	if err := setBaseDenom(coinInfo); err != nil {
 		return err
 	}
 
@@ -37,7 +58,7 @@ func InitializeAppConfiguration(chainID string) error {
 	err = configurator.
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
-		WithEVMCoinInfo(baseDenom, uint8(evmtypes.EighteenDecimals)).
+		WithEVMCoinInfo(baseDenom, uint8(coinInfo.Decimals)).
 		Configure()
 	if err != nil {
 		return err
@@ -54,25 +75,18 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 	"evmos_2": eips.Enable0002,
 }
 
-// setBaseDenomWithChainID registers the display denom and base denom and sets the
-// base denom for the chain. The function registers different values based on
-// the chainID to allow different configurations in mainnet and testnet.
-func setBaseDenomWithChainID(chainID string) error {
-	return setMainnetBaseDenom()
-}
-
-func setMainnetBaseDenom() (err error) {
+// setBaseDenom registers the display denom and base denom and sets the
+// base denom for the chain. The function registered different values based on
+// the EvmCoinInfo to allow different configurations in mainnet and testnet.
+func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 	// Defer setting the base denom, and capture any potential error from it.
 	// So when failing because the denom was already registered, we ignore it and set
 	// the corresponding denom to be base denom
 	defer func() {
-		err = sdk.SetBaseDenom(testconstants.ExampleAttoDenom)
+		err = sdk.SetBaseDenom(ci.Denom)
 	}()
-	if err := sdk.RegisterDenom(testconstants.ExampleDisplayDenom, math.LegacyOneDec()); err != nil {
+	if err := sdk.RegisterDenom(ci.DisplayDenom, math.LegacyOneDec()); err != nil {
 		return err
 	}
-	if err := sdk.RegisterDenom(testconstants.ExampleAttoDenom, math.LegacyNewDecWithPrec(1, 18)); err != nil {
-		return err
-	}
-	return err
+	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }

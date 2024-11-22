@@ -14,7 +14,6 @@ import (
 	"fmt"
 
 	"cosmossdk.io/math"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -60,8 +59,9 @@ func (d Decimals) ConversionFactor() math.Int {
 // EvmCoinInfo struct holds the name and decimals of the EVM denom. The EVM denom
 // is the token used to pay fees in the EVM.
 type EvmCoinInfo struct {
-	Denom    string
-	Decimals Decimals
+	Denom        string
+	DisplayDenom string
+	Decimals     Decimals
 }
 
 // evmCoinInfo hold the information of the coin used in the EVM as gas token. It
