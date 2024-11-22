@@ -13,7 +13,7 @@ import (
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	ethSigner := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{

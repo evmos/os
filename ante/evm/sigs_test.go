@@ -15,7 +15,7 @@ func (suite *AnteTestSuite) TestSignatures() {
 	to := utiltx.GenerateAddress()
 
 	txArgs := evmtypes.EvmTxArgs{
-		ChainID:  evmtypes.GetChainConfig().ChainID,
+		ChainID:  evmtypes.GetEthChainConfig().ChainID,
 		Nonce:    0,
 		To:       &to,
 		Amount:   big.NewInt(10),

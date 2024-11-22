@@ -19,7 +19,7 @@ const testChainID string = "evmos_9002-1"
 
 // chainConfig is the chain configuration used in the EVM to defined which
 // opcodes are active based on Ethereum upgrades.
-var chainConfig *gethparams.ChainConfig
+var chainConfig *ChainConfig
 
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
@@ -121,7 +121,7 @@ func setChainConfig(cc *ChainConfig) error {
 	if err := config.Validate(); err != nil {
 		return err
 	}
-	chainConfig = config.EthereumConfig(nil)
+	chainConfig = config
 
 	return nil
 }

@@ -45,7 +45,7 @@ func NewMonoDecoratorUtils(
 	ek anteinterfaces.EVMKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	evmDenom := evmtypes.GetEVMCoinDenom()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)

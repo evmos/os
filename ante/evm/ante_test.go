@@ -42,7 +42,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		ctx = suite.GetNetwork().GetContext()
 	}
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   ethCfg.ChainID,
 		Nonce:     0,
@@ -919,7 +919,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
-	evmChainID := evmtypes.GetChainConfig().ChainID
+	evmChainID := evmtypes.GetEthChainConfig().ChainID
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   evmChainID,
@@ -1084,7 +1084,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   ethCfg.ChainID,

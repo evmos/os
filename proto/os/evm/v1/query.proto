@@ -83,6 +83,11 @@ service Query {
     option (google.api.http).get = "/evmos/evm/v1/base_fee";
   }
 
+  // Config queries the EVM configuration
+  rpc Config(QueryConfigRequest) returns (QueryConfigResponse) {
+    option (google.api.http).get = "/evmos/evm/v1/config";
+  }
+
   // GlobalMinGasPrice queries the MinGasPrice
   // it's similar to feemarket module's method,
   // but makes the conversion to 18 decimals
@@ -91,6 +96,15 @@ service Query {
       returns (QueryGlobalMinGasPriceResponse) {
     option (google.api.http).get = "/evmos/evm/v1/min_gas_price";
   }
+}
+
+// QueryConfigRequest defines the request type for querying the config
+message QueryConfigRequest {}
+
+// QueryConfigResponse returns the EVM config.
+message QueryConfigResponse {
+  // config is the evm configuration
+  ChainConfig config = 1;
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.

@@ -58,7 +58,7 @@ func DoBenchmark(b *testing.B, txBuilder TxBuilder) {
 	krSigner := utiltx.NewSigner(suite.keyring.GetPrivKey(0))
 	msg := txBuilder(suite, contractAddr)
 	msg.From = suite.keyring.GetAddr(0).Hex()
-	err := msg.Sign(ethtypes.LatestSignerForChainID(types.GetChainConfig().ChainID), krSigner)
+	err := msg.Sign(ethtypes.LatestSignerForChainID(types.GetEthChainConfig().ChainID), krSigner)
 	require.NoError(b, err)
 
 	b.ResetTimer()
@@ -89,7 +89,7 @@ func BenchmarkTokenTransfer(b *testing.B) {
 		require.NoError(b, err)
 		nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  types.GetChainConfig().ChainID,
+			ChainID:  types.GetEthChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -110,7 +110,7 @@ func BenchmarkEmitLogs(b *testing.B) {
 		require.NoError(b, err)
 		nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  types.GetChainConfig().ChainID,
+			ChainID:  types.GetEthChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -131,7 +131,7 @@ func BenchmarkTokenTransferFrom(b *testing.B) {
 		require.NoError(b, err)
 		nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  types.GetChainConfig().ChainID,
+			ChainID:  types.GetEthChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -152,7 +152,7 @@ func BenchmarkTokenMint(b *testing.B) {
 		require.NoError(b, err)
 		nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
 		ethTxParams := &types.EvmTxArgs{
-			ChainID:  types.GetChainConfig().ChainID,
+			ChainID:  types.GetEthChainConfig().ChainID,
 			Nonce:    nonce,
 			To:       &contract,
 			Amount:   big.NewInt(0),
@@ -173,7 +173,7 @@ func BenchmarkMessageCall(b *testing.B) {
 	input, err := messageCallContract.ABI.Pack("benchmarkMessageCall", big.NewInt(10000))
 	require.NoError(b, err)
 	nonce := suite.network.App.EVMKeeper.GetNonce(suite.network.GetContext(), suite.keyring.GetAddr(0))
-	ethCfg := types.GetChainConfig()
+	ethCfg := types.GetEthChainConfig()
 	ethTxParams := &types.EvmTxArgs{
 		ChainID:  ethCfg.ChainID,
 		Nonce:    nonce,

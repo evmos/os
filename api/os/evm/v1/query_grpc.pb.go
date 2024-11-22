@@ -34,6 +34,7 @@ const (
 	Query_TraceTx_FullMethodName           = "/os.evm.v1.Query/TraceTx"
 	Query_TraceBlock_FullMethodName        = "/os.evm.v1.Query/TraceBlock"
 	Query_BaseFee_FullMethodName           = "/os.evm.v1.Query/BaseFee"
+	Query_Config_FullMethodName            = "/os.evm.v1.Query/Config"
 	Query_GlobalMinGasPrice_FullMethodName = "/os.evm.v1.Query/GlobalMinGasPrice"
 )
 
@@ -70,6 +71,8 @@ type QueryClient interface {
 	// it's similar to feemarket module's method, but also checks london hardfork
 	// status.
 	BaseFee(ctx context.Context, in *QueryBaseFeeRequest, opts ...grpc.CallOption) (*QueryBaseFeeResponse, error)
+	// Config queries the EVM configuration
+	Config(ctx context.Context, in *QueryConfigRequest, opts ...grpc.CallOption) (*QueryConfigResponse, error)
 	// GlobalMinGasPrice queries the MinGasPrice
 	// it's similar to feemarket module's method,
 	// but makes the conversion to 18 decimals
@@ -193,6 +196,15 @@ func (c *queryClient) BaseFee(ctx context.Context, in *QueryBaseFeeRequest, opts
 	return out, nil
 }
 
+func (c *queryClient) Config(ctx context.Context, in *QueryConfigRequest, opts ...grpc.CallOption) (*QueryConfigResponse, error) {
+	out := new(QueryConfigResponse)
+	err := c.cc.Invoke(ctx, Query_Config_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *queryClient) GlobalMinGasPrice(ctx context.Context, in *QueryGlobalMinGasPriceRequest, opts ...grpc.CallOption) (*QueryGlobalMinGasPriceResponse, error) {
 	out := new(QueryGlobalMinGasPriceResponse)
 	err := c.cc.Invoke(ctx, Query_GlobalMinGasPrice_FullMethodName, in, out, opts...)
@@ -235,6 +247,8 @@ type QueryServer interface {
 	// it's similar to feemarket module's method, but also checks london hardfork
 	// status.
 	BaseFee(context.Context, *QueryBaseFeeRequest) (*QueryBaseFeeResponse, error)
+	// Config queries the EVM configuration
+	Config(context.Context, *QueryConfigRequest) (*QueryConfigResponse, error)
 	// GlobalMinGasPrice queries the MinGasPrice
 	// it's similar to feemarket module's method,
 	// but makes the conversion to 18 decimals
@@ -282,6 +296,9 @@ func (UnimplementedQueryServer) TraceBlock(context.Context, *QueryTraceBlockRequ
 }
 func (UnimplementedQueryServer) BaseFee(context.Context, *QueryBaseFeeRequest) (*QueryBaseFeeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BaseFee not implemented")
+}
+func (UnimplementedQueryServer) Config(context.Context, *QueryConfigRequest) (*QueryConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Config not implemented")
 }
 func (UnimplementedQueryServer) GlobalMinGasPrice(context.Context, *QueryGlobalMinGasPriceRequest) (*QueryGlobalMinGasPriceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GlobalMinGasPrice not implemented")
@@ -515,6 +532,24 @@ func _Query_BaseFee_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Query_Config_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(QueryConfigRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(QueryServer).Config(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Query_Config_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(QueryServer).Config(ctx, req.(*QueryConfigRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Query_GlobalMinGasPrice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(QueryGlobalMinGasPriceRequest)
 	if err := dec(in); err != nil {
@@ -587,6 +622,10 @@ var Query_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "BaseFee",
 			Handler:    _Query_BaseFee_Handler,
+		},
+		{
+			MethodName: "Config",
+			Handler:    _Query_Config_Handler,
 		},
 		{
 			MethodName: "GlobalMinGasPrice",

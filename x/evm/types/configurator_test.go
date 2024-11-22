@@ -9,13 +9,12 @@ import (
 	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/types"
-	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEVMConfigurator(t *testing.T) {
 	evmConfigurator := types.NewEVMConfigurator().
-		WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals))
+		WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals))
 	err := evmConfigurator.Configure()
 	require.NoError(t, err)
 
@@ -89,7 +88,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1_000"}
 				ec := types.NewEVMConfigurator().
-					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
 					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
@@ -106,7 +105,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 				extendedDefaultExtraEIPs := []string{"os_1000"}
 				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, "os_1000")
 				ec := types.NewEVMConfigurator().
-					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
 					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
@@ -122,7 +121,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			func() *types.EVMConfigurator {
 				var extendedDefaultExtraEIPs []string
 				ec := types.NewEVMConfigurator().
-					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
 					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
@@ -137,7 +136,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1001"}
 				ec := types.NewEVMConfigurator().
-					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
 					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},

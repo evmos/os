@@ -61,7 +61,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 	}
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	evmDenom := evmtypes.GetEVMCoinDenom()
 
 	// 1. setup ctx

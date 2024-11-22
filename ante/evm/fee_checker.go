@@ -39,7 +39,7 @@ func NewDynamicFeeChecker(k anteinterfaces.FeeMarketKeeper) authante.TxFeeChecke
 			return checkTxFeeWithValidatorMinGasPrices(ctx, feeTx)
 		}
 		denom := evmtypes.GetEVMCoinDenom()
-		ethCfg := evmtypes.GetChainConfig()
+		ethCfg := evmtypes.GetEthChainConfig()
 
 		return FeeChecker(ctx, k, denom, ethCfg, feeTx)
 	}

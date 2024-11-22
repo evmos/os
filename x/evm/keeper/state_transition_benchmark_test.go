@@ -163,7 +163,7 @@ func BenchmarkApplyTransaction(b *testing.B) { //nolint:dupl
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethSigner := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
+	ethSigner := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -192,7 +192,7 @@ func BenchmarkApplyTransactionWithLegacyTx(b *testing.B) { //nolint:dupl
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethSigner := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
+	ethSigner := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -221,7 +221,7 @@ func BenchmarkApplyTransactionWithDynamicFeeTx(b *testing.B) {
 	suite := KeeperTestSuite{enableFeemarket: true, enableLondonHF: true}
 	suite.SetupTest()
 
-	ethSigner := ethtypes.LatestSignerForChainID(evmtypes.GetChainConfig().ChainID)
+	ethSigner := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 
 	b.ResetTimer()
 	b.ReportAllocs()
@@ -251,7 +251,7 @@ func BenchmarkApplyMessage(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	signer := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	b.ResetTimer()
@@ -287,7 +287,7 @@ func BenchmarkApplyMessageWithLegacyTx(b *testing.B) {
 	suite := KeeperTestSuite{enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	signer := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	b.ResetTimer()
@@ -322,7 +322,7 @@ func BenchmarkApplyMessageWithDynamicFeeTx(b *testing.B) {
 	suite := KeeperTestSuite{enableFeemarket: true, enableLondonHF: true}
 	suite.SetupTest()
 
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	signer := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	b.ResetTimer()

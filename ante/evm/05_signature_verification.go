@@ -33,7 +33,7 @@ func NewEthSigVerificationDecorator(ek anteinterfaces.EVMKeeper) EthSigVerificat
 // won't see the error message.
 func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	evmParams := esvd.evmKeeper.GetParams(ctx)
-	ethCfg := evmtypes.GetChainConfig()
+	ethCfg := evmtypes.GetEthChainConfig()
 	blockNum := big.NewInt(ctx.BlockHeight())
 	signer := ethtypes.MakeSigner(ethCfg, blockNum)
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
