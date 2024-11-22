@@ -7,7 +7,6 @@ import (
 
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	"github.com/evmos/os/testutil/constants"
-	evmconfig "github.com/evmos/os/x/evm/config"
 
 	"cosmossdk.io/math"
 
@@ -28,6 +27,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/testutil/integration/os/network"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
@@ -70,7 +70,7 @@ func (suite *EIP712TestSuite) SetupTest() {
 	nw := network.New()
 	suite.config = nw.GetEncodingConfig()
 	suite.clientCtx = client.Context{}.WithTxConfig(suite.config.TxConfig)
-	suite.denom = evmconfig.GetEVMCoinDenom()
+	suite.denom = evmtypes.GetEVMCoinDenom()
 
 	sdk.GetConfig().SetBech32PrefixForAccount(chainconfig.Bech32Prefix, "")
 }

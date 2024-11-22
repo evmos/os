@@ -15,7 +15,6 @@ import (
 	"github.com/evmos/os/precompiles/staking"
 	testconstants "github.com/evmos/os/testutil/constants"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -445,7 +444,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   evmconfig.GetChainConfig().ChainID,
+				ChainID:   evmtypes.GetChainConfig().ChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,

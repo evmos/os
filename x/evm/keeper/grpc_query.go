@@ -11,7 +11,6 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/logger"
 	"github.com/evmos/os/x/evm/core/tracers"
 
@@ -332,7 +331,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 
 	// Recap the highest gas limit with account's available balance.
 	if msg.GasFeeCap().BitLen() != 0 {
-		baseDenom := config.GetEVMCoinDenom()
+		baseDenom := types.GetEVMCoinDenom()
 
 		balance := k.bankWrapper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), baseDenom)
 		available := balance.Amount
@@ -700,7 +699,7 @@ func (k *Keeper) traceTx(
 func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types.QueryBaseFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	ethCfg := config.GetChainConfig()
+	ethCfg := types.GetChainConfig()
 	baseFee := k.GetBaseFee(ctx, ethCfg)
 
 	res := &types.QueryBaseFeeResponse{}

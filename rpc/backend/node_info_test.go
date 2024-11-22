@@ -6,7 +6,7 @@ import (
 
 	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil/constants"
-	evmconfig "github.com/evmos/os/x/evm/config"
+	evmtypes "github.com/evmos/os/x/evm/types"
 
 	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -69,7 +69,7 @@ func (suite *BackendTestSuite) TestGenerateMinGasCoin() {
 			*defaultGasPrice,
 			sdk.DecCoins{},
 			sdk.DecCoin{
-				Denom:  evmconfig.GetEVMCoinDenom(),
+				Denom:  evmtypes.GetEVMCoinDenom(),
 				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
 			},
 		},

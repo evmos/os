@@ -13,7 +13,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -45,8 +44,8 @@ func NewMonoDecoratorUtils(
 	fmk anteinterfaces.FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
-	ethCfg := evmconfig.GetChainConfig()
-	evmDenom := evmconfig.GetEVMCoinDenom()
+	ethCfg := evmtypes.GetChainConfig()
+	evmDenom := evmtypes.GetEVMCoinDenom()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
 	baseFee := ek.GetBaseFee(ctx, ethCfg)

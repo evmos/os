@@ -9,15 +9,14 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/authorization"
 	cmn "github.com/evmos/os/precompiles/common"
-	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/core/vm"
-
-	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const (
@@ -234,7 +233,7 @@ func (p *Precompile) Delegate(
 		return nil, err
 	}
 
-	if !isCallerOrigin && msg.Amount.Denom == config.GetEVMCoinDenom() {
+	if !isCallerOrigin && msg.Amount.Denom == evmtypes.GetEVMCoinDenom() {
 		// get the delegator address from the message
 		delAccAddr := sdk.MustAccAddressFromBech32(msg.DelegatorAddress)
 		delHexAddr := common.BytesToAddress(delAccAddr)

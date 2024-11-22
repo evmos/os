@@ -11,7 +11,6 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -34,7 +33,7 @@ func NewEthSigVerificationDecorator(ek anteinterfaces.EVMKeeper) EthSigVerificat
 // won't see the error message.
 func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	evmParams := esvd.evmKeeper.GetParams(ctx)
-	ethCfg := config.GetChainConfig()
+	ethCfg := evmtypes.GetChainConfig()
 	blockNum := big.NewInt(ctx.BlockHeight())
 	signer := ethtypes.MakeSigner(ethCfg, blockNum)
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()

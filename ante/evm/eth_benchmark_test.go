@@ -13,7 +13,6 @@ import (
 	"github.com/evmos/os/ante/testutils"
 	"github.com/evmos/os/testutil"
 	testutiltx "github.com/evmos/os/testutil/tx"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -29,7 +28,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	ctx := s.GetNetwork().GetContext()
 
 	args := &evmtypes.EvmTxArgs{
-		ChainID:  evmconfig.GetChainConfig().ChainID,
+		ChainID:  evmtypes.GetChainConfig().ChainID,
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: uint64(1_000_000),
@@ -69,7 +68,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				baseFee := s.GetNetwork().App.FeeMarketKeeper.GetParams(ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
-				denom := evmconfig.GetEVMCoinDenom()
+				denom := evmtypes.GetEVMCoinDenom()
 				fees := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(fee)))
 				bechAddr := sdk.AccAddress(addr.Bytes())
 

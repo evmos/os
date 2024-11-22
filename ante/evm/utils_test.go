@@ -36,7 +36,6 @@ import (
 	"github.com/evmos/os/ethereum/eip712"
 	"github.com/evmos/os/testutil"
 	utiltx "github.com/evmos/os/testutil/tx"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -122,7 +121,7 @@ func (suite *AnteTestSuite) CreateTestEIP712MsgCreateValidator(from sdk.AccAddre
 	// Build MsgCreateValidator
 	valAddr := sdk.ValAddress(from.Bytes())
 	privEd := ed25519.GenPrivKey()
-	evmDenom := evmconfig.GetEVMCoinDenom()
+	evmDenom := evmtypes.GetEVMCoinDenom()
 	msgCreate, err := stakingtypes.NewMsgCreateValidator(
 		valAddr.String(),
 		privEd.PubKey(),

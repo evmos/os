@@ -208,6 +208,8 @@ message ChainConfig {
     (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.moretags) = "yaml:\"cancun_block\""
   ];
+  // chain_id is the id of the chain (EIP-155)
+  uint64 chain_id = 24;
 }
 
 // State represents a single Storage key value pair item.

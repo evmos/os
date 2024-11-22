@@ -14,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmkeeper "github.com/evmos/os/x/evm/keeper"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -59,7 +58,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 	}
 
-	evmDenom := evmconfig.GetEVMCoinDenom()
+	evmDenom := evmtypes.GetEVMCoinDenom()
 
 	// 1. setup ctx
 	ctx, err = SetupContext(ctx, tx, md.evmKeeper)

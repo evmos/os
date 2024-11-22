@@ -1,29 +1,28 @@
 // Copyright Tharsis Labs Ltd.(Evmos)
 // SPDX-License-Identifier:ENCL-1.0(https://github.com/evmos/evmos/blob/main/LICENSE)
-
 package testutils
 
 import (
 	"math"
 
+	"github.com/stretchr/testify/suite"
+
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	consensustypes "github.com/cosmos/cosmos-sdk/x/consensus/types"
+
 	"github.com/evmos/os/ante"
 	evmante "github.com/evmos/os/ante/evm"
 	chainante "github.com/evmos/os/example_chain/ante"
 	chainutil "github.com/evmos/os/example_chain/testutil"
-	"github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/types"
-	"github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
-	"github.com/stretchr/testify/suite"
 )
 
 type AnteTestSuite struct {
@@ -61,20 +60,6 @@ func (suite *AnteTestSuite) SetupTest() {
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
 	evmGenesis := evmtypes.DefaultGenesisState()
-	chainConfig := config.DefaultChainConfig(constants.ExampleChainID)
-	if !suite.enableLondonHF {
-		maxInt := sdkmath.NewInt(math.MaxInt64).BigInt()
-		chainConfig.LondonBlock = maxInt
-		chainConfig.ArrowGlacierBlock = maxInt
-		chainConfig.GrayGlacierBlock = maxInt
-		chainConfig.MergeNetsplitBlock = maxInt
-		chainConfig.ShanghaiBlock = maxInt
-		chainConfig.CancunBlock = maxInt
-	}
-	err := config.NewEVMConfigurator().
-		WithChainConfig(chainConfig).
-		Configure()
-	suite.Require().NoError(err)
 
 	if suite.evmParamsOption != nil {
 		suite.evmParamsOption(&evmGenesis.Params)
@@ -90,6 +75,7 @@ func (suite *AnteTestSuite) SetupTest() {
 		network.WithPreFundedAccounts(keys.GetAllAccAddrs()...),
 		network.WithCustomGenesis(customGenesis),
 	)
+
 	gh := grpc.NewIntegrationHandler(nw)
 	tf := factory.New(nw, gh)
 
@@ -104,7 +90,31 @@ func (suite *AnteTestSuite) SetupTest() {
 
 	suite.Require().NotNil(suite.network.App.AppCodec())
 
-	options := chainante.HandlerOptions{
+	chainConfig := evmtypes.DefaultChainConfig(suite.network.GetChainID())
+	if !suite.enableLondonHF {
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = &maxInt
+		chainConfig.ArrowGlacierBlock = &maxInt
+		chainConfig.GrayGlacierBlock = &maxInt
+		chainConfig.MergeNetsplitBlock = &maxInt
+		chainConfig.ShanghaiBlock = &maxInt
+		chainConfig.CancunBlock = &maxInt
+	}
+
+	// get the denom and decimals set when initialized the chain
+	// to set them again
+	// when resetting the chain config
+	denom := evmtypes.GetEVMCoinDenom()       //nolint:staticcheck
+	decimals := evmtypes.GetEVMCoinDecimals() //nolint:staticcheck
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestChainConfig()
+	err := configurator.
+		WithChainConfig(chainConfig).
+		WithEVMCoinInfo(denom, decimals).
+		Configure()
+	suite.Require().NoError(err)
+
+	anteHandler := chainante.NewAnteHandler(chainante.HandlerOptions{
 		Cdc:                    suite.network.App.AppCodec(),
 		AccountKeeper:          suite.network.App.AccountKeeper,
 		BankKeeper:             suite.network.App.BankKeeper,
@@ -116,10 +126,9 @@ func (suite *AnteTestSuite) SetupTest() {
 		SigGasConsumer:         ante.SigVerificationGasConsumer,
 		ExtensionOptionChecker: types.HasDynamicFeeExtensionOption,
 		TxFeeChecker:           evmante.NewDynamicFeeChecker(suite.network.App.EVMKeeper),
-	}
-	suite.Require().NoError(options.Validate(), "invalid ante handler options")
+	})
 
-	suite.anteHandler = chainante.NewAnteHandler(options)
+	suite.anteHandler = anteHandler
 }
 
 func (suite *AnteTestSuite) WithFeemarketEnabled(enabled bool) {

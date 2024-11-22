@@ -19,7 +19,6 @@ import (
 	"github.com/evmos/os/encoding"
 	exampleapp "github.com/evmos/os/example_chain"
 	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
@@ -117,7 +116,7 @@ func (suite *MsgsTestSuite) TestMsgEthereumTx_BuildTx() {
 			tc.msg.Data = nil
 		}
 
-		baseDenom := config.GetEVMCoinDenom()
+		baseDenom := types.GetEVMCoinDenom()
 
 		tx, err := tc.msg.BuildTx(suite.clientCtx.TxConfig.NewTxBuilder(), baseDenom)
 		if tc.expError {

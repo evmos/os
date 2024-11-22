@@ -28,7 +28,6 @@ import (
 	commonnetwork "github.com/evmos/os/testutil/integration/common/network"
 	"github.com/evmos/os/types"
 	erc20types "github.com/evmos/os/x/erc20/types"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
@@ -260,7 +259,7 @@ func (n *IntegrationNetwork) GetEIP155ChainID() *big.Int {
 
 // GetEVMChainConfig returns the network's EVM chain config
 func (n *IntegrationNetwork) GetEVMChainConfig() *gethparams.ChainConfig {
-	return evmconfig.GetChainConfig()
+	return evmtypes.GetChainConfig()
 }
 
 // GetDenom returns the network's denom

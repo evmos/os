@@ -1,10 +1,13 @@
+//go:build !test
+// +build !test
+
 package example_chain
 
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	chainconfig "github.com/evmos/os/example_chain/osd/config"
-	evmconfig "github.com/evmos/os/x/evm/config"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 var sealed = false
@@ -26,12 +29,12 @@ func InitializeAppConfiguration(chainID string) error {
 		return err
 	}
 
-	ethCfg := evmconfig.DefaultChainConfig(chainID)
+	ethCfg := evmtypes.DefaultChainConfig(chainID)
 
-	err = evmconfig.NewEVMConfigurator().
+	err = evmtypes.NewEVMConfigurator().
 		WithChainConfig(ethCfg).
 		// NOTE: we're using the 18 decimals default for the example chain
-		WithEVMCoinInfo(baseDenom, evmconfig.EighteenDecimals).
+		WithEVMCoinInfo(baseDenom, evmtypes.EighteenDecimals).
 		Configure()
 	if err != nil {
 		return err

@@ -13,7 +13,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	"github.com/evmos/os/testutil/integration/os/keyring"
 	testutils "github.com/evmos/os/testutil/integration/os/utils"
-	"github.com/evmos/os/x/evm/config"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/evmos/os/x/ibc/transfer/keeper"
 	"github.com/stretchr/testify/mock"
 )
@@ -38,7 +38,7 @@ func (suite *KeeperTestSuite) TestTransfer() {
 		{
 			"pass - no token pair",
 			func() *types.MsgTransfer {
-				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(config.GetEVMCoinDenom(), math.NewInt(10)), sender.AccAddr.String(), "", timeoutHeight, 0, "")
+				transferMsg := types.NewMsgTransfer("transfer", "channel-0", sdk.NewCoin(evmtypes.GetEVMCoinDenom(), math.NewInt(10)), sender.AccAddr.String(), "", timeoutHeight, 0, "")
 				return transferMsg
 			},
 			true,

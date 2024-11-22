@@ -13,7 +13,7 @@ import (
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
-	evmconfig "github.com/evmos/os/x/evm/config"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -88,7 +88,7 @@ func (s *PrecompileTestSuite) SetupTest() {
 
 	s.bondDenom = bondDenom
 	// TODO: check if this is correct?
-	s.baseDenom = evmconfig.GetEVMCoinDenom()
+	s.baseDenom = evmtypes.GetEVMCoinDenom()
 
 	s.factory = txFactory
 	s.grpcHandler = grpcHandler

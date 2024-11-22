@@ -4,7 +4,6 @@ import (
 	"math/big"
 
 	utiltx "github.com/evmos/os/testutil/tx"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -16,7 +15,7 @@ func (suite *AnteTestSuite) TestSignatures() {
 	to := utiltx.GenerateAddress()
 
 	txArgs := evmtypes.EvmTxArgs{
-		ChainID:  evmconfig.GetChainConfig().ChainID,
+		ChainID:  evmtypes.GetChainConfig().ChainID,
 		Nonce:    0,
 		To:       &to,
 		Amount:   big.NewInt(10),

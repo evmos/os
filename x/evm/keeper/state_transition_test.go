@@ -25,7 +25,6 @@ import (
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/testutil/integration/os/utils"
 	utiltx "github.com/evmos/os/testutil/tx"
-	"github.com/evmos/os/x/evm/config"
 	"github.com/evmos/os/x/evm/keeper"
 	"github.com/evmos/os/x/evm/types"
 	feemarkettypes "github.com/evmos/os/x/feemarket/types"
@@ -255,7 +254,7 @@ func (suite *KeeperTestSuite) TestGetEthIntrinsicGas() {
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("Case %s", tc.name), func() {
-			ethCfg := config.GetChainConfig()
+			ethCfg := types.GetChainConfig()
 			ethCfg.HomesteadBlock = big.NewInt(2)
 			ethCfg.IstanbulBlock = big.NewInt(3)
 			signer := gethtypes.LatestSignerForChainID(ethCfg.ChainID)
@@ -360,7 +359,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 	// for refund to work
 	// NOTE: everything should happen within the same block for
 	// feecollector account to remain funded
-	baseDenom := config.GetEVMCoinDenom()
+	baseDenom := types.GetEVMCoinDenom()
 
 	coins := sdk.NewCoins(sdk.NewCoin(
 		baseDenom,
@@ -546,14 +545,11 @@ func (suite *KeeperTestSuite) TestEVMConfig() {
 	suite.Require().Equal(defaultChainEVMParams, cfg.Params)
 	// london hardfork is enabled by default
 	suite.Require().Equal(big.NewInt(0), cfg.BaseFee)
-	suite.Require().Equal(config.GetChainConfig(), cfg.ChainConfig)
+	suite.Require().Equal(types.GetChainConfig(), cfg.ChainConfig)
 
 	validators := suite.network.GetValidators()
 	proposerHextAddress := utils.ValidatorConsAddressToHex(validators[0].OperatorAddress)
 	suite.Require().Equal(proposerHextAddress, cfg.CoinBase)
-
-	networkConfig := config.GetChainConfig()
-	suite.Require().Equal(networkConfig, cfg.ChainConfig)
 }
 
 func (suite *KeeperTestSuite) TestApplyMessage() {

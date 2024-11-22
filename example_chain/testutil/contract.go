@@ -21,8 +21,8 @@ import (
 
 	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil/tx"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evm "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.
@@ -61,7 +61,7 @@ func DeployContract(
 	contract evm.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := evmconfig.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := app.EVMKeeper.GetNonce(ctx, from)
 
@@ -107,7 +107,7 @@ func DeployContractWithFactory(
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ExecTxResult, error) {
-	chainID := evmconfig.GetChainConfig().ChainID
+	chainID := evmtypes.GetChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	factoryNonce := exampleApp.EVMKeeper.GetNonce(ctx, factoryAddress)
 	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)

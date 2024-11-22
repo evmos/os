@@ -12,6 +12,9 @@ const (
 	// ExampleAttoDenom provides an example denom for use in tests
 	ExampleAttoDenom = "aevmos"
 
+	// ExampleDisplayDenom provides an example display denom for use in tests
+	ExampleDisplayDenom = "evmos"
+
 	// ExampleBech32Prefix provides an example Bech32 prefix for use in tests
 	ExampleBech32Prefix = "evmos"
 

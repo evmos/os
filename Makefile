@@ -54,9 +54,9 @@ test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
-	go test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
+	go test -tags=test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
 else
-	go test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
+	go test -tags=test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
 endif
 
 test-scripts:
@@ -70,7 +70,7 @@ test-solidity:
 .PHONY: run-tests test test-all $(TEST_TARGETS)
 
 benchmark:
-	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
+	@go test -tags=test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
 
 .PHONY: benchmark
 

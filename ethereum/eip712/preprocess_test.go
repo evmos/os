@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/evmos/os/testutil/constants"
-	evmconfig "github.com/evmos/os/x/evm/config"
 
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,6 +21,7 @@ import (
 	"github.com/evmos/os/ethereum/eip712"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -110,7 +110,7 @@ func TestLedgerPreprocessing(t *testing.T) {
 
 		require.Equal(t, txFeePayer, tc.expectedFeePayer)
 		require.Equal(t, tx.GetGas(), tc.expectedGas)
-		require.Equal(t, tx.GetFee().AmountOf(evmconfig.GetEVMCoinDenom()), tc.expectedFee)
+		require.Equal(t, tx.GetFee().AmountOf(evmtypes.GetEVMCoinDenom()), tc.expectedFee)
 		require.Equal(t, tx.GetMemo(), tc.expectedMemo)
 
 		// Verify message is unchanged
@@ -208,7 +208,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 
 	txBuilder.SetFeeAmount(sdk.NewCoins(
 		sdk.NewCoin(
-			evmconfig.GetEVMCoinDenom(),
+			evmtypes.GetEVMCoinDenom(),
 			feeAmount,
 		)))
 
@@ -220,7 +220,7 @@ func createPopulatedTestCase(t *testing.T) TestCaseStruct {
 		ToAddress:   "evmos12luku6uxehhak02py4rcz65zu0swh7wjun6msa",
 		Amount: sdk.NewCoins(
 			sdk.NewCoin(
-				evmconfig.GetEVMCoinDenom(),
+				evmtypes.GetEVMCoinDenom(),
 				math.NewInt(10000000),
 			),
 		),

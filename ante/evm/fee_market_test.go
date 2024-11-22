@@ -13,7 +13,6 @@ import (
 	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/types"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -24,7 +23,7 @@ func (suite *AnteTestSuite) TestGasWantedDecorator() {
 	dec := evm.NewGasWantedDecorator(suite.GetNetwork().App.EVMKeeper, suite.GetNetwork().App.FeeMarketKeeper)
 	from, fromPrivKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
-	denom := evmconfig.GetEVMCoinDenom()
+	denom := evmtypes.GetEVMCoinDenom()
 
 	testCases := []struct {
 		name              string

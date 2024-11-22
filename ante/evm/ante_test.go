@@ -19,7 +19,6 @@ import (
 	ethparams "github.com/ethereum/go-ethereum/params"
 	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -43,7 +42,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		ctx = suite.GetNetwork().GetContext()
 	}
 
-	ethCfg := evmconfig.GetChainConfig()
+	ethCfg := evmtypes.GetChainConfig()
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   ethCfg.ChainID,
 		Nonce:     0,
@@ -601,7 +600,7 @@ func (suite *AnteTestSuite) TestAnteHandler() {
 		{
 			"passes - Single-signer EIP-712",
 			func() sdk.Tx {
-				evmDenom := evmconfig.GetEVMCoinDenom()
+				evmDenom := evmtypes.GetEVMCoinDenom()
 				msg := banktypes.NewMsgSend(
 					sdk.AccAddress(privKey.PubKey().Address()),
 					addr[:],
@@ -920,10 +919,10 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
-	ethCfg := evmconfig.GetChainConfig()
+	evmChainID := evmtypes.GetChainConfig().ChainID
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
-		ChainID:   ethCfg.ChainID,
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,
@@ -933,7 +932,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithDynamicTxFee() {
 	}
 
 	ethTxParams := evmtypes.EvmTxArgs{
-		ChainID:   ethCfg.ChainID,
+		ChainID:   evmChainID,
 		Nonce:     0,
 		Amount:    big.NewInt(10),
 		GasLimit:  100000,
@@ -1085,7 +1084,7 @@ func (suite *AnteTestSuite) TestAnteHandlerWithParams() {
 	addr, privKey := utiltx.NewAddrKey()
 	to := utiltx.GenerateAddress()
 
-	ethCfg := evmconfig.GetChainConfig()
+	ethCfg := evmtypes.GetChainConfig()
 
 	ethContractCreationTxParams := evmtypes.EvmTxArgs{
 		ChainID:   ethCfg.ChainID,

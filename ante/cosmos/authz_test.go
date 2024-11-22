@@ -20,7 +20,6 @@ import (
 	"github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/network"
 	utiltx "github.com/evmos/os/testutil/tx"
-	evmconfig "github.com/evmos/os/x/evm/config"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
@@ -31,7 +30,7 @@ func TestAuthzLimiterDecorator(t *testing.T) {
 	testPrivKeys, testAddresses, err := generatePrivKeyAddressPairs(5)
 	require.NoError(t, err)
 
-	evmDenom := evmconfig.GetEVMCoinDenom()
+	evmDenom := evmtypes.GetEVMCoinDenom()
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	validator := sdk.ValAddress(testAddresses[4])
@@ -289,7 +288,7 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	distantFuture := time.Date(9000, 1, 1, 0, 0, 0, 0, time.UTC)
 
 	nw := suite.GetNetwork()
-	evmDenom := evmconfig.GetEVMCoinDenom()
+	evmDenom := evmtypes.GetEVMCoinDenom()
 
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
