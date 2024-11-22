@@ -10,6 +10,7 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/evmos/os/example_chain/eips"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/evm/core/vm"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -34,10 +35,10 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 // for tests within the Evmos EVM. We're not using the sealed flag
 // and resetting the configuration to the provided one on every test setup
 func InitializeAppConfiguration(chainID string) error {
-	coinInfo, found := evmtypes.ChainsCoinInfo[chainID]
+	coinInfo, found := ChainsCoinInfo[chainID]
 	if !found {
 		// default to mainnet
-		coinInfo = evmtypes.ChainsCoinInfo[EighteenDecimalsChainID]
+		coinInfo = ChainsCoinInfo[EighteenDecimalsChainID]
 	}
 
 	// set the base denom considering if its mainnet or testnet
@@ -54,7 +55,7 @@ func InitializeAppConfiguration(chainID string) error {
 
 	configurator := evmtypes.NewEVMConfigurator()
 	// reset configuration to set the new one
-	configurator.ResetTestChainConfig()
+	configurator.ResetTestConfig()
 	err = configurator.
 		WithExtendedEips(evmosActivators).
 		WithChainConfig(ethCfg).
@@ -78,7 +79,7 @@ var evmosActivators = map[string]func(*vm.JumpTable){
 // setBaseDenom registers the display denom and base denom and sets the
 // base denom for the chain. The function registered different values based on
 // the EvmCoinInfo to allow different configurations in mainnet and testnet.
-func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
+func setBaseDenom(ci evmtypes.EvmCoinInfo) (err error) {
 	// Defer setting the base denom, and capture any potential error from it.
 	// So when failing because the denom was already registered, we ignore it and set
 	// the corresponding denom to be base denom

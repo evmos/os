@@ -78,7 +78,7 @@ func TestMustConvertEvmCoinTo18Decimals(t *testing.T) {
 			}()
 
 			configurator := evmtypes.NewEVMConfigurator()
-			configurator.ResetTestChainConfig()
+			configurator.ResetTestConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, uint8(tc.evmCoinInfo.Decimals)).Configure())
 
 			coinConverted := evmtypes.MustConvertEvmCoinTo18Decimals(tc.coin)
@@ -146,7 +146,7 @@ func TestConvertEvmCoinFrom18Decimals(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			configurator := evmtypes.NewEVMConfigurator()
-			configurator.ResetTestChainConfig()
+			configurator.ResetTestConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, uint8(tc.evmCoinInfo.Decimals)).Configure())
 
 			coinConverted, err := evmtypes.ConvertEvmCoinFrom18Decimals(tc.coin)
@@ -206,7 +206,7 @@ func TestConvertCoinsFrom18Decimals(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			configurator := evmtypes.NewEVMConfigurator()
-			configurator.ResetTestChainConfig()
+			configurator.ResetTestConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.evmCoinInfo.Denom, uint8(tc.evmCoinInfo.Decimals)).Configure())
 
 			coinConverted := evmtypes.ConvertCoinsFrom18Decimals(tc.coins)
@@ -260,7 +260,7 @@ func TestZeroExtraDecimalsBigInt(t *testing.T) {
 		for _, tc := range testCases {
 			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
 				configurator := evmtypes.NewEVMConfigurator()
-				configurator.ResetTestChainConfig()
+				configurator.ResetTestConfig()
 				require.NoError(t, configurator.WithEVMCoinInfo(cfg.Denom, uint8(cfg.Decimals)).Configure())
 
 				res := evmtypes.AdjustExtraDecimalsBigInt(tc.amt)
@@ -313,7 +313,7 @@ func TestConvertBigIntFrom18DecimalsToLegacyDec(t *testing.T) {
 		for _, tc := range testCases {
 			t.Run(fmt.Sprintf("%d dec - %s", cfg.Decimals, tc.name), func(t *testing.T) {
 				configurator := evmtypes.NewEVMConfigurator()
-				configurator.ResetTestChainConfig()
+				configurator.ResetTestConfig()
 				require.NoError(t, configurator.WithEVMCoinInfo(cfg.Denom, uint8(cfg.Decimals)).Configure())
 				res := evmtypes.ConvertBigIntFrom18DecimalsToLegacyDec(tc.amt)
 				exp := math.LegacyNewDecFromBigInt(tc.amt)

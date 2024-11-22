@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	ethparams "github.com/ethereum/go-ethereum/params"
 	"github.com/evmos/os/server/config"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
@@ -1493,9 +1494,10 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				chainConfig.CancunBlock = &maxInt
 
 				configurator := types.NewEVMConfigurator()
-				configurator.ResetTestChainConfig()
+				configurator.ResetTestConfig()
 				err := configurator.
 					WithChainConfig(chainConfig).
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
 					Configure()
 				suite.Require().NoError(err)
 			},
@@ -1545,7 +1547,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			}
 			suite.Require().NoError(suite.network.NextBlock())
 			configurator := types.NewEVMConfigurator()
-			configurator.ResetTestChainConfig()
+			configurator.ResetTestConfig()
 			err = configurator.
 				WithChainConfig(chainConfig).
 				WithEVMCoinInfo(denom, uint8(decimals)).

@@ -6,13 +6,16 @@ package types_test
 import (
 	"testing"
 
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/x/evm/core/vm"
 	"github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEVMConfigurator(t *testing.T) {
-	evmConfigurator := types.NewEVMConfigurator()
+	evmConfigurator := types.NewEVMConfigurator().
+		WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals))
 	err := evmConfigurator.Configure()
 	require.NoError(t, err)
 
@@ -34,7 +37,9 @@ func TestExtendedEips(t *testing.T) {
 				extendedEIPs := map[string]func(*vm.JumpTable){
 					"ethereum_3855": func(_ *vm.JumpTable) {},
 				}
-				ec := types.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
+				ec := types.NewEVMConfigurator().
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
+					WithExtendedEips(extendedEIPs)
 				return ec
 			},
 			false,
@@ -46,7 +51,9 @@ func TestExtendedEips(t *testing.T) {
 				extendedEIPs := map[string]func(*vm.JumpTable){
 					"evmos_0": func(_ *vm.JumpTable) {},
 				}
-				ec := types.NewEVMConfigurator().WithExtendedEips(extendedEIPs)
+				ec := types.NewEVMConfigurator().
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
+					WithExtendedEips(extendedEIPs)
 				return ec
 			},
 			true,
@@ -56,7 +63,7 @@ func TestExtendedEips(t *testing.T) {
 
 	for _, tc := range testCases {
 		ec := tc.malleate()
-		ec.ResetTestChainConfig()
+		ec.ResetTestConfig()
 		err := ec.Configure()
 
 		if tc.expPass {
@@ -81,7 +88,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			"fail - invalid eip name",
 			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1_000"}
-				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -96,7 +105,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1000"}
 				types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, "os_1000")
-				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -110,7 +121,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			"success - empty default extra eip",
 			func() *types.EVMConfigurator {
 				var extendedDefaultExtraEIPs []string
-				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -123,7 +136,9 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 			"success - extra default eip added",
 			func() *types.EVMConfigurator {
 				extendedDefaultExtraEIPs := []string{"os_1001"}
-				ec := types.NewEVMConfigurator().WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
+				ec := types.NewEVMConfigurator().
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+					WithExtendedDefaultExtraEIPs(extendedDefaultExtraEIPs...)
 				return ec
 			},
 			func() {
@@ -138,7 +153,7 @@ func TestExtendedDefaultExtraEips(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			ec := tc.malleate()
-			ec.ResetTestChainConfig()
+			ec.ResetTestConfig()
 			err := ec.Configure()
 
 			if tc.expPass {
