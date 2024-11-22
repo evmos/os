@@ -26,6 +26,7 @@ type DecoratorUtils struct {
 	BaseFee            *big.Int
 	MempoolMinGasPrice sdkmath.LegacyDec
 	GlobalMinGasPrice  sdkmath.LegacyDec
+	EvmDenom           string
 	BlockTxIndex       uint64
 	TxGasLimit         uint64
 	GasWanted          uint64
@@ -41,15 +42,13 @@ type DecoratorUtils struct {
 func NewMonoDecoratorUtils(
 	ctx sdk.Context,
 	ek anteinterfaces.EVMKeeper,
-	fmk anteinterfaces.FeeMarketKeeper,
 ) (*DecoratorUtils, error) {
 	evmParams := ek.GetParams(ctx)
 	ethCfg := evmtypes.GetChainConfig()
 	evmDenom := evmtypes.GetEVMCoinDenom()
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	rules := ethCfg.Rules(blockHeight, true)
-	baseFee := ek.GetBaseFee(ctx, ethCfg)
-	feeMarketParams := fmk.GetParams(ctx)
+	baseFee := ek.GetBaseFee(ctx)
 
 	if rules.IsLondon && baseFee == nil {
 		return nil, errorsmod.Wrap(
@@ -58,14 +57,18 @@ func NewMonoDecoratorUtils(
 		)
 	}
 
+	minGasPrice := ek.GetMinGasPrice(ctx)
+	mempoolMinGasPrice := evmtypes.ConvertAmountTo18DecimalsLegacy(ctx.MinGasPrices().AmountOf(evmDenom))
+
 	return &DecoratorUtils{
 		EvmParams:          evmParams,
 		EthConfig:          ethCfg,
 		Rules:              rules,
 		Signer:             ethtypes.MakeSigner(ethCfg, blockHeight),
 		BaseFee:            baseFee,
-		MempoolMinGasPrice: ctx.MinGasPrices().AmountOf(evmDenom),
-		GlobalMinGasPrice:  feeMarketParams.MinGasPrice,
+		MempoolMinGasPrice: mempoolMinGasPrice,
+		GlobalMinGasPrice:  minGasPrice,
+		EvmDenom:           evmDenom,
 		BlockTxIndex:       ek.GetTxIndexTransient(ctx),
 		TxGasLimit:         0,
 		GasWanted:          0,

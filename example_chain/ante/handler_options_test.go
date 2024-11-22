@@ -129,7 +129,7 @@ func TestValidateHandlerOptions(t *testing.T) {
 				SignModeHandler:        nw.GetEncodingConfig().TxConfig.SignModeHandler(),
 				SigGasConsumer:         ante.SigVerificationGasConsumer,
 				MaxTxGasWanted:         40000000,
-				TxFeeChecker:           ethante.NewDynamicFeeChecker(nw.App.EVMKeeper),
+				TxFeeChecker:           ethante.NewDynamicFeeChecker(nw.App.FeeMarketKeeper),
 			},
 			true,
 		},

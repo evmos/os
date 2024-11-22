@@ -14,7 +14,7 @@ message ExtensionOptionDynamicFeeTx {
   // max_priority_price is the same as `max_priority_fee_per_gas` in eip-1559
   // spec
   string max_priority_price = 1 [
-    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false,
     (amino.dont_omitempty) = true
   ];

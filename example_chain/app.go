@@ -648,7 +648,8 @@ func NewExampleApp(
 		ibcexported.ModuleName, ibctransfertypes.ModuleName,
 
 		// evmOS BeginBlockers
-		evmtypes.ModuleName, erc20types.ModuleName, feemarkettypes.ModuleName,
+		erc20types.ModuleName, feemarkettypes.ModuleName,
+		evmtypes.ModuleName, // NOTE: EVM BeginBlocker must come after FeeMarket BeginBlocker
 
 		// TODO: remove no-ops? check if all are no-ops before removing
 		distrtypes.ModuleName, slashingtypes.ModuleName,
@@ -807,7 +808,7 @@ func (app *ExampleChain) setAnteHandler(txConfig client.TxConfig, maxGasWanted u
 		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           evmosevmante.NewDynamicFeeChecker(app.EVMKeeper),
+		TxFeeChecker:           evmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
 	}
 	if err := options.Validate(); err != nil {
 		panic(err)

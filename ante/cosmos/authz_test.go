@@ -290,13 +290,16 @@ func (suite *AnteTestSuite) TestRejectMsgsInAuthz() {
 	nw := suite.GetNetwork()
 	evmDenom := evmtypes.GetEVMCoinDenom()
 
+	baseFeeRes, err := nw.GetEvmClient().BaseFee(nw.GetContext(), &evmtypes.QueryBaseFeeRequest{})
+	suite.Require().NoError(err, "failed to get base fee")
+
 	// create a dummy MsgEthereumTx for the test
 	// otherwise throws error that cannot unpack tx data
 	msgEthereumTx := evmtypes.NewTx(&evmtypes.EvmTxArgs{
 		ChainID:   nw.GetEIP155ChainID(),
 		Nonce:     0,
 		GasLimit:  gasLimit,
-		GasFeeCap: nw.App.FeeMarketKeeper.GetBaseFee(nw.GetContext()),
+		GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 		GasTipCap: big.NewInt(1),
 		Input:     nil,
 		Accesses:  &ethtypes.AccessList{},

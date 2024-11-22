@@ -1,7 +1,7 @@
 package ante_test
 
 import (
-	sdkmath "cosmossdk.io/math"
+	"cosmossdk.io/math"
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -57,9 +57,9 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			rewards sdk.DecCoins
 			// minExpRewards are the minimun rewards that should be accrued
 			// for the test case
-			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: sdkmath.LegacyNewDec(1e5), Denom: constants.ExampleAttoDenom}}
-			delegationCoin = sdk.Coin{Amount: sdkmath.NewInt(1e15), Denom: constants.ExampleAttoDenom}
-			transferAmt    = sdkmath.NewInt(1e14)
+			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e5), Denom: constants.ExampleAttoDenom}}
+			delegationCoin = sdk.Coin{Amount: math.NewInt(1e15), Denom: constants.ExampleAttoDenom}
+			transferAmt    = math.NewInt(1e14)
 		)
 
 		BeforeEach(func() {
@@ -85,15 +85,17 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			prevBalanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
 			Expect(err).To(BeNil())
 
-			baseFeeRes, err := s.grpcHandler.GetBaseFee()
+			baseFeeRes, err := s.grpcHandler.GetEvmBaseFee()
 			Expect(err).To(BeNil())
 			Expect(baseFeeRes).ToNot(BeNil(), "baseFeeRes is nil")
+
+			gasPrice := baseFeeRes.BaseFee
 
 			res, err := s.factory.ExecuteCosmosTx(
 				priv,
 				commonfactory.CosmosTxArgs{
 					Msgs:     []sdk.Msg{msg},
-					GasPrice: baseFeeRes.BaseFee,
+					GasPrice: gasPrice,
 				},
 			)
 			Expect(err).To(BeNil())
@@ -106,7 +108,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			// fees should be deducted from balance
 			Expect(baseFeeRes.BaseFee).ToNot(BeNil(), "baseFeeRes.BaseFee is nil")
 
-			feesAmt := sdkmath.NewInt(res.GasWanted).Mul(*baseFeeRes.BaseFee)
+			feesAmt := math.NewInt(res.GasWanted).Mul(*baseFeeRes.BaseFee)
 			balanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount).To(Equal(prevBalanceRes.Balance.Amount.Sub(transferAmt).Sub(feesAmt)))
@@ -132,7 +134,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				addr,
 				sdk.Coins{
 					sdk.Coin{
-						Amount: sdkmath.NewInt(1),
+						Amount: math.NewInt(1),
 						Denom:  constants.ExampleAttoDenom,
 					},
 				},
@@ -144,7 +146,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: sdkmath.NewInt(1e14), Denom: constants.ExampleAttoDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: constants.ExampleAttoDenom}},
 			}
 		})
 

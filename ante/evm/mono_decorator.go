@@ -58,8 +58,6 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 	}
 
-	evmDenom := evmtypes.GetEVMCoinDenom()
-
 	// 1. setup ctx
 	ctx, err = SetupContext(ctx, tx, md.evmKeeper)
 	if err != nil {
@@ -67,12 +65,11 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 	}
 
 	// 2. get utils
-	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper, md.feeMarketKeeper)
+	decUtils, err := NewMonoDecoratorUtils(ctx, md.evmKeeper)
 	if err != nil {
 		return ctx, err
 	}
 
-	// Use the lowest priority of all the messages as the final one.
 	for i, msg := range tx.GetMsgs() {
 		ethMsg, txData, from, err := evmtypes.UnpackEthMsg(msg)
 		if err != nil {
@@ -86,6 +83,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 
 		// 2. mempool inclusion fee
 		if ctx.IsCheckTx() && !simulate {
+			// FIX: Mempool dec should be converted
 			if err := CheckMempoolFee(fee, decUtils.MempoolMinGasPrice, gasLimit, decUtils.Rules.IsLondon); err != nil {
 				return ctx, err
 			}
@@ -161,7 +159,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// 8. gas consumption
 		msgFees, err := evmkeeper.VerifyFee(
 			txData,
-			evmDenom,
+			decUtils.EvmDenom,
 			decUtils.BaseFee,
 			decUtils.Rules.IsHomestead,
 			decUtils.Rules.IsIstanbul,
@@ -199,7 +197,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		txFee := UpdateCumulativeTxFee(
 			decUtils.TxFee,
 			txData.Fee(),
-			evmDenom,
+			decUtils.EvmDenom,
 		)
 		decUtils.TxFee = txFee
 		decUtils.TxGasLimit += gas

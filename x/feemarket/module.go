@@ -25,7 +25,7 @@ import (
 )
 
 // consensusVersion defines the current x/feemarket module consensus version.
-const consensusVersion = 4
+const consensusVersion = 5
 
 var (
 	_ module.AppModule      = AppModule{}

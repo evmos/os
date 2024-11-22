@@ -76,11 +76,16 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
+	baseFeeRes, err := queryClientEvm.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  gas,
-		GasFeeCap: app.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 		GasTipCap: big.NewInt(1),
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},

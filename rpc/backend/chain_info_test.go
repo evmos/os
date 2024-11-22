@@ -19,7 +19,6 @@ import (
 	rpc "github.com/evmos/os/rpc/types"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {
@@ -65,7 +64,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 				Height: 1,
 				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 					},
 				},
 			},
@@ -82,7 +81,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 				Height: 1,
 				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
 							{Value: "/1"},
 						},
@@ -102,7 +101,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 				Height: 1,
 				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
 							{Value: baseFee.String()},
 						},

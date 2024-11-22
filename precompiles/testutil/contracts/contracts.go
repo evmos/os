@@ -56,11 +56,14 @@ func Call(ctx sdk.Context, app *exampleapp.ExampleChain, args CallArgs) (res abc
 	// if gas price not provided
 	var gasPrice *big.Int
 	if args.GasPrice == nil {
-		gasPrice = app.FeeMarketKeeper.GetBaseFee(ctx) // default gas price == block base fee
+		baseFeeRes, err := app.EVMKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+		if err != nil {
+			return abci.ExecTxResult{}, nil, err
+		}
+		gasPrice = baseFeeRes.BaseFee.BigInt() // default gas price == block base fee
 	} else {
 		gasPrice = args.GasPrice
 	}
-
 	// Create MsgEthereumTx that calls the contract
 	input, err := args.ContractABI.Pack(args.MethodName, args.Args...)
 	if err != nil {

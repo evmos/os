@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
+	sdkmath "cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
 	cmtrpcclient "github.com/cometbft/cometbft/rpc/client"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -21,7 +22,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 // ExceedBlockGasLimitError defines the error message when tx execution exceeds the block gas limit.
@@ -231,15 +231,15 @@ func NewRPCTransaction(
 // BaseFeeFromEvents parses the feemarket basefee from cosmos events
 func BaseFeeFromEvents(events []abci.Event) *big.Int {
 	for _, event := range events {
-		if event.Type != feemarkettypes.EventTypeFeeMarket {
+		if event.Type != evmtypes.EventTypeFeeMarket {
 			continue
 		}
 
 		for _, attr := range event.Attributes {
-			if attr.Key == feemarkettypes.AttributeKeyBaseFee {
-				result, success := new(big.Int).SetString(attr.Value, 10)
+			if attr.Key == evmtypes.AttributeKeyBaseFee {
+				result, success := sdkmath.NewIntFromString(attr.Value)
 				if success {
-					return result
+					return result.BigInt()
 				}
 
 				return nil
