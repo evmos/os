@@ -4,6 +4,8 @@
 package example_chain
 
 import (
+	"strings"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
@@ -34,7 +36,8 @@ func InitializeAppConfiguration(chainID string) error {
 		return nil
 	}
 
-	coinInfo, found := ChainsCoinInfo[chainID]
+	id := strings.Split(chainID, "-")[0]
+	coinInfo, found := ChainsCoinInfo[id]
 	if !found {
 		// default to 18 decimals coin info
 		coinInfo = ChainsCoinInfo[EighteenDecimalsChainID]
