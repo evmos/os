@@ -24,6 +24,7 @@ linters:
     - misspell
     - nakedret
     - prealloc
+    - copyloopvar
     - staticcheck
     - stylecheck
     - typecheck

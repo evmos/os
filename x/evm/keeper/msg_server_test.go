@@ -51,7 +51,6 @@ func (suite *KeeperTestSuite) TestEthereumTx() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(tc.name, func() {
 			msg := tc.getMsg()
 
@@ -108,7 +107,6 @@ func (suite *KeeperTestSuite) TestUpdateParams() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run("MsgUpdateParams", func() {
 			msg := tc.getMsg()
 			_, err := suite.network.App.EVMKeeper.UpdateParams(suite.network.GetContext(), msg)

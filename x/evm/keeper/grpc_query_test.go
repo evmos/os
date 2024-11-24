@@ -1157,7 +1157,6 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Clean up per test
 			defaultEvmParams := types.DefaultParams()
@@ -1343,7 +1342,6 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Start from fresh block
 			suite.Require().NoError(suite.network.NextBlock())
@@ -1527,7 +1525,6 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 	chainConfig := types.DefaultChainConfig(suite.network.GetChainID())
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(tc.name, func() {
 			// Set necessary params
 			tc.setParams()

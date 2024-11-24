@@ -209,7 +209,6 @@ func (s *PrecompileTestSuite) TestRun() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			// setup basic test suite
 			s.SetupTest()
