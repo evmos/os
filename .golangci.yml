@@ -33,7 +33,7 @@ linters:
     - unused
     - nolintlint
     - asciicheck
-    - exportloopref
+    - loopvar
     - gofumpt
     - gomodguard
 
