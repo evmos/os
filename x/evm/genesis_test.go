@@ -10,6 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/contracts"
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	"github.com/evmos/os/precompiles/erc20"
 	testfactory "github.com/evmos/os/testutil/integration/os/factory"
 	testhandler "github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -235,7 +236,7 @@ func TestExportGenesis(t *testing.T) {
 	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
 
 	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EVMKeeper)
-	require.Len(t, genState.Accounts, 2, "expected only one smart contract in the exported genesis")
+	require.Len(t, genState.Accounts, 3, "expected 3 smart contracts in the exported genesis") // NOTE: 2 deployed above + 1 for the aevmos denomination ERC-20 pair
 
 	genAddresses := make([]string, 0, len(genState.Accounts))
 	for _, acc := range genState.Accounts {
@@ -243,4 +244,5 @@ func TestExportGenesis(t *testing.T) {
 	}
 	require.Contains(t, genAddresses, contractAddr.Hex(), "expected contract 1 address in exported genesis")
 	require.Contains(t, genAddresses, contractAddr2.Hex(), "expected contract 2 address in exported genesis")
+	require.Contains(t, genAddresses, testconstants.WEVMOSContractMainnet, "expected mainnet aevmos contract address in exported genesis")
 }
