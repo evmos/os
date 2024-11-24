@@ -9,12 +9,12 @@ import (
 	"io"
 	"maps"
 	"os"
-	"path/filepath"
 	"sort"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
+	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -135,12 +135,11 @@ func init() {
 	sdk.DefaultPowerReduction = evmostypes.AttoPowerReduction
 
 	// get the user's home directory
-	userHomeDir, err := os.UserHomeDir()
+	var err error
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".osd")
 	if err != nil {
 		panic(err)
 	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, ".osd")
 }
 
 const appName = "os"
