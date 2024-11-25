@@ -1,8 +1,6 @@
 package network
 
 import (
-	"strings"
-
 	testconstants "github.com/evmos/os/testutil/constants"
 )
 
@@ -18,8 +16,7 @@ var chainsWEVMOSHex = map[string]string{
 // given the chainID. If the chainID is not found, it defaults to the mainnet
 // address.
 func GetWEVMOSContractHex(chainID string) string {
-	id := strings.Split(chainID, "-")[0]
-	address, found := chainsWEVMOSHex[id]
+	address, found := chainsWEVMOSHex[chainID]
 
 	// default to mainnet address
 	if !found {
