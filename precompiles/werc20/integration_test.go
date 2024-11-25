@@ -4,6 +4,7 @@
 package werc20_test
 
 import (
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -73,7 +74,7 @@ func (is *PrecompileIntegrationTestSuite) checkAndReturnBalance(
 	Expect(err).ToNot(HaveOccurred(), "failed to unpack result")
 
 	addressAcc := sdk.AccAddress(address.Bytes())
-	balanceAfter, err := is.grpcHandler.GetBalance(addressAcc, is.wrappedCoinDenom)
+	balanceAfter, err := is.grpcHandler.GetBalanceFromBank(addressAcc, is.wrappedCoinDenom)
 	Expect(err).ToNot(HaveOccurred(), "expected no error getting balance")
 
 	Expect(erc20Balance.String()).To(Equal(balanceAfter.Balance.Amount.BigInt().String()), "expected return balance from contract equal to bank")
@@ -115,6 +116,13 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 		feemarketGenesis.Params.NoBaseFee = true
 		customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
+		// Reset evm config here for the standard case
+		configurator := evmtypes.NewEVMConfigurator()
+		configurator.ResetTestConfig()
+		Expect(configurator.
+			WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(evmtypes.EighteenDecimals)).
+			Configure()).To(BeNil(), "expected no error setting the evm configurator")
+
 		integrationNetwork := network.NewUnitTestNetwork(
 			network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			network.WithCustomGenesis(customGenesis),
@@ -129,6 +137,9 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 
 		is.wrappedCoinDenom = evmtypes.GetEVMCoinDenom()
 		is.precompileAddrHex = network.GetWEVMOSContractHex(is.network.GetChainID())
+
+		fmt.Println("evm coin denom", evmtypes.GetEVMCoinDenom())
+		fmt.Println("chain id", is.network.GetChainID())
 
 		ctx := integrationNetwork.GetContext()
 

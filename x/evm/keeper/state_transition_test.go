@@ -461,7 +461,7 @@ func (suite *KeeperTestSuite) TestRefundGas() {
 				unitNetwork.GetContext(),
 				coreMsg,
 				refund,
-				unitNetwork.GetDenom(),
+				unitNetwork.GetBaseDenom(),
 			)
 
 			if tc.noError {

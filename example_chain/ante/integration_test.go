@@ -5,7 +5,6 @@ import (
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/evmos/os/testutil/constants"
 	commonfactory "github.com/evmos/os/testutil/integration/common/factory"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
@@ -57,8 +56,8 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			rewards sdk.DecCoins
 			// minExpRewards are the minimun rewards that should be accrued
 			// for the test case
-			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e5), Denom: constants.ExampleAttoDenom}}
-			delegationCoin = sdk.Coin{Amount: math.NewInt(1e15), Denom: constants.ExampleAttoDenom}
+			minExpRewards  = sdk.DecCoins{sdk.DecCoin{Amount: math.LegacyNewDec(1e5), Denom: s.network.GetBaseDenom()}}
+			delegationCoin = sdk.Coin{Amount: math.NewInt(1e15), Denom: s.network.GetBaseDenom()}
 			transferAmt    = math.NewInt(1e14)
 		)
 
@@ -70,7 +69,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: constants.ExampleAttoDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: transferAmt, Denom: s.network.GetBaseDenom()}},
 			}
 
 			valAddr := s.network.GetValidators()[0].OperatorAddress
@@ -82,7 +81,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 		})
 
 		It("should succeed & not withdraw any staking rewards", func() {
-			prevBalanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
+			prevBalanceRes, err := s.grpcHandler.GetBalanceFromBank(addr, s.network.GetBaseDenom())
 			Expect(err).To(BeNil())
 
 			baseFeeRes, err := s.grpcHandler.GetEvmBaseFee()
@@ -109,7 +108,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			Expect(baseFeeRes.BaseFee).ToNot(BeNil(), "baseFeeRes.BaseFee is nil")
 
 			feesAmt := math.NewInt(res.GasWanted).Mul(*baseFeeRes.BaseFee)
-			balanceRes, err := s.grpcHandler.GetBalance(addr, s.network.GetDenom())
+			balanceRes, err := s.grpcHandler.GetBalanceFromBank(addr, s.network.GetBaseDenom())
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount).To(Equal(prevBalanceRes.Balance.Amount.Sub(transferAmt).Sub(feesAmt)))
 
@@ -135,7 +134,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 				sdk.Coins{
 					sdk.Coin{
 						Amount: math.NewInt(1),
-						Denom:  constants.ExampleAttoDenom,
+						Denom:  s.network.GetBaseDenom(),
 					},
 				},
 			)
@@ -146,7 +145,7 @@ var _ = Describe("when sending a Cosmos transaction", Label("AnteHandler"), Orde
 			msg = &banktypes.MsgSend{
 				FromAddress: addr.String(),
 				ToAddress:   "evmos1dx67l23hz9l0k9hcher8xz04uj7wf3yu26l2yn",
-				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: constants.ExampleAttoDenom}},
+				Amount:      sdk.Coins{sdk.Coin{Amount: math.NewInt(1e14), Denom: s.network.GetBaseDenom()}},
 			}
 		})
 
