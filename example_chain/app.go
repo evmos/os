@@ -573,6 +573,7 @@ func NewExampleApp(
 			app.IBCKeeper.ChannelKeeper,
 			app.EVMKeeper,
 			app.GovKeeper,
+			app.SlashingKeeper,
 		),
 	)
 

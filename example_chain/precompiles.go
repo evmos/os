@@ -11,6 +11,7 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	distributionkeeper "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
+	slashingkeeper "github.com/cosmos/cosmos-sdk/x/slashing/keeper"
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	channelkeeper "github.com/cosmos/ibc-go/v8/modules/core/04-channel/keeper"
 	"github.com/ethereum/go-ethereum/common"
@@ -20,6 +21,7 @@ import (
 	govprecompile "github.com/evmos/os/precompiles/gov"
 	ics20precompile "github.com/evmos/os/precompiles/ics20"
 	"github.com/evmos/os/precompiles/p256"
+	slashingprecompile "github.com/evmos/os/precompiles/slashing"
 	stakingprecompile "github.com/evmos/os/precompiles/staking"
 	erc20Keeper "github.com/evmos/os/x/erc20/keeper"
 	"github.com/evmos/os/x/evm/core/vm"
@@ -42,6 +44,7 @@ func NewAvailableStaticPrecompiles(
 	channelKeeper channelkeeper.Keeper,
 	evmKeeper *evmkeeper.Keeper,
 	govKeeper govkeeper.Keeper,
+	slashingKeeper slashingkeeper.Keeper,
 ) map[common.Address]vm.PrecompiledContract {
 	// Clone the mapping from the latest EVM fork.
 	precompiles := maps.Clone(vm.PrecompiledContractsBerlin)
@@ -90,6 +93,11 @@ func NewAvailableStaticPrecompiles(
 		panic(fmt.Errorf("failed to instantiate gov precompile: %w", err))
 	}
 
+	slashingPrecompile, err := slashingprecompile.NewPrecompile(slashingKeeper, authzKeeper)
+	if err != nil {
+		panic(fmt.Errorf("failed to instantiate slashing precompile: %w", err))
+	}
+
 	// Stateless precompiles
 	precompiles[bech32Precompile.Address()] = bech32Precompile
 	precompiles[p256Precompile.Address()] = p256Precompile
@@ -100,6 +108,7 @@ func NewAvailableStaticPrecompiles(
 	precompiles[ibcTransferPrecompile.Address()] = ibcTransferPrecompile
 	precompiles[bankPrecompile.Address()] = bankPrecompile
 	precompiles[govPrecompile.Address()] = govPrecompile
+	precompiles[slashingPrecompile.Address()] = slashingPrecompile
 
 	return precompiles
 }
