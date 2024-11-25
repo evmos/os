@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/contracts"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	"github.com/evmos/os/precompiles/erc20"
+	testconstants "github.com/evmos/os/testutil/constants"
 	testfactory "github.com/evmos/os/testutil/integration/os/factory"
 	testhandler "github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"

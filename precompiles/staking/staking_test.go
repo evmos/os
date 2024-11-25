@@ -4,13 +4,13 @@ import (
 	"math/big"
 	"time"
 
-	chainutil "github.com/evmos/os/example_chain/testutil"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
+	chainutil "github.com/evmos/os/example_chain/testutil"
 	"github.com/evmos/os/precompiles/authorization"
 	"github.com/evmos/os/precompiles/staking"
 	testconstants "github.com/evmos/os/testutil/constants"
@@ -23,64 +23,64 @@ import (
 func (s *PrecompileTestSuite) TestIsTransaction() {
 	testCases := []struct {
 		name   string
-		method string
+		method abi.Method
 		isTx   bool
 	}{
 		{
 			authorization.ApproveMethod,
-			s.precompile.Methods[authorization.ApproveMethod].Name,
+			s.precompile.Methods[authorization.ApproveMethod],
 			true,
 		},
 		{
 			authorization.IncreaseAllowanceMethod,
-			s.precompile.Methods[authorization.IncreaseAllowanceMethod].Name,
+			s.precompile.Methods[authorization.IncreaseAllowanceMethod],
 			true,
 		},
 		{
 			authorization.DecreaseAllowanceMethod,
-			s.precompile.Methods[authorization.DecreaseAllowanceMethod].Name,
+			s.precompile.Methods[authorization.DecreaseAllowanceMethod],
 			true,
 		},
 		{
 			staking.CreateValidatorMethod,
-			s.precompile.Methods[staking.CreateValidatorMethod].Name,
+			s.precompile.Methods[staking.CreateValidatorMethod],
 			true,
 		},
 		{
 			staking.DelegateMethod,
-			s.precompile.Methods[staking.DelegateMethod].Name,
+			s.precompile.Methods[staking.DelegateMethod],
 			true,
 		},
 		{
 			staking.UndelegateMethod,
-			s.precompile.Methods[staking.UndelegateMethod].Name,
+			s.precompile.Methods[staking.UndelegateMethod],
 			true,
 		},
 		{
 			staking.RedelegateMethod,
-			s.precompile.Methods[staking.RedelegateMethod].Name,
+			s.precompile.Methods[staking.RedelegateMethod],
 			true,
 		},
 		{
 			staking.CancelUnbondingDelegationMethod,
-			s.precompile.Methods[staking.CancelUnbondingDelegationMethod].Name,
+			s.precompile.Methods[staking.CancelUnbondingDelegationMethod],
 			true,
 		},
 		{
 			staking.DelegationMethod,
-			s.precompile.Methods[staking.DelegationMethod].Name,
+			s.precompile.Methods[staking.DelegationMethod],
 			false,
 		},
 		{
 			"invalid",
-			"invalid",
+			abi.Method{},
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.Require().Equal(s.precompile.IsTransaction(tc.method), tc.isTx)
+			s.Require().Equal(s.precompile.IsTransaction(&tc.method), tc.isTx)
 		})
 	}
 }

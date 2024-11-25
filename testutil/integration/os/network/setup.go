@@ -320,7 +320,8 @@ func setDefaultBankGenesisState(evmosApp *exampleapp.ExampleChain, genesisState 
 		[]banktypes.Metadata{},
 		[]banktypes.SendEnabled{},
 	)
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
+	updatedBankGen := updateBankGenesisStateForChainID(*bankGenesis)
+	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedBankGen)
 	return genesisState
 }
 
@@ -462,7 +463,9 @@ func setDefaultMintGenesisState(evmosApp *exampleapp.ExampleChain, genesisState 
 func setDefaultErc20GenesisState(evmosApp *exampleapp.ExampleChain, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	// NOTE: here we are using the setup from the example chain
 	erc20Gen := exampleapp.NewErc20GenesisState()
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
+	updatedErc20Gen := updateErc20GenesisStateForChainID(evmosApp.ChainID(), *erc20Gen)
+
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedErc20Gen)
 	return genesisState
 }
 
