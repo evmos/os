@@ -22,7 +22,7 @@ var sealed = false
 var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 	EighteenDecimalsChainID: {
 		Denom:        ExampleChainDenom,
-		DisplayDenom: ExampleChainDenom,
+		DisplayDenom: ExampleDisplayDenom,
 		Decimals:     evmtypes.EighteenDecimals,
 	},
 }
@@ -35,6 +35,7 @@ func InitializeAppConfiguration(chainID string) error {
 	}
 
 	// When calling any CLI command, it creates a tempApp inside RootCmdHandler with an empty chainID.
+	// In that case we want to return here and not touch the app configuration.
 	if chainID == "" {
 		return nil
 	}

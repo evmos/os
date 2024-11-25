@@ -132,7 +132,7 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	jq '.app_state["mint"]["params"]["mint_denom"]="aevmos"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Enable precompiles in EVM params
-	jq '.app_state["evm"]["params"]["active_static_precompiles"]=["0x0000000000000000000000000000000000000100","0x0000000000000000000000000000000000000400","0x0000000000000000000000000000000000000800","0x0000000000000000000000000000000000000801","0x0000000000000000000000000000000000000802","0x0000000000000000000000000000000000000803","0x0000000000000000000000000000000000000804, "0x0000000000000000000000000000000000000805"]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
+	jq '.app_state["evm"]["params"]["active_static_precompiles"]=["0x0000000000000000000000000000000000000100","0x0000000000000000000000000000000000000400","0x0000000000000000000000000000000000000800","0x0000000000000000000000000000000000000801","0x0000000000000000000000000000000000000802","0x0000000000000000000000000000000000000803","0x0000000000000000000000000000000000000804","0x0000000000000000000000000000000000000805"]' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
 
 	# Set gas limit in genesis
 	jq '.consensus_params["block"]["max_gas"]="10000000"' "$GENESIS" >"$TMP_GENESIS" && mv "$TMP_GENESIS" "$GENESIS"
@@ -183,11 +183,11 @@ if [[ $overwrite == "y" || $overwrite == "Y" ]]; then
 	sed -i.bak 's/pruning-interval = "0"/pruning-interval = "10"/g' "$APP_TOML"
 
 	# Allocate genesis accounts (cosmos formatted addresses)
-	osd genesis add-genesis-account "$(osd keys show "$VAL_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 100000000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
-	osd genesis add-genesis-account "$(osd keys show "$USER1_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
-	osd genesis add-genesis-account "$(osd keys show "$USER2_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
-	osd genesis add-genesis-account "$(osd keys show "$USER3_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
-	osd genesis add-genesis-account "$(osd keys show "$USER4_KEY" -a --keyring-backend "$KEYRING" --home "$HOMEDIR")" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	osd genesis add-genesis-account "$VAL_KEY" 100000000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	osd genesis add-genesis-account "$USER1_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	osd genesis add-genesis-account "$USER2_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	osd genesis add-genesis-account "$USER3_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
+	osd genesis add-genesis-account "$USER4_KEY" 1000000000000000000000aevmos --keyring-backend "$KEYRING" --home "$HOMEDIR"
 
 	# Sign genesis transaction
 	osd genesis gentx "$VAL_KEY" 1000000000000000000000aevmos --gas-prices ${BASEFEE}aevmos --keyring-backend "$KEYRING" --chain-id "$CHAINID" --home "$HOMEDIR"
