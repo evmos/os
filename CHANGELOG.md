@@ -13,10 +13,10 @@ This changelog was created using the `clu` binary
 - (cli) [#54](https://github.com/evmos/os/pull/54) Align debug CLI commands with Cosmos SDK plus other minor clean up.
 - (cli) [#53](https://github.com/evmos/os/pull/53) Enable specifying default key type for adding keys.
 - (ante) [#52](https://github.com/evmos/os/pull/52) Refactor ante handlers to be easier to use in partner chains.
-- (all) [#48](https://github.com/evmos/os/pull/48) Move latest changes from evmOS main (f943af3b incl. SDK v50).
-- (all) [#43](https://github.com/evmos/os/pull/43) Update with latest evmOS main changes (2b7a8e2).
+- (all) [#48](https://github.com/evmos/os/pull/48) Move latest changes from Evmos main (f943af3b incl. SDK v50).
+- (all) [#43](https://github.com/evmos/os/pull/43) Update with latest Evmos main changes (2b7a8e2).
 - (tests) [#41](https://github.com/evmos/os/pull/41) Add Solidity and Ledger tests.
-- (all) [#37](https://github.com/evmos/os/pull/37) Add EVM, feemarket and precompiles from evmOS.
+- (all) [#37](https://github.com/evmos/os/pull/37) Add EVM, feemarket and precompiles from Evmos.
 - (all) [#38](https://github.com/evmos/os/pull/38) Add readme.
 - (all) [#30](https://github.com/evmos/os/pull/30) Add example chain implementation and ante handlers.
 - (ci) [#35](https://github.com/evmos/os/pull/35) Disable dependabot temporarily.
