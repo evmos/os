@@ -5,15 +5,14 @@ package keeper
 
 import (
 	"fmt"
-	"slices"
 
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/precompiles/erc20"
+	"github.com/evmos/os/precompiles/werc20"
 	"github.com/evmos/os/x/erc20/types"
 	"github.com/evmos/os/x/evm/core/vm"
-	evmkeeper "github.com/evmos/os/x/evm/keeper"
 )
 
 // GetERC20PrecompileInstance returns the precompile instance for the given address.
@@ -23,18 +22,25 @@ func (k Keeper) GetERC20PrecompileInstance(
 ) (contract vm.PrecompiledContract, found bool, err error) {
 	params := k.GetParams(ctx)
 
-	if k.IsAvailableERC20Precompile(&params, address) {
-		precompile, err := k.InstantiateERC20Precompile(ctx, address)
-		if err != nil {
-			return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
-		}
-		return precompile, true, nil
+	if !k.IsAvailableERC20Precompile(&params, address) {
+		return nil, false, nil
 	}
-	return nil, false, nil
+
+	isNative := params.IsNativePrecompile(address)
+
+	precompile, err := k.InstantiateERC20Precompile(ctx, address, isNative)
+	if err != nil {
+		return nil, false, errorsmod.Wrapf(err, "precompiled contract not initialized: %s", address.String())
+	}
+
+	return precompile, true, nil
 }
 
-// InstantiateERC20Precompile returns an ERC20 precompile instance for the given contract address
-func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address) (vm.PrecompiledContract, error) {
+// InstantiateERC20Precompile returns an ERC20 precompile instance for the given
+// contract address.
+// If the `hasWrappedMethods` boolean is true, the ERC20 instance returned
+// exposes methods for `withdraw` and `deposit` as it is common for wrapped tokens.
+func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.Address, hasWrappedMethods bool) (vm.PrecompiledContract, error) {
 	address := contractAddr.String()
 	// check if the precompile is an ERC20 contract
 	id := k.GetTokenPairID(ctx, address)
@@ -46,21 +52,18 @@ func (k Keeper) InstantiateERC20Precompile(ctx sdk.Context, contractAddr common.
 		return nil, fmt.Errorf("token pair not found: %s", address)
 	}
 
-	ek, ok := k.evmKeeper.(*evmkeeper.Keeper)
-	if !ok {
-		return nil, fmt.Errorf(
-			"invalid evm keeper in erc20 keeper; expected: %T; got: %T",
-			k.evmKeeper,
-			evmkeeper.Keeper{},
-		)
+	if hasWrappedMethods {
+		return werc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 	}
 
-	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper, ek)
+	return erc20.NewPrecompile(pair, k.bankKeeper, k.authzKeeper, *k.transferKeeper)
 }
 
-// IsAvailableDynamicPrecompile returns true if the given precompile address is contained in the
-// EVM keeper's available dynamic precompiles precompiles params.
+// IsAvailableERC20Precompile returns true if the given precompile address
+// is contained in the params of the erc20 module.
+// The available ERC-20 precompiles consist of the dynamic precompiles and the native
+// ones.
 func (k Keeper) IsAvailableERC20Precompile(params *types.Params, address common.Address) bool {
-	return slices.Contains(params.NativePrecompiles, address.Hex()) ||
-		slices.Contains(params.DynamicPrecompiles, address.Hex())
+	return params.IsNativePrecompile(address) ||
+		params.IsDynamicPrecompile(address)
 }

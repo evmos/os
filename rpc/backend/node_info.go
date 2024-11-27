@@ -8,8 +8,6 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/evmos/os/testutil/constants"
-
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	cmttypes "github.com/cometbft/cometbft/types"
@@ -27,6 +25,7 @@ import (
 	"github.com/evmos/os/crypto/ethsecp256k1"
 	rpctypes "github.com/evmos/os/rpc/types"
 	"github.com/evmos/os/server/config"
+	"github.com/evmos/os/testutil/constants"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
@@ -269,28 +268,31 @@ func (b *Backend) SetGasPrice(gasPrice hexutil.Big) bool {
 		b.logger.Debug("could not get the server config", "error", err.Error())
 		return false
 	}
-
-	var unit string
-	minGasPrices := appConf.GetMinGasPrices()
-
-	// fetch the base denom from the sdk Config in case it's not currently defined on the node config
-	if len(minGasPrices) == 0 || minGasPrices.Empty() {
-		var err error
-		unit, err = sdk.GetBaseDenom()
-		if err != nil {
-			b.logger.Debug("could not get the denom of smallest unit registered", "error", err.Error())
-			return false
-		}
-	} else {
-		unit = minGasPrices[0].Denom
-	}
-
-	c := sdk.NewDecCoin(unit, sdkmath.NewIntFromBigInt(gasPrice.ToInt()))
+	c := b.GenerateMinGasCoin(gasPrice, appConf)
 
 	appConf.SetMinGasPrices(sdk.DecCoins{c})
 	sdkconfig.WriteConfigFile(b.clientCtx.Viper.ConfigFileUsed(), appConf)
 	b.logger.Info("Your configuration file was modified. Please RESTART your node.", "gas-price", c.String())
 	return true
+}
+
+func (b *Backend) GenerateMinGasCoin(gasPrice hexutil.Big, appConf config.Config) sdk.DecCoin {
+	var unit string
+	minGasPrices := appConf.GetMinGasPrices()
+
+	// fetch the base denom from the sdk Config in case it's not currently defined on the node config
+	if len(minGasPrices) == 0 || minGasPrices.Empty() {
+		unit = evmtypes.GetEVMCoinDenom()
+	} else {
+		unit = minGasPrices[0].Denom
+	}
+
+	// The provided gasPrice has 18 decimals.
+	// We need to update to the denom's real precision
+	scaledAmt := evmtypes.ConvertBigIntFrom18DecimalsToLegacyDec(gasPrice.ToInt())
+	c := sdk.DecCoin{Denom: unit, Amount: scaledAmt}
+
+	return c
 }
 
 // UnprotectedAllowed returns the node configuration value for allowing
@@ -336,18 +338,14 @@ func (b *Backend) RPCBlockRangeCap() int32 {
 
 // RPCMinGasPrice returns the minimum gas price for a transaction obtained from
 // the node config. If set value is 0, it will default to 20.
-
-func (b *Backend) RPCMinGasPrice() int64 {
-	evmParams, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		return constants.DefaultGasPrice
-	}
+func (b *Backend) RPCMinGasPrice() *big.Int {
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	minGasPrice := b.cfg.GetMinGasPrices()
-	amt := minGasPrice.AmountOf(evmParams.Params.EvmDenom).TruncateInt64()
-	if amt == 0 {
-		return constants.DefaultGasPrice
+	amt := minGasPrice.AmountOf(baseDenom)
+	if amt.IsNil() || amt.IsZero() {
+		return big.NewInt(constants.DefaultGasPrice)
 	}
 
-	return amt
+	return evmtypes.ConvertAmountTo18DecimalsLegacy(amt).TruncateInt().BigInt()
 }

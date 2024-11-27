@@ -76,7 +76,8 @@ func (suite *BackendTestSuite) SetupTest() {
 		WithTxConfig(encodingConfig.TxConfig).
 		WithKeyringDir(clientDir).
 		WithKeyring(keyRing).
-		WithAccountRetriever(client.TestAccountRetriever{Accounts: accounts})
+		WithAccountRetriever(client.TestAccountRetriever{Accounts: accounts}).
+		WithClient(mocks.NewClient(suite.T()))
 
 	allowUnprotectedTxs := false
 	idxer := indexer.NewKVIndexer(dbm.NewMemDB(), ctx.Logger, clientCtx)
@@ -86,7 +87,6 @@ func (suite *BackendTestSuite) SetupTest() {
 	suite.backend.cfg.JSONRPC.EVMTimeout = 0
 	suite.backend.cfg.JSONRPC.AllowInsecureUnlock = true
 	suite.backend.queryClient.QueryClient = mocks.NewEVMQueryClient(suite.T())
-	suite.backend.clientCtx.Client = mocks.NewClient(suite.T())
 	suite.backend.queryClient.FeeMarket = mocks.NewFeeMarketQueryClient(suite.T())
 	suite.backend.ctx = rpctypes.ContextWithHeight(1)
 
@@ -175,15 +175,13 @@ func (suite *BackendTestSuite) signAndEncodeEthTx(msgEthereumTx *evmtypes.MsgEth
 	from, priv := utiltx.NewAddrKey()
 	signer := utiltx.NewSigner(priv)
 
-	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	RegisterParamsWithoutHeader(queryClient, 1)
-
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	msgEthereumTx.From = from.String()
 	err := msgEthereumTx.Sign(ethSigner, signer)
 	suite.Require().NoError(err)
 
-	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), ChainID)
+	evmDenom := evmtypes.GetEVMCoinDenom()
+	tx, err := msgEthereumTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmDenom)
 	suite.Require().NoError(err)
 
 	txEncoder := suite.backend.clientCtx.TxConfig.TxEncoder()

@@ -14,9 +14,9 @@ import (
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
-	chainconfig "github.com/evmos/os/example_chain/osd/config"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const (
@@ -93,7 +93,7 @@ func (p *Precompile) transfer(
 
 	var prevAllowance *big.Int
 	if ownerIsSpender {
-		msgSrv := bankkeeper.NewMsgServerImpl(p.bankKeeper)
+		msgSrv := bankkeeper.NewMsgServerImpl(p.BankKeeper)
 		_, err = msgSrv.Send(ctx, msg)
 	} else {
 		_, _, prevAllowance, err = GetAuthzExpirationAndAllowance(p.AuthzKeeper, ctx, spenderAddr, from, p.tokenPair.Denom)
@@ -110,13 +110,11 @@ func (p *Precompile) transfer(
 		return nil, err
 	}
 
-	// TODO: is this the correct denom? It was hardcoded to testconstants.ExampleAttoDenom before..
-	// evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
-	// TODO: when using the Evm denomiation here there is an import cycle - how to handle this, we should get the EVM denom here
-	evmDenom := chainconfig.BaseDenom
+	evmDenom := evmtypes.GetEVMCoinDenom()
 	if p.tokenPair.Denom == evmDenom {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Sub),
-			cmn.NewBalanceChangeEntry(to, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Add))
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(amount)
+		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(from, convertedAmount, cmn.Sub),
+			cmn.NewBalanceChangeEntry(to, convertedAmount, cmn.Add))
 	}
 
 	if err = p.EmitTransferEvent(ctx, stateDB, from, to, amount); err != nil {

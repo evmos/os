@@ -6,4 +6,13 @@ package example_chain
 const (
 	// ExampleChainDenom is the denomination of the evmOS example chain's base coin.
 	ExampleChainDenom = "aevmos"
+
+	// ExampleDisplayDenom is the display denomination of the evmOS example chain's base coin.
+	ExampleDisplayDenom = "evmos"
+
+	// EighteenDecimalsChainID is the chain ID for the 18 decimals chain.
+	EighteenDecimalsChainID = "os_9001"
+
+	// SixDecimalsChainID is the chain ID for the 6 decimals chain.
+	SixDecimalsChainID = "ossix_9002"
 )

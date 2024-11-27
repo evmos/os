@@ -72,7 +72,7 @@ func (is *IntegrationTestSuite) SetupTest() {
 	is.handler = gh
 	is.keyring = keys
 
-	is.bondDenom = nw.GetDenom()
+	is.bondDenom = nw.GetBaseDenom()
 
 	erc20Gen := genesis[erc20types.ModuleName].(*erc20types.GenesisState)
 	is.precompile = is.setupERC20Precompile(is.tokenDenom, erc20Gen.TokenPairs)
@@ -277,6 +277,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				txArgs.To = &precompileAddress
 
 				_, err := is.factory.ExecuteEthTx(sender.Priv, txArgs)
+				// Currently, this check pass because the erc20 precompile does
+				// not expose a fallback handler. Adding a fallback handler, the
+				// test should pass again because of the check on the message
+				// value in the precompile before the setup.
 				Expect(err.Error()).To(ContainSubstring(vm.ErrExecutionReverted.Error()), "precompile should not accept transfers")
 			},
 			)
@@ -434,10 +438,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					receiver := is.keyring.GetKey(1)
 					amountToSend := big.NewInt(100)
 
-					balRes, err := is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -460,17 +464,17 @@ var _ = Describe("ERC20 Extension -", func() {
 
 					Expect(is.network.NextBlock()).ToNot(HaveOccurred(), "failed to advance block")
 
-					balRes, err = is.handler.GetBalance(receiver.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					denomSpent := fees.Add(math.NewIntFromBigInt(amountToSend))
@@ -481,10 +485,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					amountToSend := big.NewInt(100)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -504,17 +508,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(fees)))
@@ -526,10 +530,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					totalToSend := int64(350)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -553,17 +557,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(totalToSend))))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					denomSpent := fees.AddRaw(totalToSend)
@@ -573,10 +577,10 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should revert token transfer and send from WEVMOS contract", func(before bool, after bool) {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -597,17 +601,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
 					// contract balance should remain unchanged
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount).To(Equal(math.ZeroInt()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					Expect(senderFinalBalance.Amount).To(Equal(senderInitialBalance.Amount.Sub(fees)))
@@ -619,10 +623,10 @@ var _ = Describe("ERC20 Extension -", func() {
 					sender := is.keyring.GetKey(0)
 					receiver := is.keyring.GetAddr(1)
 					amountToSend := big.NewInt(100)
-					balRes, err := is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err := is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomInitialBalance := balRes.Balance
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderInitialBalance := balRes.Balance
 
@@ -642,17 +646,17 @@ var _ = Describe("ERC20 Extension -", func() {
 					Expect(is.network.NextBlock()).To(BeNil())
 					fees := math.NewIntFromBigInt(gasPrice).MulRaw(res.GasUsed)
 
-					balRes, err = is.handler.GetBalance(receiver.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(receiver.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					denomFinalBalance := balRes.Balance
 					Expect(denomFinalBalance.Amount).To(Equal(denomInitialBalance.Amount.Add(math.NewInt(amountToSend.Int64()))))
 
-					balRes, err = is.handler.GetBalance(revertContractAddr.Bytes(), is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(revertContractAddr.Bytes(), is.bondDenom)
 					Expect(err).To(BeNil())
 					contractBalance := balRes.Balance
 					Expect(contractBalance.Amount.Int64()).To(Equal(amountToSend.Int64()))
 
-					balRes, err = is.handler.GetBalance(sender.AccAddr, is.bondDenom)
+					balRes, err = is.handler.GetBalanceFromBank(sender.AccAddr, is.bondDenom)
 					Expect(err).To(BeNil())
 					senderFinalBalance := balRes.Balance
 					denomSpent := fees.AddRaw(amountToSend.Int64() + amountToSend.Int64())
@@ -1146,7 +1150,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("it should return zero if balance only exists for other tokens", func(callType CallType) {
 				sender := is.keyring.GetKey(0)
 				address := utiltx.GenerateAddress()
-				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
+				fundCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 100)}
 
 				// Fund account with some tokens
 				err := is.factory.FundAccount(is.keyring.GetKey(0), sender.AccAddr, fundCoins)
@@ -1286,7 +1290,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			DescribeTable("it should return zero if an allowance exists for other tokens", func(callType CallType) {
 				grantee := is.keyring.GetKey(1)
 				granter := is.keyring.GetKey(0)
-				authzCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 100)}
+				authzCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 100)}
 
 				is.setupSendAuthz(grantee.AccAddr, granter.Priv, authzCoins)
 
@@ -1417,7 +1421,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should add a new spend limit to an existing allowance with a different token", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 					tokenCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 
 					// set up a previous authorization
@@ -1448,7 +1452,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should set the new spend limit for an existing allowance with the same token", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 					tokenCoins := sdk.Coins{sdk.NewInt64Coin(is.tokenDenom, 100)}
 					doubleTokenCoin := sdk.NewInt64Coin(is.tokenDenom, 200)
 
@@ -1479,7 +1483,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should remove the token from the spend limit of an existing authorization when approving zero", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 					tokenCoin := sdk.NewInt64Coin(is.tokenDenom, 100)
 
 					// set up a previous authorization
@@ -1631,7 +1635,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				DescribeTable("it should return an error if approving 0 and allowance only exists for other tokens", func(callType CallType) {
 					grantee := is.keyring.GetKey(1)
 					granter := is.keyring.GetKey(0)
-					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+					bondCoins := sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 
 					// set up a previous authorization
 					is.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
@@ -2288,7 +2292,7 @@ var _ = Describe("ERC20 Extension -", func() {
 			var bondCoins sdk.Coins
 
 			BeforeEach(func() {
-				bondCoins = sdk.Coins{sdk.NewInt64Coin(is.network.GetDenom(), 200)}
+				bondCoins = sdk.Coins{sdk.NewInt64Coin(is.network.GetBaseDenom(), 200)}
 				is.setupSendAuthz(grantee.AccAddr, granter.Priv, bondCoins)
 			})
 
@@ -2345,7 +2349,7 @@ var _ = Describe("ERC20 Extension -", func() {
 
 			BeforeEach(func() {
 				authzCoins = sdk.NewCoins(
-					sdk.NewInt64Coin(is.network.GetDenom(), 100),
+					sdk.NewInt64Coin(is.network.GetBaseDenom(), 100),
 					sdk.NewInt64Coin(is.tokenDenom, 200),
 				)
 
@@ -2428,7 +2432,7 @@ var _ = Describe("ERC20 Extension -", func() {
 				Expect(err).ToNot(HaveOccurred(), "error on NextBlock call")
 
 				// Check that only the spend limit in the network denomination remains
-				bondDenom := is.network.GetDenom()
+				bondDenom := is.network.GetBaseDenom()
 				expCoins := sdk.Coins{sdk.NewCoin(bondDenom, authzCoins.AmountOf(bondDenom))}
 				is.ExpectSendAuthzForContract(callType, contractsData, grantee.Addr, granter.Addr, expCoins)
 			},

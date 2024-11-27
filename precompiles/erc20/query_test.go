@@ -185,8 +185,6 @@ func (s *PrecompileTestSuite) TestNameSymbol() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -334,8 +332,6 @@ func (s *PrecompileTestSuite) TestDecimals() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -387,8 +383,6 @@ func (s *PrecompileTestSuite) TestTotalSupply() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -467,8 +461,6 @@ func (s *PrecompileTestSuite) TestBalanceOf() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 
@@ -569,8 +561,6 @@ func (s *PrecompileTestSuite) TestAllowance() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
-
 		s.Run(tc.name, func() {
 			s.SetupTest()
 

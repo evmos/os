@@ -4,23 +4,24 @@
 // The config package provides a convenient way to modify x/evm params and values.
 // Its primary purpose is to be used during application initialization.
 
-package config
+package types
 
 import (
 	"fmt"
 	"slices"
 
 	"github.com/evmos/os/x/evm/core/vm"
-	"github.com/evmos/os/x/evm/types"
 )
 
 // EVMConfigurator allows to extend x/evm module configurations. The configurator modifies
 // the EVM before starting the node. This means that all init genesis validations will be
 // applied to each change.
 type EVMConfigurator struct {
+	sealed                   bool
 	extendedEIPs             map[string]func(*vm.JumpTable)
 	extendedDefaultExtraEIPs []string
-	sealed                   bool
+	chainConfig              *ChainConfig
+	evmCoinInfo              EvmCoinInfo
 }
 
 // NewEVMConfigurator returns a pointer to a new EVMConfigurator object.
@@ -42,33 +43,31 @@ func (ec *EVMConfigurator) WithExtendedDefaultExtraEIPs(eips ...string) *EVMConf
 	return ec
 }
 
-// Configure apply the changes to the virtual machine configuration.
-func (ec *EVMConfigurator) Configure() error {
-	// If Configure method has been already used in the object, return
-	// an error to avoid overriding configuration.
-	if ec.sealed {
-		return fmt.Errorf("error configuring EVMConfigurator: already sealed and cannot be modified")
-	}
+// WithChainConfig allows to define a custom `chainConfig` to be used in the
+// EVM.
+func (ec *EVMConfigurator) WithChainConfig(cc *ChainConfig) *EVMConfigurator {
+	ec.chainConfig = cc
+	return ec
+}
 
-	if err := vm.ExtendActivators(ec.extendedEIPs); err != nil {
-		return err
-	}
+// WithEVMCoinInfo allows to define the denom and decimals of the token used as the
+// EVM token.
+func (ec *EVMConfigurator) WithEVMCoinInfo(denom string, decimals uint8) *EVMConfigurator {
+	ec.evmCoinInfo = EvmCoinInfo{Denom: denom, Decimals: Decimals(decimals)}
+	return ec
+}
 
-	for _, eip := range ec.extendedDefaultExtraEIPs {
-		if slices.Contains(types.DefaultExtraEIPs, eip) {
-			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, types.DefaultExtraEIPs)
+func extendDefaultExtraEIPs(extraEIPs []string) error {
+	for _, eip := range extraEIPs {
+		if slices.Contains(DefaultExtraEIPs, eip) {
+			return fmt.Errorf("error configuring EVMConfigurator: EIP %s is already present in the default list: %v", eip, DefaultExtraEIPs)
 		}
 
 		if err := vm.ValidateEIPName(eip); err != nil {
 			return fmt.Errorf("error configuring EVMConfigurator: %s", err)
 		}
 
-		types.DefaultExtraEIPs = append(types.DefaultExtraEIPs, eip)
+		DefaultExtraEIPs = append(DefaultExtraEIPs, eip)
 	}
-
-	// After applying modifier the configurator is sealed. This way, it is not possible
-	// to call the configure method twice.
-	ec.sealed = true
-
 	return nil
 }

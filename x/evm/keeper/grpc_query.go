@@ -40,7 +40,8 @@ const (
 	defaultTraceTimeout = 5 * time.Second
 )
 
-// Account implements the Query/Account gRPC method
+// Account implements the Query/Account gRPC method. The method returns the
+// balance of the account in 18 decimals representation.
 func (k Keeper) Account(c context.Context, req *types.QueryAccountRequest) (*types.QueryAccountResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
@@ -132,7 +133,8 @@ func (k Keeper) ValidatorAccount(c context.Context, req *types.QueryValidatorAcc
 	return &res, nil
 }
 
-// Balance implements the Query/Balance gRPC method
+// Balance implements the Query/Balance gRPC method. The method returns the 18
+// decimal representation of the account balance.
 func (k Keeper) Balance(c context.Context, req *types.QueryBalanceRequest) (*types.QueryBalanceResponse, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
@@ -231,11 +233,8 @@ func (k Keeper) EthCall(c context.Context, req *types.EthCallRequest) (*types.Ms
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
-	chainID, err := getChainID(ctx, req.ChainId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress), chainID)
+
+	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress))
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
@@ -276,17 +275,13 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	chainID, err := getChainID(ctx, req.ChainId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
 
 	if req.GasCap < ethparams.TxGas {
 		return nil, status.Errorf(codes.InvalidArgument, "gas cap cannot be lower than %d", ethparams.TxGas)
 	}
 
 	var args types.TransactionArgs
-	err = json.Unmarshal(req.Args, &args)
+	err := json.Unmarshal(req.Args, &args)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -317,7 +312,7 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 	}
 
 	gasCap = hi
-	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress), chainID)
+	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress))
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to load evm config")
 	}
@@ -336,7 +331,9 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 
 	// Recap the highest gas limit with account's available balance.
 	if msg.GasFeeCap().BitLen() != 0 {
-		balance := k.bankKeeper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), k.GetParams(ctx).EvmDenom)
+		baseDenom := types.GetEVMCoinDenom()
+
+		balance := k.bankWrapper.GetBalance(ctx, sdk.AccAddress(args.From.Bytes()), baseDenom)
 		available := balance.Amount
 		transfer := "0"
 		if args.Value != nil {
@@ -429,7 +426,10 @@ func (k Keeper) EstimateGasInternal(c context.Context, req *types.EthCallRequest
 		if failed {
 			if result != nil && result.VmError != vm.ErrOutOfGas.Error() {
 				if result.VmError == vm.ErrExecutionReverted.Error() {
-					return nil, types.NewExecErrorWithReason(result.Ret)
+					return &types.EstimateGasResponse{
+						Ret:     result.Ret,
+						VmError: result.VmError,
+					}, nil
 				}
 				return nil, errors.New(result.VmError)
 			}
@@ -469,17 +469,13 @@ func (k Keeper) TraceTx(c context.Context, req *types.QueryTraceTxRequest) (*typ
 		Block: &tmproto.BlockParams{MaxGas: req.BlockMaxGas},
 	})
 
-	chainID, err := getChainID(ctx, req.ChainId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress), chainID)
+	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to load evm config: %s", err.Error())
 	}
 
 	// compute and use base fee of the height that is being traced
-	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
 	if baseFee != nil {
 		cfg.BaseFee = baseFee
 	}
@@ -567,18 +563,13 @@ func (k Keeper) TraceBlock(c context.Context, req *types.QueryTraceBlockRequest)
 		Block: &tmproto.BlockParams{MaxGas: req.BlockMaxGas},
 	})
 
-	chainID, err := getChainID(ctx, req.ChainId)
-	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, err.Error())
-	}
-
-	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress), chainID)
+	cfg, err := k.EVMConfig(ctx, GetProposerAddress(ctx, req.ProposerAddress))
 	if err != nil {
 		return nil, status.Error(codes.Internal, "failed to load evm config")
 	}
 
 	// compute and use base fee of height that is being traced
-	baseFee := k.feeMarketKeeper.CalculateBaseFee(ctx)
+	baseFee := k.feeMarketWrapper.CalculateBaseFee(ctx)
 	if baseFee != nil {
 		cfg.BaseFee = baseFee
 	}
@@ -708,9 +699,7 @@ func (k *Keeper) traceTx(
 func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types.QueryBaseFeeResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 
-	params := k.GetParams(ctx)
-	ethCfg := params.ChainConfig.EthereumConfig(k.eip155ChainID)
-	baseFee := k.GetBaseFee(ctx, ethCfg)
+	baseFee := k.GetBaseFee(ctx)
 
 	res := &types.QueryBaseFeeResponse{}
 	if baseFee != nil {
@@ -721,10 +710,18 @@ func (k Keeper) BaseFee(c context.Context, _ *types.QueryBaseFeeRequest) (*types
 	return res, nil
 }
 
-// getChainID parse chainID from current context if not provided
-func getChainID(ctx sdk.Context, chainID int64) (*big.Int, error) {
-	if chainID == 0 {
-		return evmostypes.ParseChainID(ctx.ChainID())
-	}
-	return big.NewInt(chainID), nil
+// GlobalMinGasPrice implements the Query/GlobalMinGasPrice gRPC method
+func (k Keeper) GlobalMinGasPrice(c context.Context, _ *types.QueryGlobalMinGasPriceRequest) (*types.QueryGlobalMinGasPriceResponse, error) {
+	ctx := sdk.UnwrapSDKContext(c)
+	minGasPrice := k.GetMinGasPrice(ctx).TruncateInt()
+	return &types.QueryGlobalMinGasPriceResponse{MinGasPrice: minGasPrice}, nil
+}
+
+// Config implements the Query/Config gRPC method
+func (k Keeper) Config(_ context.Context, _ *types.QueryConfigRequest) (*types.QueryConfigResponse, error) {
+	config := types.GetChainConfig()
+	config.Denom = types.GetEVMCoinDenom()
+	config.Decimals = uint64(types.GetEVMCoinDecimals())
+
+	return &types.QueryConfigResponse{Config: config}, nil
 }

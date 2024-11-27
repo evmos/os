@@ -3,13 +3,16 @@
 package evm_test
 
 import (
+	"fmt"
 	"math/big"
 
+	"cosmossdk.io/math"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/ante/evm"
-	"github.com/evmos/os/testutil/constants"
+	testconstants "github.com/evmos/os/testutil/constants"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
@@ -33,7 +36,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 			expectedError: errortypes.ErrInvalidRequest,
 			getFunctionParams: func() validateMsgParams {
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    nil,
 					from:      keyring.GetAccAddr(0),
 				}
@@ -47,7 +50,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
 					from:      nil,
 				}
@@ -61,7 +64,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
@@ -80,7 +83,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
 					from:      nil,
 				}
@@ -94,7 +97,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -112,7 +115,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -130,7 +133,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 				return validateMsgParams{
-					evmParams: evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+					evmParams: evmtypes.DefaultParams(),
 					txData:    txData,
 					from:      nil,
 				}
@@ -144,7 +147,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Call.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -162,7 +165,7 @@ func (suite *EvmAnteTestSuite) TestValidateMsg() {
 				txData, err := txArgs.ToTxData()
 				suite.Require().NoError(err)
 
-				params := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
+				params := evmtypes.DefaultParams()
 				params.AccessControl.Create.AccessType = evmtypes.AccessTypeRestricted
 
 				return validateMsgParams{
@@ -213,5 +216,70 @@ func getTxByType(typeTx string, recipient common.Address) evmtypes.EvmTxArgs {
 		}
 	default:
 		panic("invalid type")
+	}
+}
+
+func (suite *EvmAnteTestSuite) TestCheckTxFee() {
+	// amount represents 1 token in the 18 decimals representation.
+	amount := math.NewInt(1e18)
+	gasLimit := uint64(1e6)
+
+	testCases := []struct {
+		name       string
+		txFee      *big.Int
+		txGasLimit uint64
+		expError   error
+	}{
+		{
+			name:       "pass",
+			txFee:      big.NewInt(amount.Int64()),
+			txGasLimit: gasLimit,
+			expError:   nil,
+		},
+		{
+			name:       "fail: not enough tx fees",
+			txFee:      big.NewInt(amount.Int64() - 1),
+			txGasLimit: gasLimit,
+			expError:   errortypes.ErrInvalidRequest,
+		},
+	}
+
+	for _, decimals := range []evmtypes.Decimals{
+		evmtypes.SixDecimals,
+		evmtypes.EighteenDecimals,
+	} {
+		for _, tc := range testCases {
+			suite.Run(fmt.Sprintf("%d decimals, %s", decimals, tc.name), func() {
+				// Call the configurator to set the EVM coin required for the
+				// function to be tested.
+				configurator := evmtypes.NewEVMConfigurator()
+				configurator.ResetTestConfig()
+				suite.Require().NoError(configurator.WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(decimals)).Configure())
+
+				// If decimals is not 18 decimals, we have to convert txFeeInfo to original
+				// decimals representation.
+				originalAmount := amount
+				evmCoinDecimal := evmtypes.GetEVMCoinDecimals()
+				originalAmount = originalAmount.Quo(evmCoinDecimal.ConversionFactor())
+
+				coins := sdktypes.Coins{sdktypes.Coin{Denom: "aevmos", Amount: originalAmount}}
+
+				// This struct should hold values in the original representation
+				txFeeInfo := &tx.Fee{
+					Amount:   coins,
+					GasLimit: gasLimit,
+				}
+
+				// Function under test
+				err := evm.CheckTxFee(txFeeInfo, tc.txFee, tc.txGasLimit)
+
+				if tc.expError != nil {
+					suite.Require().Error(err)
+					suite.Contains(err.Error(), tc.expError.Error())
+				} else {
+					suite.Require().NoError(err)
+				}
+			})
+		}
 	}
 }

@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/evmos/os/server/config"
 	"github.com/evmos/os/testutil/constants"
+	evmtypes "github.com/evmos/os/x/evm/types"
 
 	"cosmossdk.io/math"
 	tmrpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -22,25 +24,19 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice int64
+		expMinGasPrice *big.Int
 		expPass        bool
 	}{
 		{
 			"pass - default gas price",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeaderError(queryClient, 1)
-			},
-			constants.DefaultGasPrice,
+			func() {},
+			big.NewInt(constants.DefaultGasPrice),
 			true,
 		},
 		{
 			"pass - min gas price is 0",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				RegisterParamsWithoutHeader(queryClient, 1)
-			},
-			constants.DefaultGasPrice,
+			func() {},
+			big.NewInt(constants.DefaultGasPrice),
 			true,
 		},
 	}
@@ -60,39 +56,44 @@ func (suite *BackendTestSuite) TestRPCMinGasPrice() {
 	}
 }
 
-func (suite *BackendTestSuite) TestSetGasPrice() {
+func (suite *BackendTestSuite) TestGenerateMinGasCoin() {
 	defaultGasPrice := (*hexutil.Big)(big.NewInt(1))
 	testCases := []struct {
-		name         string
-		registerMock func()
-		gasPrice     hexutil.Big
-		expOutput    bool
+		name           string
+		gasPrice       hexutil.Big
+		minGas         sdk.DecCoins
+		expectedOutput sdk.DecCoin
 	}{
 		{
-			"pass - cannot get server config",
-			func() {
-				suite.backend.clientCtx.Viper = viper.New()
-			},
+			"pass - empty min gas Coins (default denom)",
 			*defaultGasPrice,
-			false,
+			sdk.DecCoins{},
+			sdk.DecCoin{
+				Denom:  evmtypes.GetEVMCoinDenom(),
+				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
+			},
 		},
 		{
-			"pass - cannot find coin denom",
-			func() {
-				suite.backend.clientCtx.Viper = viper.New()
-				suite.backend.clientCtx.Viper.Set("telemetry.global-labels", []interface{}{})
-			},
+			"pass - different min gas Coin",
 			*defaultGasPrice,
-			false,
+			sdk.DecCoins{sdk.NewDecCoin("test", math.NewInt(1))},
+			sdk.DecCoin{
+				Denom:  "test",
+				Amount: math.LegacyNewDecFromBigInt(defaultGasPrice.ToInt()),
+			},
 		},
 	}
 
 	for _, tc := range testCases {
 		suite.Run(fmt.Sprintf("case %s", tc.name), func() {
 			suite.SetupTest() // reset test and queries
-			tc.registerMock()
-			output := suite.backend.SetGasPrice(tc.gasPrice)
-			suite.Require().Equal(tc.expOutput, output)
+			suite.backend.clientCtx.Viper = viper.New()
+
+			appConf := config.DefaultConfig()
+			appConf.SetMinGasPrices(tc.minGas)
+
+			output := suite.backend.GenerateMinGasCoin(tc.gasPrice, *appConf)
+			suite.Require().Equal(tc.expectedOutput, output)
 		})
 	}
 }

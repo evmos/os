@@ -17,7 +17,6 @@ import (
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/contracts"
 	"github.com/evmos/os/precompiles/staking"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -69,7 +68,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	When("the params have default values", Ordered, func() {
 		BeforeAll(func() {
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			err := integrationutils.UpdateEvmParams(
 				integrationutils.UpdateParamsInput{
 					Tf:      s.factory,
@@ -83,13 +82,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		DescribeTable("Executes a transfer transaction", func(getTxArgs func() evmtypes.EvmTxArgs) {
 			senderKey := s.keyring.GetKey(0)
 			receiverKey := s.keyring.GetKey(1)
-			denom := s.network.GetDenom()
+			denom := s.network.GetBaseDenom()
 
-			senderPrevBalanceResponse, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			senderPrevBalanceResponse, err := s.grpcHandler.GetBalanceFromBank(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			senderPrevBalance := senderPrevBalanceResponse.GetBalance().Amount
 
-			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			receiverPrevBalanceResponse, err := s.grpcHandler.GetBalanceFromBank(receiverKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			receiverPrevBalance := receiverPrevBalanceResponse.GetBalance().Amount
 
@@ -109,13 +108,13 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 
 			// Check sender balance after transaction
 			senderBalanceResultBeforeFees := senderPrevBalance.Sub(math.NewInt(transferAmount))
-			senderAfterBalance, err := s.grpcHandler.GetBalance(senderKey.AccAddr, denom)
+			senderAfterBalance, err := s.grpcHandler.GetBalanceFromBank(senderKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(senderAfterBalance.GetBalance().Amount.LTE(senderBalanceResultBeforeFees)).To(BeTrue())
 
 			// Check receiver balance after transaction
 			receiverBalanceResult := receiverPrevBalance.Add(math.NewInt(transferAmount))
-			receverAfterBalanceResponse, err := s.grpcHandler.GetBalance(receiverKey.AccAddr, denom)
+			receverAfterBalanceResponse, err := s.grpcHandler.GetBalanceFromBank(receiverKey.AccAddr, denom)
 			Expect(err).To(BeNil())
 			Expect(receverAfterBalanceResponse.GetBalance().Amount).To(Equal(receiverBalanceResult))
 		},
@@ -380,7 +379,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 	},
 		// Entry("transfer and call fail with CALL permission policy set to restricted", func() evmtypes.Params {
 		// 	// Set params to default values
-		// 	defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+		// 	defaultParams := evmtypes.DefaultParams()
 		// 	defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 		// 		AccessType:        evmtypes.AccessTypeRestricted,
 		// 	}
@@ -392,7 +391,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("transfer and call succeed with CALL permission policy set to default and CREATE permission policy set to restricted", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypeRestricted,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -405,7 +404,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("transfer and call are successful with CALL permission policy set to permissionless and address not blocked", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -418,7 +417,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("transfer fails with signer blocked and call succeeds with signer NOT blocked permission policy set to permissionless", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -431,7 +430,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("transfer succeeds with signer NOT blocked and call fails with signer blocked permission policy set to permissionless", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -444,7 +443,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("transfer and call succeeds with CALL permission policy set to permissioned and signer whitelisted on both", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissioned,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -457,7 +456,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("transfer and call fails with CALL permission policy set to permissioned and signer not whitelisted on both", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissioned,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -530,7 +529,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create and call is successful with create permission policy set to permissionless and address not blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -543,7 +542,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create fails with create permission policy set to permissionless and signer is blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -556,7 +555,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create and call is successful with call permission policy set to permissionless and address not blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -569,7 +568,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create is successful and call fails with call permission policy set to permissionless and address blocked ", func() evmtypes.Params {
 			blockedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissionless,
 				AccessControlList: []string{s.keyring.GetAddr(blockedSignerIndex).String()},
@@ -581,7 +580,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		),
 		Entry("Create fails create permission policy set to restricted", func() evmtypes.Params {
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType: evmtypes.AccessTypeRestricted,
 			}
@@ -592,7 +591,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		),
 		Entry("Create succeeds and call fails when call permission policy set to restricted", func() evmtypes.Params {
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType: evmtypes.AccessTypeRestricted,
 			}
@@ -604,7 +603,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create and call are successful with create permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissioned,
 				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
@@ -617,7 +616,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create fails with create permission policy set to permissioned and signer NOT whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Create = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissioned,
 				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
@@ -630,7 +629,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create and call are successful with call permission policy set to permissioned and signer whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissioned,
 				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},
@@ -643,7 +642,7 @@ var _ = Describe("Handling a MsgEthereumTx message", Label("EVM"), Ordered, func
 		Entry("Create succeeds and call fails with call permission policy set to permissioned and signer NOT whitelisted", func() evmtypes.Params {
 			whitelistedSignerIndex := 1
 			// Set params to default values
-			defaultParams := evmtypes.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultParams := evmtypes.DefaultParams()
 			defaultParams.AccessControl.Call = evmtypes.AccessControlType{
 				AccessType:        evmtypes.AccessTypePermissioned,
 				AccessControlList: []string{s.keyring.GetAddr(whitelistedSignerIndex).String()},

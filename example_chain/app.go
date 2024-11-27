@@ -9,12 +9,12 @@ import (
 	"io"
 	"maps"
 	"os"
-	"path/filepath"
 	"sort"
 
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	reflectionv1 "cosmossdk.io/api/cosmos/reflection/v1"
 	"cosmossdk.io/client/v2/autocli"
+	clienthelpers "cosmossdk.io/client/v2/helpers"
 	"cosmossdk.io/core/appmodule"
 	"cosmossdk.io/log"
 	storetypes "cosmossdk.io/store/types"
@@ -135,12 +135,11 @@ func init() {
 	sdk.DefaultPowerReduction = evmostypes.AttoPowerReduction
 
 	// get the user's home directory
-	userHomeDir, err := os.UserHomeDir()
+	var err error
+	DefaultNodeHome, err = clienthelpers.GetNodeHomeDirectory(".osd")
 	if err != nil {
 		panic(err)
 	}
-
-	DefaultNodeHome = filepath.Join(userHomeDir, ".osd")
 }
 
 const appName = "os"
@@ -279,6 +278,11 @@ func NewExampleApp(
 	bApp.SetVersion(version.Version)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 	bApp.SetTxEncoder(txConfig.TxEncoder())
+
+	// initialize the evmOS application configuration
+	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
+		panic(err)
+	}
 
 	keys := storetypes.NewKVStoreKeys(
 		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
@@ -568,6 +572,8 @@ func NewExampleApp(
 			app.TransferKeeper,
 			app.IBCKeeper.ChannelKeeper,
 			app.EVMKeeper,
+			app.GovKeeper,
+			app.SlashingKeeper,
 		),
 	)
 
@@ -642,7 +648,8 @@ func NewExampleApp(
 		ibcexported.ModuleName, ibctransfertypes.ModuleName,
 
 		// evmOS BeginBlockers
-		evmtypes.ModuleName, erc20types.ModuleName, feemarkettypes.ModuleName,
+		erc20types.ModuleName, feemarkettypes.ModuleName,
+		evmtypes.ModuleName, // NOTE: EVM BeginBlocker must come after FeeMarket BeginBlocker
 
 		// TODO: remove no-ops? check if all are no-ops before removing
 		distrtypes.ModuleName, slashingtypes.ModuleName,
@@ -801,7 +808,7 @@ func (app *ExampleChain) setAnteHandler(txConfig client.TxConfig, maxGasWanted u
 		SignModeHandler:        txConfig.SignModeHandler(),
 		SigGasConsumer:         evmosante.SigVerificationGasConsumer,
 		MaxTxGasWanted:         maxGasWanted,
-		TxFeeChecker:           evmosevmante.NewDynamicFeeChecker(app.EVMKeeper),
+		TxFeeChecker:           evmosevmante.NewDynamicFeeChecker(app.FeeMarketKeeper),
 	}
 	if err := options.Validate(); err != nil {
 		panic(err)

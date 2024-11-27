@@ -26,21 +26,6 @@ func (suite *KeeperTestSuite) TestParams() {
 			true,
 		},
 		{
-			"success - EvmDenom param is set to \"inj\" and can be retrieved correctly",
-			func() interface{} {
-				params := defaultChainEVMParams
-				params.EvmDenom = "inj"
-				err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), params)
-				suite.Require().NoError(err)
-				return params.EvmDenom
-			},
-			func() interface{} {
-				evmParams := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetEvmDenom()
-			},
-			true,
-		},
-		{
 			"success - Check Access Control Create param is set to restricted and can be retrieved correctly",
 			func() interface{} {
 				params := defaultChainEVMParams
@@ -90,21 +75,6 @@ func (suite *KeeperTestSuite) TestParams() {
 			func() interface{} {
 				evmParams := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
 				return evmParams.GetAllowUnprotectedTxs()
-			},
-			true,
-		},
-		{
-			"success - Check ChainConfig param is set to the default value and can be retrieved correctly",
-			func() interface{} {
-				params := defaultChainEVMParams
-				params.ChainConfig = types.DefaultChainConfig()
-				err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), params)
-				suite.Require().NoError(err)
-				return params.ChainConfig
-			},
-			func() interface{} {
-				evmParams := suite.network.App.EVMKeeper.GetParams(suite.network.GetContext())
-				return evmParams.GetChainConfig()
 			},
 			true,
 		},

@@ -14,18 +14,28 @@ func (s *PrecompileTestSuite) TestIsTransaction() {
 	s.SetupTest()
 
 	// Queries
-	s.Require().False(s.precompile.IsTransaction(erc20.BalanceOfMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.DecimalsMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.NameMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.SymbolMethod))
-	s.Require().False(s.precompile.IsTransaction(erc20.TotalSupplyMethod))
+	method := s.precompile.Methods[erc20.BalanceOfMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.DecimalsMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.NameMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.SymbolMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TotalSupplyMethod]
+	s.Require().False(s.precompile.IsTransaction(&method))
 
 	// Transactions
-	s.Require().True(s.precompile.IsTransaction(auth.ApproveMethod))
-	s.Require().True(s.precompile.IsTransaction(auth.IncreaseAllowanceMethod))
-	s.Require().True(s.precompile.IsTransaction(auth.DecreaseAllowanceMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.TransferMethod))
-	s.Require().True(s.precompile.IsTransaction(erc20.TransferFromMethod))
+	method = s.precompile.Methods[auth.ApproveMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[auth.IncreaseAllowanceMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[auth.DecreaseAllowanceMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TransferMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
+	method = s.precompile.Methods[erc20.TransferFromMethod]
+	s.Require().True(s.precompile.IsTransaction(&method))
 }
 
 func (s *PrecompileTestSuite) TestRequiredGas() {
@@ -153,8 +163,6 @@ func (s *PrecompileTestSuite) TestRequiredGas() {
 
 	for _, tc := range testcases {
 		s.Run(tc.name, func() {
-			tc := tc
-
 			input := tc.malleate()
 
 			s.Require().Equal(tc.expGas, s.precompile.RequiredGas(input))

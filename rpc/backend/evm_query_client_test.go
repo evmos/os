@@ -7,8 +7,6 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/evmos/os/testutil/constants"
-
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
@@ -79,11 +77,8 @@ func RegisterParams(queryClient *mocks.EVMQueryClient, header *metadata.MD, heig
 }
 
 func RegisterParamsWithoutHeader(queryClient *mocks.EVMQueryClient, height int64) {
-	// NOTE: we need to register the EVM denomination for the example chain
-	evmParams := evmtypes.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom)
-
 	queryClient.On("Params", rpc.ContextWithHeight(height), &evmtypes.QueryParamsRequest{}).
-		Return(&evmtypes.QueryParamsResponse{Params: evmParams}, nil)
+		Return(&evmtypes.QueryParamsResponse{Params: evmtypes.DefaultParams()}, nil)
 }
 
 func RegisterParamsInvalidHeader(queryClient *mocks.EVMQueryClient, header *metadata.MD, height int64) {
@@ -278,4 +273,10 @@ func RegisterBalanceNegative(queryClient *mocks.EVMQueryClient, addr common.Addr
 func RegisterBalanceError(queryClient *mocks.EVMQueryClient, addr common.Address, height int64) {
 	queryClient.On("Balance", rpc.ContextWithHeight(height), &evmtypes.QueryBalanceRequest{Address: addr.String()}).
 		Return(nil, errortypes.ErrInvalidRequest)
+}
+
+// GlobalMinGasPrice
+func RegisterGlobalMinGasPrice(queryClient *mocks.EVMQueryClient, height int64) {
+	queryClient.On("GlobalMinGasPrice", rpc.ContextWithHeight(height), &evmtypes.QueryGlobalMinGasPriceRequest{}).
+		Return(&evmtypes.QueryGlobalMinGasPriceResponse{MinGasPrice: math.OneInt()}, nil)
 }

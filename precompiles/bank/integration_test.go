@@ -11,7 +11,6 @@ import (
 	"github.com/evmos/os/precompiles/bank"
 	"github.com/evmos/os/precompiles/bank/testdata"
 	"github.com/evmos/os/precompiles/testutil"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
@@ -164,7 +163,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), is.tokenDenom)
+				balanceAfter, err := is.grpcHandler.GetBalanceFromBank(receiver.Bytes(), is.tokenDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -187,7 +186,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), testconstants.ExampleAttoDenom)
+				balanceAfter, err := is.grpcHandler.GetBalanceFromBank(receiver.Bytes(), is.network.GetBaseDenom())
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -218,7 +217,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				gasUsed := Max(bank.GasBalanceOf, len(balances)*bank.GasBalanceOf)
+				gasUsed := Max(bank.GasBalances, len(balances)*bank.GasBalances)
 				// Here increasing the GasBalanceOf will increase the use of gas so they will never be equal
 				Expect(gasUsed).To(BeNumerically("<=", ethRes.GasUsed))
 			})
@@ -307,7 +306,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), is.tokenDenom)
+				balanceAfter, err := is.grpcHandler.GetBalanceFromBank(receiver.Bytes(), is.tokenDenom)
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -330,7 +329,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				balanceAfter, err := is.grpcHandler.GetBalance(receiver.Bytes(), testconstants.ExampleAttoDenom)
+				balanceAfter, err := is.grpcHandler.GetBalanceFromBank(receiver.Bytes(), is.network.GetBaseDenom())
 				Expect(err).ToNot(HaveOccurred(), "failed to get balance")
 
 				Expect(math.NewInt(balances[0].Amount.Int64())).To(Equal(balanceAfter.Balance.Amount))
@@ -361,7 +360,7 @@ var _ = Describe("Bank Extension -", func() {
 				err = is.precompile.UnpackIntoInterface(&balances, bank.BalancesMethod, ethRes.Ret)
 				Expect(err).ToNot(HaveOccurred(), "failed to unpack balances")
 
-				gasUsed := Max(bank.GasBalanceOf, len(balances)*bank.GasBalanceOf)
+				gasUsed := Max(bank.GasBalances, len(balances)*bank.GasBalances)
 				// Here increasing the GasBalanceOf will increase the use of gas so they will never be equal
 				Expect(gasUsed).To(BeNumerically("<=", ethRes.GasUsed))
 			})

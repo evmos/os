@@ -126,13 +126,29 @@ func getAccAddrsFromBalances(balances []banktypes.Balance) []sdktypes.AccAddress
 	return genAccounts
 }
 
-// createBalances creates balances for the given accounts and coin
-func createBalances(accounts []sdktypes.AccAddress, denoms []string) []banktypes.Balance {
-	slices.Sort(denoms)
+// createBalances creates balances for the given accounts and coin. Depending on
+// the decimal representation of the denom, the amount is scaled to have the
+// same value for all denoms.
+func createBalances(
+	accounts []sdktypes.AccAddress,
+	denoms []string,
+	denomsDecimals map[string]evmtypes.Decimals,
+) []banktypes.Balance {
 	numberOfAccounts := len(accounts)
+
+	slices.Sort(denoms)
+
 	coins := make([]sdktypes.Coin, len(denoms))
 	for i, denom := range denoms {
-		coins[i] = sdktypes.NewCoin(denom, PrefundedAccountInitialBalance)
+		amount := PrefundedAccountInitialBalance
+		dec, found := denomsDecimals[denom]
+		// If the denom is not in the map, the 18 decimals representation is
+		// used.
+		if found {
+			// amount is expressed in 18 decimals so it should be scaled down.
+			amount = amount.Quo(dec.ConversionFactor())
+		}
+		coins[i] = sdktypes.NewCoin(denom, amount)
 	}
 	fundedAccountBalances := make([]banktypes.Balance, 0, numberOfAccounts)
 	for _, acc := range accounts {
@@ -320,7 +336,8 @@ func setDefaultBankGenesisState(evmosApp *exampleapp.ExampleChain, genesisState 
 		[]banktypes.Metadata{},
 		[]banktypes.SendEnabled{},
 	)
-	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(bankGenesis)
+	updatedBankGen := updateBankGenesisStateForChainID(*bankGenesis)
+	genesisState[banktypes.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedBankGen)
 	return genesisState
 }
 
@@ -462,7 +479,9 @@ func setDefaultMintGenesisState(evmosApp *exampleapp.ExampleChain, genesisState 
 func setDefaultErc20GenesisState(evmosApp *exampleapp.ExampleChain, genesisState evmostypes.GenesisState) evmostypes.GenesisState {
 	// NOTE: here we are using the setup from the example chain
 	erc20Gen := exampleapp.NewErc20GenesisState()
-	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(erc20Gen)
+	updatedErc20Gen := updateErc20GenesisStateForChainID(evmosApp.ChainID(), *erc20Gen)
+
+	genesisState[erc20types.ModuleName] = evmosApp.AppCodec().MustMarshalJSON(&updatedErc20Gen)
 	return genesisState
 }
 

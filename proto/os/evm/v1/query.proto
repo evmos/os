@@ -82,6 +82,29 @@ service Query {
   rpc BaseFee(QueryBaseFeeRequest) returns (QueryBaseFeeResponse) {
     option (google.api.http).get = "/evmos/evm/v1/base_fee";
   }
+
+  // Config queries the EVM configuration
+  rpc Config(QueryConfigRequest) returns (QueryConfigResponse) {
+    option (google.api.http).get = "/evmos/evm/v1/config";
+  }
+
+  // GlobalMinGasPrice queries the MinGasPrice
+  // it's similar to feemarket module's method,
+  // but makes the conversion to 18 decimals
+  // when the evm denom is represented with a different precision.
+  rpc GlobalMinGasPrice(QueryGlobalMinGasPriceRequest)
+      returns (QueryGlobalMinGasPriceResponse) {
+    option (google.api.http).get = "/evmos/evm/v1/min_gas_price";
+  }
+}
+
+// QueryConfigRequest defines the request type for querying the config
+message QueryConfigRequest {}
+
+// QueryConfigResponse returns the EVM config.
+message QueryConfigResponse {
+  // config is the evm configuration
+  ChainConfig config = 1;
 }
 
 // QueryAccountRequest is the request type for the Query/Account RPC method.
@@ -242,6 +265,11 @@ message EthCallRequest {
 message EstimateGasResponse {
   // gas returns the estimated gas
   uint64 gas = 1;
+  // ret is the returned data from evm function (result or data supplied with
+  // revert opcode)
+  bytes ret = 2;
+  // vm_error is the error returned by vm execution
+  string vm_error = 3;
 }
 
 // QueryTraceTxRequest defines TraceTx request
@@ -322,4 +350,17 @@ message QueryBaseFeeRequest {}
 message QueryBaseFeeResponse {
   // base_fee is the EIP1559 base fee
   string base_fee = 1 [ (gogoproto.customtype) = "cosmossdk.io/math.Int" ];
+}
+
+// QueryGlobalMinGasPriceRequest defines the request type for querying the
+// GlobalMinGasPrice
+message QueryGlobalMinGasPriceRequest {}
+
+// QueryGlobalMinGasPriceResponse returns the GlobalMinGasPrice
+message QueryGlobalMinGasPriceResponse {
+  // min_gas_price is the feemarket's min_gas_price
+  string min_gas_price = 1 [
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
+    (gogoproto.nullable) = false
+  ];
 }

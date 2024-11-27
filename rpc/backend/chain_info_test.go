@@ -19,7 +19,6 @@ import (
 	rpc "github.com/evmos/os/rpc/types"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	feemarkettypes "github.com/evmos/os/x/feemarket/types"
 )
 
 func (suite *BackendTestSuite) TestBaseFee() {
@@ -65,7 +64,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 				Height: 1,
 				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 					},
 				},
 			},
@@ -82,7 +81,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 				Height: 1,
 				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
 							{Value: "/1"},
 						},
@@ -102,7 +101,7 @@ func (suite *BackendTestSuite) TestBaseFee() {
 				Height: 1,
 				FinalizeBlockEvents: []types.Event{
 					{
-						Type: feemarkettypes.EventTypeFeeMarket,
+						Type: evmtypes.EventTypeFeeMarket,
 						Attributes: []types.EventAttribute{
 							{Value: baseFee.String()},
 						},
@@ -291,17 +290,17 @@ func (suite *BackendTestSuite) TestGlobalMinGasPrice() {
 	testCases := []struct {
 		name           string
 		registerMock   func()
-		expMinGasPrice math.LegacyDec
+		expMinGasPrice *big.Int
 		expPass        bool
 	}{
 		{
-			"fail - Can't get FeeMarket params",
+			"pass - get GlobalMinGasPrice",
 			func() {
-				feeMarketCleint := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
-				RegisterFeeMarketParamsError(feeMarketCleint, int64(1))
+				qc := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
+				RegisterGlobalMinGasPrice(qc, 1)
 			},
-			math.LegacyZeroDec(),
-			false,
+			big.NewInt(1),
+			true,
 		},
 	}
 
@@ -424,7 +423,6 @@ func (suite *BackendTestSuite) TestFeeHistory() {
 				RegisterValidatorAccount(queryClient, validator)
 				RegisterConsensusParams(client, 1)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
 			},
 			1,
 			1,

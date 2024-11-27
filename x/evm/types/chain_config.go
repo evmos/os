@@ -3,20 +3,33 @@
 package types
 
 import (
+	"errors"
 	"math/big"
 	"strings"
 
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/params"
+	gethparams "github.com/ethereum/go-ethereum/params"
+	"github.com/evmos/os/types"
 )
+
+// testChainID represents the ChainID used for the purpose of testing.
+const testChainID string = "evmos_9002-1"
+
+// chainConfig is the chain configuration used in the EVM to defined which
+// opcodes are active based on Ethereum upgrades.
+var chainConfig *ChainConfig
 
 // EthereumConfig returns an Ethereum ChainConfig for EVM state transitions.
 // All the negative or nil values are converted to nil
-func (cc ChainConfig) EthereumConfig(chainID *big.Int) *params.ChainConfig {
-	return &params.ChainConfig{
-		ChainID:                 chainID,
+func (cc ChainConfig) EthereumConfig(chainID *big.Int) *gethparams.ChainConfig {
+	cID := new(big.Int).SetUint64(cc.ChainId)
+	if chainID != nil {
+		cID = chainID
+	}
+	return &gethparams.ChainConfig{
+		ChainID:                 cID,
 		HomesteadBlock:          getBlockValue(cc.HomesteadBlock),
 		DAOForkBlock:            getBlockValue(cc.DAOForkBlock),
 		DAOForkSupport:          cc.DAOForkSupport,
@@ -42,8 +55,16 @@ func (cc ChainConfig) EthereumConfig(chainID *big.Int) *params.ChainConfig {
 	}
 }
 
-// DefaultChainConfig returns default evm parameters.
-func DefaultChainConfig() ChainConfig {
+func DefaultChainConfig(chainID string) *ChainConfig {
+	if chainID == "" {
+		chainID = testChainID
+	}
+
+	eip155ChainID, err := types.ParseChainID(chainID)
+	if err != nil {
+		panic(err)
+	}
+
 	homesteadBlock := sdkmath.ZeroInt()
 	daoForkBlock := sdkmath.ZeroInt()
 	eip150Block := sdkmath.ZeroInt()
@@ -61,8 +82,8 @@ func DefaultChainConfig() ChainConfig {
 	mergeNetsplitBlock := sdkmath.ZeroInt()
 	shanghaiBlock := sdkmath.ZeroInt()
 	cancunBlock := sdkmath.ZeroInt()
-
-	return ChainConfig{
+	cfg := &ChainConfig{
+		ChainId:             eip155ChainID.Uint64(),
 		HomesteadBlock:      &homesteadBlock,
 		DAOForkBlock:        &daoForkBlock,
 		DAOForkSupport:      true,
@@ -83,6 +104,26 @@ func DefaultChainConfig() ChainConfig {
 		ShanghaiBlock:       &shanghaiBlock,
 		CancunBlock:         &cancunBlock,
 	}
+	return cfg
+}
+
+// setChainConfig allows to set the `chainConfig` variable modifying the
+// default values. The method is private because it should only be called once
+// in the EVMConfigurator.
+func setChainConfig(cc *ChainConfig) error {
+	if chainConfig != nil {
+		return errors.New("chainConfig already set. Cannot set again the chainConfig")
+	}
+	config := DefaultChainConfig("")
+	if cc != nil {
+		config = cc
+	}
+	if err := config.Validate(); err != nil {
+		return err
+	}
+	chainConfig = config
+
+	return nil
 }
 
 func getBlockValue(block *sdkmath.Int) *big.Int {

@@ -25,7 +25,7 @@ import (
 )
 
 // consensusVersion defines the current x/evm module consensus version.
-const consensusVersion = 7
+const consensusVersion = 8
 
 var (
 	_ module.AppModule      = AppModule{}
@@ -134,7 +134,7 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }
 
-// BeginBlock returns the begin block for the evm module.
+// BeginBlock returns the begin blocker for the evm module.
 func (am AppModule) BeginBlock(ctx context.Context) error {
 	c := sdk.UnwrapSDKContext(ctx)
 	return am.keeper.BeginBlock(c)

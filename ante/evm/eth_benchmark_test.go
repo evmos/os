@@ -28,7 +28,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 	ctx := s.GetNetwork().GetContext()
 
 	args := &evmtypes.EvmTxArgs{
-		ChainID:  s.GetNetwork().App.EVMKeeper.ChainID(),
+		ChainID:  evmtypes.GetEthChainConfig().ChainID,
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: uint64(1_000_000),
@@ -68,7 +68,7 @@ func BenchmarkEthGasConsumeDecorator(b *testing.B) {
 
 				baseFee := s.GetNetwork().App.FeeMarketKeeper.GetParams(ctx).BaseFee
 				fee := tx.GetEffectiveFee(baseFee.BigInt())
-				denom := s.GetNetwork().App.EVMKeeper.GetParams(ctx).EvmDenom
+				denom := evmtypes.GetEVMCoinDenom()
 				fees := sdk.NewCoins(sdk.NewCoin(denom, sdkmath.NewIntFromBigInt(fee)))
 				bechAddr := sdk.AccAddress(addr.Bytes())
 

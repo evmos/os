@@ -12,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/evmos/os/rpc/backend/mocks"
 	rpctypes "github.com/evmos/os/rpc/types"
-	"github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	evmtypes "github.com/evmos/os/x/evm/types"
 	"google.golang.org/grpc/metadata"
@@ -220,7 +219,6 @@ func (suite *BackendTestSuite) TestResend() {
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterEstimateGas(queryClient, callArgs)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterUnconfirmedTxsError(client, nil)
 			},
 			evmtypes.TransactionArgs{
@@ -250,7 +248,7 @@ func (suite *BackendTestSuite) TestResend() {
 				RegisterBaseFee(queryClient, baseFee)
 				RegisterEstimateGas(queryClient, callArgs)
 				RegisterParams(queryClient, &header, 1)
-				RegisterParamsWithoutHeader(queryClient, 1)
+
 				RegisterUnconfirmedTxsEmpty(client, nil)
 			},
 			evmtypes.TransactionArgs{
@@ -289,14 +287,13 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 	ethTx, bz := suite.buildEthereumTx()
 
 	// Sign the ethTx
-	queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-	RegisterParamsWithoutHeader(queryClient, 1)
 	ethSigner := ethtypes.LatestSigner(suite.backend.ChainConfig())
 	err := ethTx.Sign(ethSigner, suite.signer)
 	suite.Require().NoError(err)
 
 	rlpEncodedBz, _ := rlp.EncodeToBytes(ethTx.AsTransaction())
-	cosmosTx, _ := ethTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), constants.ExampleAttoDenom)
+	evmDenom := evmtypes.GetEVMCoinDenom()
+	cosmosTx, _ := ethTx.BuildTx(suite.backend.clientCtx.TxConfig.NewTxBuilder(), evmDenom)
 	txBytes, _ := suite.backend.clientCtx.TxConfig.TxEncoder()(cosmosTx)
 
 	testCases := []struct {
@@ -323,20 +320,9 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 		{
 			"fail - unprotected transactions",
 			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = false
-				RegisterParamsWithoutHeaderError(queryClient, 1)
-			},
-			rlpEncodedBz,
-			common.Hash{},
-			false,
-		},
-		{
-			"fail - failed to get evm params",
-			func() {
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
-				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeaderError(queryClient, 1)
+				client := suite.backend.clientCtx.Client.(*mocks.Client)
+				RegisterBroadcastTxError(client, txBytes)
 			},
 			rlpEncodedBz,
 			common.Hash{},
@@ -346,9 +332,7 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 			"fail - failed to broadcast transaction",
 			func() {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterBroadcastTxError(client, txBytes)
 			},
 			rlpEncodedBz,
@@ -359,9 +343,7 @@ func (suite *BackendTestSuite) TestSendRawTransaction() {
 			"pass - Gets the correct transaction hash of the eth transaction",
 			func() {
 				client := suite.backend.clientCtx.Client.(*mocks.Client)
-				queryClient := suite.backend.queryClient.QueryClient.(*mocks.EVMQueryClient)
 				suite.backend.allowUnprotectedTxs = true
-				RegisterParamsWithoutHeader(queryClient, 1)
 				RegisterBroadcastTx(client, txBytes)
 			},
 			rlpEncodedBz,
@@ -479,6 +461,7 @@ func (suite *BackendTestSuite) TestGasPrice() {
 				feeMarketClient := suite.backend.queryClient.FeeMarket.(*mocks.FeeMarketQueryClient)
 				RegisterFeeMarketParams(feeMarketClient, 1)
 				RegisterParams(queryClient, &header, 1)
+				RegisterGlobalMinGasPrice(queryClient, 1)
 				_, err := RegisterBlock(client, 1, nil)
 				suite.Require().NoError(err)
 				_, err = RegisterBlockResults(client, 1)

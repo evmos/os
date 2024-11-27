@@ -22,6 +22,7 @@ import (
 	exampleapp "github.com/evmos/os/example_chain"
 	"github.com/evmos/os/testutil/tx"
 	evm "github.com/evmos/os/x/evm/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // ContractArgs are the params used for calling a smart contract.
@@ -60,7 +61,7 @@ func DeployContract(
 	contract evm.CompiledContract,
 	constructorArgs ...interface{},
 ) (common.Address, error) {
-	chainID := app.EVMKeeper.ChainID()
+	chainID := evmtypes.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	nonce := app.EVMKeeper.GetNonce(ctx, from)
 
@@ -75,11 +76,16 @@ func DeployContract(
 		return common.Address{}, err
 	}
 
+	baseFeeRes, err := queryClientEvm.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	if err != nil {
+		return common.Address{}, err
+	}
+
 	msgEthereumTx := evm.NewTx(&evm.EvmTxArgs{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasLimit:  gas,
-		GasFeeCap: app.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: baseFeeRes.BaseFee.BigInt(),
 		GasTipCap: big.NewInt(1),
 		Input:     data,
 		Accesses:  &ethtypes.AccessList{},
@@ -106,7 +112,7 @@ func DeployContractWithFactory(
 	priv cryptotypes.PrivKey,
 	factoryAddress common.Address,
 ) (common.Address, abci.ExecTxResult, error) {
-	chainID := exampleApp.EVMKeeper.ChainID()
+	chainID := evmtypes.GetEthChainConfig().ChainID
 	from := common.BytesToAddress(priv.PubKey().Address().Bytes())
 	factoryNonce := exampleApp.EVMKeeper.GetNonce(ctx, factoryAddress)
 	nonce := exampleApp.EVMKeeper.GetNonce(ctx, from)

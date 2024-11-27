@@ -202,7 +202,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should withdraw delegation rewards", func() {
 			// get initial balance
-			queryRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			queryRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			initialBalance := queryRes.Balance
 
@@ -242,7 +242,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(rewards[0].Amount).To(Equal(expRewardPerValidator.TruncateInt().BigInt()))
 
 			// check that the rewards were added to the balance
-			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			queryRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			expFinal := initialBalance.Amount.Add(expRewardPerValidator.TruncateInt()).Sub(fees)
@@ -250,7 +250,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should withdraw rewards successfully to the new withdrawer address", func() {
-			balRes, err := s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			withdrawerInitialBalance := balRes.Balance
 			// Set new withdrawer address
@@ -260,7 +260,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// get initial balance
-			queryRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			queryRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			initialBalance := queryRes.Balance
 
@@ -297,14 +297,14 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 
 			// check that the delegator final balance is initialBalance - fee
-			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			queryRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			expDelgatorFinal := initialBalance.Amount.Sub(fees)
 			Expect(queryRes.Balance.Amount).To(Equal(expDelgatorFinal), "expected delegator final balance to be equal to initial balance - fees")
 
 			// check that the rewards were added to the withdrawer balance
-			queryRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			queryRes, err = s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			expWithdrawerFinal := withdrawerInitialBalance.Amount.Add(expRewardsAmt)
 
@@ -327,7 +327,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// persist state change
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialWithdrawerBalance := balRes.Balance
 			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
@@ -339,7 +339,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// get tx sender initial balance
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			initialBalance := balRes.Balance
 
@@ -375,7 +375,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 
 			// check tx sender balance is reduced by fees paid
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			fees := gasPrice.MulRaw(res.GasUsed)
@@ -383,7 +383,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to initial balance - fees")
 
 			// check that the rewards were added to the withdrawer balance
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalWithdrawerBalance := balRes.Balance
 			Expect(finalWithdrawerBalance.Amount).To(Equal(expRewardsAmt))
@@ -447,7 +447,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 		It("should withdraw validator commission", func() {
 			// initial balance should be the initial amount minus the staked amount used to create the validator
-			queryRes, err := s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			queryRes, err := s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 
 			initialBalance := queryRes.Balance
@@ -481,7 +481,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			queryRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			queryRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			finalBalance := queryRes.Balance
 
@@ -507,7 +507,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			// persist state change
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialWithdrawerBalance := balRes.Balance
 			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
@@ -519,7 +519,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// get validator initial balance
-			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			initialBalance := balRes.Balance
 
@@ -552,7 +552,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(comm[0].Denom).To(Equal(s.bondDenom))
 			Expect(comm[0].Amount).To(Equal(expCommAmt.BigInt()))
 
-			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			finalBalance := balRes.Balance
 
@@ -561,7 +561,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(finalBalance.Amount).To(Equal(expFinal), "expected final balance to be equal to the final balance after withdrawing commission")
 
 			// check that the commission was added to the withdrawer balance
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalWithdrawerBalance := balRes.Balance
 			Expect(finalWithdrawerBalance.Amount).To(Equal(expCommAmt))
@@ -603,7 +603,7 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 		})
 
 		It("should claim all rewards from all validators", func() {
-			queryRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			queryRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			initialBalance := queryRes.Balance
 
@@ -614,10 +614,10 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			txArgs.GasLimit = 250_000
 
 			// get base fee to use in tx to then calculate fee paid
-			bfQuery, err := s.grpcHandler.GetBaseFee()
+			bfQuery, err := s.grpcHandler.GetEvmBaseFee()
 			Expect(err).To(BeNil(), "error while calling BaseFee")
-			gasPrice := bfQuery.BaseFee
-			txArgs.GasPrice = gasPrice.BigInt()
+			gasPrice := bfQuery.BaseFee.BigInt()
+			txArgs.GasPrice = gasPrice
 
 			claimRewardsCheck := passCheck.WithExpEvents(distribution.EventTypeClaimRewards)
 
@@ -633,14 +633,14 @@ var _ = Describe("Calling distribution precompile from EOA", func() {
 			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock")
 
 			// check that the rewards were added to the balance
-			queryRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			queryRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 
 			// get the fee paid and calculate the expFinalBalance
-			fee := gasPrice.Mul(math.NewInt(txRes.GasUsed))
+			fee := gasPrice.Mul(math.NewInt(txRes.GasUsed).BigInt(), gasPrice)
 			accruedRewardsAmt := accruedRewards.AmountOf(s.bondDenom).TruncateInt()
 			// expected balance is initial + rewards - fee
-			expBalanceAmt := initialBalance.Amount.Add(accruedRewardsAmt).Sub(fee)
+			expBalanceAmt := initialBalance.Amount.Add(accruedRewardsAmt).Sub(math.NewIntFromBigInt(fee))
 
 			finalBalance := queryRes.Balance
 			Expect(finalBalance.Amount).To(Equal(expBalanceAmt), "expected final balance to be equal to initial balance + rewards - fees")
@@ -1113,7 +1113,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			_, err = testutils.WaitToAccrueRewards(s.network, s.grpcHandler, s.keyring.GetAccAddr(0).String(), minExpRewardOrCommission)
 			Expect(err).To(BeNil())
 
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialBalance = balRes.Balance
 
@@ -1124,7 +1124,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		})
 
 		It("should not withdraw rewards when sending from a different address", func() {
-			balRes, err := s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			differentAddrInitialBalance := balRes.Balance
 
@@ -1142,21 +1142,21 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// balance should be equal as initial balance or less (because of fees)
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
 			// differentAddr balance should remain unchanged
-			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			differentAddrFinalBalance := balRes.Balance
 			Expect(differentAddrFinalBalance.Amount).To(Equal(differentAddrInitialBalance.Amount))
 		})
 
 		It("should withdraw rewards successfully", func() {
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			initBalanceAmt := balRes.Balance.Amount
 
@@ -1181,7 +1181,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// balance should increase
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
@@ -1190,7 +1190,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		})
 
 		DescribeTable("should withdraw rewards successfully to the new withdrawer address", func(tc testCase) {
-			balRes, err := s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			withdrawerInitialBalance := balRes.Balance
 
@@ -1201,7 +1201,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// get delegator initial balance
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			delegatorInitialBalance := balRes.Balance
 
@@ -1235,13 +1235,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(rewards[0].Amount).To(Equal(expRewardsAmt.BigInt()))
 
 			// should increase withdrawer balance by rewards
-			balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 
 			Expect(balRes.Balance.Amount).To(Equal(withdrawerInitialBalance.Amount.Add(expRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
 
 			// check that the delegator final balance is initialBalance - fee
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil(), "error while calling GetBalance")
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 
@@ -1274,7 +1274,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			DescribeTable("withdraw delegation rewards with internal transfers to delegator - should withdraw rewards successfully to the withdrawer address",
 				func(tc testCase) {
-					balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					if tc.withdrawer != nil {
 						// Set new withdrawer address
@@ -1282,12 +1282,12 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 						Expect(err).To(BeNil())
 						// persist state change
 						Expect(s.network.NextBlock()).To(BeNil())
-						balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+						balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 						Expect(err).To(BeNil())
 					}
 					withdrawerInitialBalance := balRes.Balance
 
-					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					delInitialBalance := balRes.Balance
 
@@ -1322,7 +1322,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 						}
 					}
 					// contract balance be updated according to the transferred amount
-					balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractFinalBalance := balRes.Balance
 					Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Sub(contractTransferredAmt)))
@@ -1332,14 +1332,14 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 						expDelFinalBalance = delInitialBalance.Amount.Sub(fees).Add(contractTransferredAmt)
 						expWithdrawerFinalBalance := withdrawerInitialBalance.Amount.Add(expRewards)
 						// withdrawer balance should have the rewards
-						balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+						balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 						Expect(err).To(BeNil())
 						withdrawerFinalBalance := balRes.Balance
 						Expect(withdrawerFinalBalance.Amount).To(Equal(expWithdrawerFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
 					}
 
 					// delegator balance should have the transferred amt - fees + rewards (when is the withdrawer)
-					balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 					Expect(err).To(BeNil())
 					delFinalBalance := balRes.Balance
 					Expect(delFinalBalance.Amount).To(Equal(expDelFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
@@ -1390,10 +1390,10 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				Expect(err).To(BeNil())
 				initRewards := qRes.Rewards.AmountOf(s.bondDenom).TruncateInt()
 
-				balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 				Expect(err).To(BeNil())
 				delInitBalance := balRes.Balance
-				balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				withdrawerInitBalance := balRes.Balance
 
@@ -1416,20 +1416,20 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				// check balances
 				contractTransferredAmt := math.NewInt(15)
 				// contract balance be updated according to the transferred amount
-				balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				contractFinalBalance := balRes.Balance
 				Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Sub(contractTransferredAmt)))
 
 				// delegator balance should be initial_balance - fees
-				balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 				Expect(err).To(BeNil())
 				delFinalBalance := balRes.Balance
 				Expect(delFinalBalance.Amount).To(Equal(delInitBalance.Amount.Sub(fees)))
 
 				// withdrawer balance should increase by the transferred amount only
 				// the rewards withdrawal should revert
-				balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				withdrawerFinalBalance := balRes.Balance
 				Expect(withdrawerFinalBalance.Amount).To(Equal(withdrawerInitBalance.Amount.Add(contractTransferredAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
@@ -1497,7 +1497,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			// contract's accrued rewards amt
 			accruedRewardsAmt = rwRes.AmountOf(s.bondDenom).TruncateInt()
 
-			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialBalance = balRes.Balance
 
@@ -1520,7 +1520,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// balance should increase
-			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Add(accruedRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
@@ -1529,7 +1529,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
 			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
 
-			balRes, err := s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(withdrawerAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialWithdrawerBalance := balRes.Balance
 			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
@@ -1570,13 +1570,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// withdrawer balance should increase with the rewards amt
-			balRes, err = s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(withdrawerAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalWithdrawerBalance := balRes.Balance
 			Expect(finalWithdrawerBalance.Amount).To(Equal(accruedRewardsAmt), "expected final balance to be greater than initial balance after withdrawing rewards")
 
 			// delegator balance (contract) should remain unchanged
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalDelegatorBalance := balRes.Balance
 			Expect(finalDelegatorBalance.Amount.Equal(initialBalance.Amount)).To(BeTrue(), "expected delegator final balance remain unchanged after withdrawing rewards to withdrawer")
@@ -1640,7 +1640,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				// contract's accrued rewards amt
 				accruedRewardsAmt = rwRes.AmountOf(s.bondDenom).TruncateInt()
 
-				balRes, err := s.grpcHandler.GetBalance(delContractAddr.Bytes(), s.bondDenom)
+				balRes, err := s.grpcHandler.GetBalanceFromBank(delContractAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				initialBalance = balRes.Balance
 
@@ -1651,13 +1651,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			})
 
 			It("should NOT allow to withdraw rewards", func() {
-				balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 				Expect(err).To(BeNil())
 				txSenderInitialBalance := balRes.Balance
-				balRes, err = s.grpcHandler.GetBalance(delContractAddr.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(delContractAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				delInitialBalance := balRes.Balance
-				balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				callerContractInitialBal := balRes.Balance
 
@@ -1679,19 +1679,19 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 				fees := gasPrice.MulRaw(res.GasUsed)
 				// check balances
 				// tx signer final balance should be the initial balance - fees
-				balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 				Expect(err).To(BeNil())
 				txSignerFinalBalance := balRes.Balance
 				Expect(txSignerFinalBalance.Amount).To(Equal(txSenderInitialBalance.Amount.Sub(fees)))
 
 				// caller contract balance should remain unchanged
-				balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				contractFinalBalance := balRes.Balance
 				Expect(contractFinalBalance).To(Equal(callerContractInitialBal))
 
 				// delegator balance should remain unchanged
-				balRes, err = s.grpcHandler.GetBalance(delContractAddr.Bytes(), s.bondDenom)
+				balRes, err = s.grpcHandler.GetBalanceFromBank(delContractAddr.Bytes(), s.bondDenom)
 				Expect(err).To(BeNil())
 				delFinalBalance := balRes.Balance
 				Expect(delFinalBalance).To(Equal(delInitialBalance))
@@ -1707,7 +1707,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		It("should withdraw rewards successfully without origin check to a withdrawer address", func() {
 			withdrawerAddr, _ := testutiltx.NewAccAddressAndKey()
 
-			balRes, err := s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(withdrawerAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialWithdrawerBalance := balRes.Balance
 			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
@@ -1748,13 +1748,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil(), "error on NextBlock: %v", err)
 
 			// withdrawer balance should increase with the rewards amt
-			balRes, err = s.grpcHandler.GetBalance(withdrawerAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(withdrawerAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalWithdrawerBalance := balRes.Balance
 			Expect(finalWithdrawerBalance.Amount.Equal(expRewards)).To(BeTrue(), "expected final balance to be greater than initial balance after withdrawing rewards")
 
 			// delegator balance (contract) should remain unchanged
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalDelegatorBalance := balRes.Balance
 			Expect(finalDelegatorBalance.Amount.Equal(initialBalance.Amount)).To(BeTrue(), "expected delegator final balance remain unchanged after withdrawing rewards to withdrawer")
@@ -1779,12 +1779,12 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil())
 			accruedCommissionAmt = res.AmountOf(s.bondDenom).TruncateInt()
 
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialBalance = balRes.Balance
 
 			// get validators initial balance
-			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil())
 			valInitialBalance = balRes.Balance
 
@@ -1807,7 +1807,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// balance should be equal as initial balance or less (because of fees)
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 
@@ -1815,7 +1815,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
 			// validator's balance should remain unchanged
-			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil())
 			valFinalBalance := balRes.Balance
 			Expect(valFinalBalance.Amount).To(Equal(valInitialBalance.Amount))
@@ -1837,7 +1837,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err := s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil())
 			valFinalBalance := balRes.Balance
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
@@ -1846,7 +1846,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		})
 
 		It("should withdraw commission successfully to withdrawer address (contract)", func() {
-			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialWithdrawerBalance := balRes.Balance
 			Expect(initialWithdrawerBalance.Amount).To(Equal(math.ZeroInt()))
@@ -1862,7 +1862,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			accruedCommissionAmt = qRes.Commission.Commission.AmountOf(s.bondDenom).TruncateInt()
 
 			// validator acc balance before the tx
-			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil())
 			initialBalance := balRes.Balance
 
@@ -1882,12 +1882,12 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 			Expect(s.network.NextBlock()).To(BeNil())
 
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalWithdrawerBalance := balRes.Balance
 			Expect(finalWithdrawerBalance.Amount).To(Equal(initialWithdrawerBalance.Amount.Add(accruedCommissionAmt)), "expected final balance to be equal to initial balance + validator commission")
 
-			balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			fees := gasPrice.MulRaw(res.GasUsed)
@@ -1911,7 +1911,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			DescribeTable("withdraw validator commission with state changes in withdrawer - should withdraw commission successfully to the withdrawer address",
 				func(tc testCase) {
 					withdrawerAddr := s.validatorsKeys[0].Addr
-					balRes, err := s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					if tc.withdrawer != nil {
 						withdrawerAddr = *tc.withdrawer
@@ -1920,13 +1920,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 						Expect(err).To(BeNil())
 						// persist state change
 						Expect(s.network.NextBlock()).To(BeNil())
-						balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+						balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 						Expect(err).To(BeNil())
 					}
 					withdrawerInitialBalance := balRes.Balance
 
 					// validator acc balance before the tx
-					balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					valInitialBalance := balRes.Balance
 
@@ -1972,7 +1972,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 						} else {
 							expWithdrawerFinalBalance := withdrawerInitialBalance.Amount.Add(expCommission).Add(contractTransferredAmt)
 							// withdrawer balance should have the rewards
-							balRes, err = s.grpcHandler.GetBalance(tc.withdrawer.Bytes(), s.bondDenom)
+							balRes, err = s.grpcHandler.GetBalanceFromBank(tc.withdrawer.Bytes(), s.bondDenom)
 							Expect(err).To(BeNil())
 							withdrawerFinalBalance := balRes.Balance
 							Expect(withdrawerFinalBalance.Amount).To(Equal(expWithdrawerFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
@@ -1980,13 +1980,13 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 					}
 
 					// contract balance be updated according to the transferred amount
-					balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 					contractFinalBalance := balRes.Balance
 					Expect(contractFinalBalance.Amount).To(Equal(expContractFinalBalance))
 
 					// validator balance should have the transferred amt - fees + rewards (when is the withdrawer)
-					balRes, err = s.grpcHandler.GetBalance(s.validatorsKeys[0].AccAddr, s.bondDenom)
+					balRes, err = s.grpcHandler.GetBalanceFromBank(s.validatorsKeys[0].AccAddr, s.bondDenom)
 					Expect(err).To(BeNil())
 					valFinalBalance := balRes.Balance
 					Expect(valFinalBalance.Amount).To(Equal(expValFinalBalance), "expected final balance to be greater than initial balance after withdrawing rewards")
@@ -2075,11 +2075,11 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			accruedRewardsAmt = res.Total.AmountOf(s.bondDenom).TruncateInt()
 			Expect(accruedRewardsAmt.IsPositive()).To(BeTrue())
 
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialBalance = balRes.Balance
 
-			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			diffAddrInitialBalance = balRes.Balance
 
@@ -2101,14 +2101,14 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// balance should be equal as initial balance or less (because of fees)
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Sub(fees)))
 
 			// differentAddr balance should remain unchanged
-			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			differentAddrFinalBalance := balRes.Balance
 			Expect(differentAddrFinalBalance.Amount).To(Equal(diffAddrInitialBalance.Amount))
@@ -2130,7 +2130,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(s.network.NextBlock()).To(BeNil())
 
 			// balance should remain unchanged
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount.GT(initialBalance.Amount)).To(BeTrue(), "expected final balance to be greater than initial balance after claiming rewards")
@@ -2260,7 +2260,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			// contract's accrued rewards amt
 			accruedRewardsAmt = rwRes.AmountOf(s.bondDenom).TruncateInt()
 
-			balRes, err := s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			initialBalance = balRes.Balance
 
@@ -2269,7 +2269,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 		})
 
 		It("should withdraw rewards successfully without origin check", func() {
-			balRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			signerInitialBalance := balRes.Balance
 
@@ -2289,28 +2289,28 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 
 			// tx signer should have paid the fees
 			fees := gasPrice.Mul(math.NewInt(res.GasUsed))
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			signerFinalBalance := balRes.Balance
 			Expect(signerFinalBalance.Amount).To(Equal(signerInitialBalance.Amount.Sub(fees)))
 
 			// contract's balance should increase
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			finalBalance := balRes.Balance
 			Expect(finalBalance.Amount).To(Equal(initialBalance.Amount.Add(accruedRewardsAmt)), "expected final balance to be greater than initial balance after withdrawing rewards")
 		})
 
 		It("should withdraw rewards successfully to a different address without origin check", func() {
-			balanceRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balanceRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			signerInitialBalance := balanceRes.Balance
 
-			balRes, err := s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err := s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			withdrawerInitialBalance := balRes.Balance
 
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			contractInitialBalance := balRes.Balance
 
@@ -2352,19 +2352,19 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			// signer balance should decrease - paid for fees
 			fees := gasPrice.Mul(math.NewInt(res1.GasUsed)).Add(gasPrice.Mul(math.NewInt(res2.GasUsed)))
 
-			balRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			signerFinalBalance := balRes.Balance
 			Expect(signerFinalBalance.Amount).To(Equal(signerInitialBalance.Amount.Sub(fees)), "expected signer's final balance to be less than initial balance after withdrawing rewards")
 
 			// withdrawer balance should increase
-			balRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			withdrawerFinalBalance := balRes.Balance
 			Expect(withdrawerFinalBalance.Amount).To(Equal(withdrawerInitialBalance.Amount.Add(accruedRewardsAmt)))
 
 			// contract balance should remain unchanged
-			balRes, err = s.grpcHandler.GetBalance(contractAddr.Bytes(), s.bondDenom)
+			balRes, err = s.grpcHandler.GetBalanceFromBank(contractAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			contractFinalBalance := balRes.Balance
 			Expect(contractFinalBalance.Amount).To(Equal(contractInitialBalance.Amount))
@@ -2374,7 +2374,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 	Context("Forbidden operations", func() {
 		It("should revert state: modify withdraw address & then try to withdraw rewards corresponding to another user", func() {
 			// check signer address balance should've decreased (fees paid)
-			balanceRes, err := s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balanceRes, err := s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			initBalanceAmt := balanceRes.Balance.Amount
 
@@ -2401,12 +2401,12 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 			Expect(res.WithdrawAddress).To(Equal(s.keyring.GetAccAddr(0).String()))
 
 			// check signer address balance should've decreased (fees paid)
-			balanceRes, err = s.grpcHandler.GetBalance(s.keyring.GetAccAddr(0), s.bondDenom)
+			balanceRes, err = s.grpcHandler.GetBalanceFromBank(s.keyring.GetAccAddr(0), s.bondDenom)
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount.LTE(initBalanceAmt)).To(BeTrue())
 
 			// check other address' balance remained unchanged
-			balanceRes, err = s.grpcHandler.GetBalance(differentAddr.Bytes(), s.bondDenom)
+			balanceRes, err = s.grpcHandler.GetBalanceFromBank(differentAddr.Bytes(), s.bondDenom)
 			Expect(err).To(BeNil())
 			Expect(balanceRes.Balance.Amount).To(Equal(math.ZeroInt()))
 		})
@@ -2848,7 +2848,7 @@ var _ = Describe("Calling distribution precompile from another contract", Ordere
 					)
 					Expect(err).To(BeNil(), "error while calling the smart contract: %v", err)
 
-					balRes, err := s.grpcHandler.GetBalance(reverterAddr.Bytes(), s.bondDenom)
+					balRes, err := s.grpcHandler.GetBalanceFromBank(reverterAddr.Bytes(), s.bondDenom)
 					Expect(err).To(BeNil())
 
 					contractFinalBalance := balRes.Balance

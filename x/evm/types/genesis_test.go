@@ -5,7 +5,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/evmos/os/crypto/ethsecp256k1"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -72,7 +71,6 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		err := tc.genesisAccount.Validate()
 		if tc.expPass {
 			suite.Require().NoError(err, tc.name)
@@ -83,8 +81,7 @@ func (suite *GenesisTestSuite) TestValidateGenesisAccount() {
 }
 
 func (suite *GenesisTestSuite) TestValidateGenesis() {
-	defaultGenesisWithEVMDenom := DefaultGenesisState()
-	defaultGenesisWithEVMDenom.Params.EvmDenom = testconstants.ExampleAttoDenom
+	defaultGenesis := DefaultGenesisState()
 
 	testCases := []struct {
 		name     string
@@ -94,7 +91,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 		{
 			name:     "default",
 			genState: DefaultGenesisState(),
-			expPass:  false,
+			expPass:  true,
 		},
 		{
 			name: "valid genesis",
@@ -109,30 +106,14 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
+				Params: DefaultParams(),
 			},
 			expPass: true,
 		},
 		{
-			name:     "empty genesis",
-			genState: &GenesisState{},
-			expPass:  false,
-		},
-		{
 			name:     "copied genesis",
-			genState: NewGenesisState(defaultGenesisWithEVMDenom.Params, DefaultGenesisState().Accounts),
+			genState: NewGenesisState(defaultGenesis.Params, defaultGenesis.Accounts),
 			expPass:  true,
-		},
-		{
-			name: "invalid genesis",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: common.Address{}.String(),
-					},
-				},
-			},
-			expPass: false,
 		},
 		{
 			name: "invalid genesis account",
@@ -147,7 +128,7 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 						},
 					},
 				},
-				Params: DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom),
+				Params: DefaultParams(),
 			},
 			expPass: false,
 		},
@@ -175,50 +156,9 @@ func (suite *GenesisTestSuite) TestValidateGenesis() {
 			},
 			expPass: false,
 		},
-		{
-			name: "duplicated tx log",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: suite.address,
-
-						Code: suite.code,
-						Storage: Storage{
-							{Key: suite.hash.String()},
-						},
-					},
-				},
-			},
-			expPass: false,
-		},
-		{
-			name: "invalid tx log",
-			genState: &GenesisState{
-				Accounts: []GenesisAccount{
-					{
-						Address: suite.address,
-
-						Code: suite.code,
-						Storage: Storage{
-							{Key: suite.hash.String()},
-						},
-					},
-				},
-			},
-			expPass: false,
-		},
-		{
-			name: "invalid params",
-			genState: &GenesisState{
-				Params: Params{},
-			},
-			expPass: false,
-		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
-
 		suite.Run(tc.name, func() {
 			err := tc.genState.Validate()
 			if tc.expPass {

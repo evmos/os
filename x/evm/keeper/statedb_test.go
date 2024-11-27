@@ -1,6 +1,7 @@
 package keeper_test
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"testing"
@@ -402,6 +403,11 @@ func TestIterateContracts(t *testing.T) {
 	)
 
 	network.App.EVMKeeper.IterateContracts(network.GetContext(), func(addr common.Address, codeHash common.Hash) bool {
+		// NOTE: we only care about the 2 contracts deployed above, not the ERC20 native precompile for the aevmos denomination
+		if bytes.Equal(addr.Bytes(), common.HexToAddress(testconstants.WEVMOSContractMainnet).Bytes()) {
+			return false
+		}
+
 		foundAddrs = append(foundAddrs, addr)
 		foundHashes = append(foundHashes, codeHash)
 		return false
@@ -689,7 +695,7 @@ func (suite *KeeperTestSuite) CreateTestTx(msg *types.MsgEthereumTx, priv crypto
 	suite.Require().NoError(err)
 
 	clientCtx := client.Context{}.WithTxConfig(suite.network.App.GetTxConfig())
-	ethSigner := ethtypes.LatestSignerForChainID(suite.network.App.EVMKeeper.ChainID())
+	ethSigner := ethtypes.LatestSignerForChainID(types.GetEthChainConfig().ChainID)
 
 	txBuilder := clientCtx.TxConfig.NewTxBuilder()
 	builder, ok := txBuilder.(authtx.ExtensionOptionsTxBuilder)

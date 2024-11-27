@@ -3,7 +3,11 @@
 
 package constants
 
-import "fmt"
+import (
+	"fmt"
+
+	evmtypes "github.com/evmos/os/x/evm/types"
+)
 
 const (
 	// DefaultGasPrice is used in testing as the default to use for transactions
@@ -11,6 +15,12 @@ const (
 
 	// ExampleAttoDenom provides an example denom for use in tests
 	ExampleAttoDenom = "aevmos"
+
+	// ExampleMicroDenom provides an example denom for use in tests
+	ExampleMicroDenom = "uevmos"
+
+	// ExampleDisplayDenom provides an example display denom for use in tests
+	ExampleDisplayDenom = "evmos"
 
 	// ExampleBech32Prefix provides an example Bech32 prefix for use in tests
 	ExampleBech32Prefix = "evmos"
@@ -30,4 +40,25 @@ var (
 
 	// ExampleChainID provides a chain ID that can be used in tests
 	ExampleChainID = ExampleChainIDPrefix + "-1"
+
+	// SixDecimalsChainID provides a chain ID which is being set up with 6 decimals
+	SixDecimalsChainID = "ossix_9002-2"
+
+	// ExampleChainCoinInfo provides the coin info for the example chain
+	//
+	// It is a map of the chain id and its corresponding EvmCoinInfo
+	// that allows initializing the app with different coin info based on the
+	// chain id
+	ExampleChainCoinInfo = map[string]evmtypes.EvmCoinInfo{
+		ExampleChainID: {
+			Denom:        ExampleAttoDenom,
+			DisplayDenom: ExampleDisplayDenom,
+			Decimals:     evmtypes.EighteenDecimals,
+		},
+		SixDecimalsChainID: {
+			Denom:        ExampleMicroDenom,
+			DisplayDenom: ExampleDisplayDenom,
+			Decimals:     evmtypes.SixDecimals,
+		},
+	}
 )

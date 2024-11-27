@@ -94,7 +94,7 @@ func DeliverEthTx(
 ) (abci.ExecTxResult, error) {
 	txConfig := exampleApp.GetTxConfig()
 
-	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
+	tx, err := tx.PrepareEthTx(txConfig, priv, msgs...)
 	if err != nil {
 		return abci.ExecTxResult{}, err
 	}
@@ -121,7 +121,7 @@ func DeliverEthTxWithoutCheck(
 ) (abci.ExecTxResult, error) {
 	txConfig := exampleApp.GetTxConfig()
 
-	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
+	tx, err := tx.PrepareEthTx(txConfig, priv, msgs...)
 	if err != nil {
 		return abci.ExecTxResult{}, err
 	}
@@ -170,7 +170,7 @@ func CheckEthTx(
 ) (abci.ResponseCheckTx, error) {
 	txConfig := exampleApp.GetTxConfig()
 
-	tx, err := tx.PrepareEthTx(txConfig, exampleApp, priv, msgs...)
+	tx, err := tx.PrepareEthTx(txConfig, priv, msgs...)
 	if err != nil {
 		return abci.ResponseCheckTx{}, err
 	}
