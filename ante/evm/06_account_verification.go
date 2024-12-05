@@ -35,6 +35,8 @@ func VerifyAccountBalance(
 		)
 	}
 
+	// TODO: does this even make sense? How can the sender of a transaction not have an account?
+	// Should we return an error here? at least check if the required amount is more than zero and if yes it should return an error
 	if account == nil {
 		acc := accountKeeper.NewAccountWithAddress(ctx, from.Bytes())
 		accountKeeper.SetAccount(ctx, acc)

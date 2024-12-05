@@ -50,6 +50,8 @@ func NewEVMMonoDecorator(
 // AnteHandle handles the entire decorator chain using a mono decorator.
 func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
 	// 0. Basic validation of the transaction
+	//
+	// TODO: the current `ValidateTx` function does not support a non-empty fee payer
 	var txFeeInfo *txtypes.Fee
 	if !ctx.IsReCheckTx() {
 		// NOTE: txFeeInfo is associated with the Cosmos stack, not the EVM. For
@@ -125,6 +127,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		}
 
 		// 5. signature verification
+		//
+		// TODO: check signature of the fee payer - how to get the fee payer signer?
 		if err := SignatureVerification(
 			ethMsg,
 			decUtils.Signer,
@@ -140,6 +144,8 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 		// We get the account with the balance from the EVM keeper because it is
 		// using a wrapper of the bank keeper as a dependency to scale all
 		// balances to 18 decimals.
+		//
+		// TODO: needs to also check for the fee payer's assets if they can transfer the required fee amount
 		account := md.evmKeeper.GetAccount(ctx, fromAddr)
 		if err := VerifyAccountBalance(
 			ctx,
@@ -160,6 +166,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			)
 		}
 
+		// TODO: needs to also check for the fee payer's assets if they can transfer the required fee amount
 		if err := CanTransfer(
 			ctx,
 			md.evmKeeper,
@@ -229,6 +236,7 @@ func (md MonoDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, ne
 			)
 		}
 
+		// TODO: do we need to increment the fee payer nonce?
 		if err := IncrementNonce(ctx, md.accountKeeper, acc, txData.GetNonce()); err != nil {
 			return ctx, err
 		}
