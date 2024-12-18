@@ -142,3 +142,127 @@ func TestMintAmountToAccount(t *testing.T) {
 		})
 	}
 }
+
+func TestBurnAmountFromAccount(t *testing.T) {
+	tokenDenom := "token"
+	account := sdk.AccAddress([]byte("test_address"))
+
+	testCases := []struct {
+		name        string
+		evmDenom    string
+		evmDecimals uint8
+		amount      *big.Int
+		expectErr   string
+		mockSetup   func(*testutil.MockBankKeeper)
+	}{
+		{
+			name:        "success - convert 18 decimals amount to 6 decimals",
+			evmDenom:    tokenDenom,
+			evmDecimals: 6,
+			amount:      big.NewInt(1e18),
+			expectErr:   "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoins := sdk.NewCoins(expectedCoin)
+
+				mbk.EXPECT().
+					SendCoinsFromAccountToModule(
+						gomock.Any(),
+						account,
+						evmtypes.ModuleName,
+						expectedCoins,
+					).Return(nil)
+
+				mbk.EXPECT().
+					BurnCoins(gomock.Any(), evmtypes.ModuleName, expectedCoins).
+					Return(nil)
+			},
+		},
+		{
+			name:        "success - 18 decimals amount not modified",
+			evmDenom:    tokenDenom,
+			evmDecimals: 18,
+			amount:      big.NewInt(1e18),
+			expectErr:   "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18))
+				expectedCoins := sdk.NewCoins(expectedCoin)
+
+				mbk.EXPECT().
+					SendCoinsFromAccountToModule(
+						gomock.Any(),
+						account,
+						evmtypes.ModuleName,
+						expectedCoins,
+					).Return(nil)
+
+				mbk.EXPECT().
+					BurnCoins(gomock.Any(), evmtypes.ModuleName, expectedCoins).
+					Return(nil)
+			},
+		},
+		{
+			name:        "fail - send coins error",
+			evmDenom:    tokenDenom,
+			evmDecimals: 6,
+			amount:      big.NewInt(1e18),
+			expectErr:   "failed to burn coins from account in bank wrapper",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoins := sdk.NewCoins(expectedCoin)
+
+				mbk.EXPECT().
+					SendCoinsFromAccountToModule(
+						gomock.Any(),
+						account,
+						evmtypes.ModuleName,
+						expectedCoins,
+					).Return(errors.New("send error"))
+			},
+		},
+		{
+			name:        "fail - send burn error",
+			evmDenom:    tokenDenom,
+			evmDecimals: 6,
+			amount:      big.NewInt(1e18),
+			expectErr:   "burn error",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoins := sdk.NewCoins(expectedCoin)
+
+				mbk.EXPECT().
+					SendCoinsFromAccountToModule(
+						gomock.Any(),
+						account,
+						evmtypes.ModuleName,
+						expectedCoins,
+					).Return(errors.New("burn error"))
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup EVM configurator to have access to the EVM coin info.
+			configurator := evmtypes.NewEVMConfigurator()
+			configurator.ResetTestConfig()
+			err := configurator.WithEVMCoinInfo(tc.evmDenom, tc.evmDecimals).Configure()
+			require.NoError(t, err, "failed to configure EVMConfigurator")
+
+			// Setup mock controller
+			ctrl := gomock.NewController(t)
+
+			mockBankKeeper := testutil.NewMockBankKeeper(ctrl)
+			tc.mockSetup(mockBankKeeper)
+
+			bankWrapper := wrappers.NewBankWrapper(mockBankKeeper)
+			err = bankWrapper.BurnAmountFromAccount(context.Background(), account, tc.amount)
+
+			if tc.expectErr != "" {
+				require.ErrorContains(t, err, tc.expectErr)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
