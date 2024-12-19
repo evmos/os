@@ -3,6 +3,7 @@ package wrappers_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math/big"
 	"testing"
 
@@ -262,6 +263,158 @@ func TestBurnAmountFromAccount(t *testing.T) {
 				require.ErrorContains(t, err, tc.expectErr)
 			} else {
 				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestGetBalance(t *testing.T) {
+	maxInt64 := int64(9223372036854775807)
+	evmDenom := "token"
+	account := sdk.AccAddress([]byte("test_address"))
+
+	testCases := []struct {
+		name        string
+		evmDecimals uint8
+		denom       string
+		expCoin     sdk.Coin
+		expErr      string
+		expPanic    string
+		mockSetup   func(*testutil.MockBankKeeper)
+	}{
+		{
+			name:        "success - convert 6 decimals amount to 18 decimals",
+			denom:       evmDenom,
+			evmDecimals: 6,
+			expCoin:     sdk.NewCoin(evmDenom, sdkmath.NewInt(1e18)),
+			expErr:      "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				returnedCoin := sdk.NewCoin(evmDenom, sdkmath.NewInt(1e6))
+
+				mbk.EXPECT().
+					GetBalance(
+						gomock.Any(),
+						account,
+						evmDenom,
+					).Return(returnedCoin)
+			},
+		},
+		{
+			name:        "success - convert max int 6 decimals amount to 18 decimals",
+			denom:       evmDenom,
+			evmDecimals: 6,
+			expCoin:     sdk.NewCoin(evmDenom, sdkmath.NewInt(1e12).MulRaw(maxInt64)),
+			expErr:      "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				returnedCoin := sdk.NewCoin(evmDenom, sdkmath.NewInt(maxInt64))
+
+				mbk.EXPECT().
+					GetBalance(
+						gomock.Any(),
+						account,
+						evmDenom,
+					).Return(returnedCoin)
+			},
+		},
+		{
+			name:        "success - does not convert 18 decimals amount",
+			denom:       evmDenom,
+			evmDecimals: 18,
+			expCoin:     sdk.NewCoin(evmDenom, sdkmath.NewInt(1e18)),
+			expErr:      "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				returnedCoin := sdk.NewCoin(evmDenom, sdkmath.NewInt(1e18))
+
+				mbk.EXPECT().
+					GetBalance(
+						gomock.Any(),
+						account,
+						evmDenom,
+					).Return(returnedCoin)
+			},
+		},
+		{
+			name:        "success - zero balance",
+			denom:       evmDenom,
+			evmDecimals: 6,
+			expCoin:     sdk.NewCoin(evmDenom, sdkmath.NewInt(0)),
+			expErr:      "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				returnedCoin := sdk.NewCoin(evmDenom, sdkmath.NewInt(0))
+
+				mbk.EXPECT().
+					GetBalance(
+						gomock.Any(),
+						account,
+						evmDenom,
+					).Return(returnedCoin)
+			},
+		},
+		{
+			name:        "success - small amount (less than 1 full token)",
+			denom:       evmDenom,
+			evmDecimals: 6,
+			expCoin:     sdk.NewCoin(evmDenom, sdkmath.NewInt(1e14)), // 0.0001 token in 18 decimals
+			expErr:      "",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				returnedCoin := sdk.NewCoin(evmDenom, sdkmath.NewInt(100)) // 0.0001 token in 6 decimals
+
+				mbk.EXPECT().
+					GetBalance(
+						gomock.Any(),
+						account,
+						evmDenom,
+					).Return(returnedCoin)
+			},
+		},
+		{
+			name:        "panic - wrong evm denom",
+			denom:       "wrong_denom",
+			evmDecimals: 18,
+			expPanic:    "expected evm denom token",
+			mockSetup: func(mbk *testutil.MockBankKeeper) {
+				returnedCoin := sdk.NewCoin("wrong_denom", sdkmath.NewInt(1e18))
+
+				mbk.EXPECT().
+					GetBalance(
+						gomock.Any(),
+						account,
+						"wrong_denom",
+					).Return(returnedCoin)
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup EVM configurator to have access to the EVM coin info.
+			configurator := evmtypes.NewEVMConfigurator()
+			configurator.ResetTestConfig()
+			err := configurator.WithEVMCoinInfo(evmDenom, tc.evmDecimals).Configure()
+			require.NoError(t, err, "failed to configure EVMConfigurator")
+
+			// Setup mock controller
+			ctrl := gomock.NewController(t)
+
+			mockBankKeeper := testutil.NewMockBankKeeper(ctrl)
+			tc.mockSetup(mockBankKeeper)
+
+			bankWrapper := wrappers.NewBankWrapper(mockBankKeeper)
+
+			// When calling the function with a denom different than the evm one, it should panic
+			defer func() {
+				if r := recover(); r != nil {
+					require.Contains(t, fmt.Sprint(r), tc.expPanic)
+				}
+			}()
+
+			balance := bankWrapper.GetBalance(context.Background(), account, tc.denom)
+
+			if tc.expErr != "" {
+				require.ErrorContains(t, err, tc.expErr)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expCoin, balance, "expected a different balance")
 			}
 		})
 	}
