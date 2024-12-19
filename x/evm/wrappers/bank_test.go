@@ -147,7 +147,6 @@ func TestMintAmountToAccount(t *testing.T) {
 }
 
 func TestBurnAmountFromAccount(t *testing.T) {
-	tokenDenom := "token"
 	account := sdk.AccAddress([]byte("test_address"))
 
 	testCases := []struct {
@@ -160,12 +159,12 @@ func TestBurnAmountFromAccount(t *testing.T) {
 	}{
 		{
 			name:        "success - convert 18 decimals amount to 6 decimals",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			amount:      big.NewInt(1e18),
 			expectErr:   "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6))
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
@@ -183,12 +182,12 @@ func TestBurnAmountFromAccount(t *testing.T) {
 		},
 		{
 			name:        "success - 18 decimals amount not modified",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 18,
 			amount:      big.NewInt(1e18),
 			expectErr:   "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18))
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18))
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
@@ -206,12 +205,12 @@ func TestBurnAmountFromAccount(t *testing.T) {
 		},
 		{
 			name:        "fail - send coins error",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			amount:      big.NewInt(1e18),
 			expectErr:   "failed to burn coins from account in bank wrapper",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6))
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
@@ -225,12 +224,12 @@ func TestBurnAmountFromAccount(t *testing.T) {
 		},
 		{
 			name:        "fail - send burn error",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			amount:      big.NewInt(1e18),
 			expectErr:   "burn error",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6))
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
@@ -271,7 +270,6 @@ func TestBurnAmountFromAccount(t *testing.T) {
 }
 
 func TestSendCoinsFromModuleToAccount(t *testing.T) {
-	tokenDenom := "token"
 	account := sdk.AccAddress([]byte("test_address"))
 
 	testCases := []struct {
@@ -284,18 +282,18 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 	}{
 		{
 			name:        "success - does not convert 18 decimals amount with single token",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 18,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 				}...)
 				return coins
 			},
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 				}...)
 
 				mbk.EXPECT().
@@ -309,18 +307,18 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 		},
 		{
 			name:        "success - convert 18 decimals amount to 6 decimals with single token",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 				}...)
 				return coins
 			},
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6)),
 				}...)
 
 				mbk.EXPECT().
@@ -334,11 +332,11 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 		},
 		{
 			name:        "success - does not convert 18 decimals amount with multiple tokens",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 18,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 				return coins
@@ -346,7 +344,7 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 
@@ -361,11 +359,11 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 		},
 		{
 			name:        "success - convert 18 decimals amount to 6 decimals with multiple tokens",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 				return coins
@@ -373,7 +371,7 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 
@@ -388,11 +386,11 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 		},
 		{
 			name:        "success - no op if converted coin is zero",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e11)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e11)),
 				}...)
 				return coins
 			},
@@ -436,7 +434,6 @@ func TestSendCoinsFromModuleToAccount(t *testing.T) {
 }
 
 func TestSendCoinsFromAccountToModule(t *testing.T) {
-	tokenDenom := "token"
 	account := sdk.AccAddress([]byte("test_address"))
 
 	testCases := []struct {
@@ -449,18 +446,18 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 	}{
 		{
 			name:        "success - does not convert 18 decimals amount with single token",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 18,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 				}...)
 				return coins
 			},
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 				}...)
 
 				mbk.EXPECT().
@@ -474,18 +471,18 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 		},
 		{
 			name:        "success - convert 18 decimals amount to 6 decimals with single token",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 				}...)
 				return coins
 			},
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6)),
 				}...)
 
 				mbk.EXPECT().
@@ -499,11 +496,11 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 		},
 		{
 			name:        "success - does not convert 18 decimals amount with multiple tokens",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 18,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 				return coins
@@ -511,7 +508,7 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 
@@ -526,11 +523,11 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 		},
 		{
 			name:        "success - convert 18 decimals amount to 6 decimals with multiple tokens",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 				return coins
@@ -538,7 +535,7 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 			expectErr: "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
 				expectedCoins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6)),
 					sdk.NewCoin("something", sdkmath.NewInt(3e18)),
 				}...)
 
@@ -553,11 +550,11 @@ func TestSendCoinsFromAccountToModule(t *testing.T) {
 		},
 		{
 			name:        "success - no op if converted coin is zero",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			coins: func() sdk.Coins {
 				coins := sdk.NewCoins([]sdk.Coin{
-					sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e11)),
+					sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e11)),
 				}...)
 				return coins
 			},
