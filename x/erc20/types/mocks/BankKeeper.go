@@ -12,7 +12,7 @@ import (
 	query "github.com/cosmos/cosmos-sdk/types/query"
 	keeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	types0 "github.com/cosmos/cosmos-sdk/x/bank/types"
-	gomock "github.com/golang/mock/gomock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 // BankKeeper is a mock of BankKeeper interface.
