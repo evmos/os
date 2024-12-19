@@ -18,9 +18,9 @@ import (
 
 // --------------------------------------TRANSACTIONS-----------------------------------------------
 
-func TestMintAmountToAccount(t *testing.T) {
-	tokenDenom := "token"
+const TokenDenom = "token"
 
+func TestMintAmountToAccount(t *testing.T) {
 	testCases := []struct {
 		name        string
 		evmDenom    string
@@ -32,13 +32,13 @@ func TestMintAmountToAccount(t *testing.T) {
 	}{
 		{
 			name:        "success - convert 18 decimals amount to 6 decimals",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			amount:      big.NewInt(1e18), // 1 token in 18 decimals
 			recipient:   sdk.AccAddress([]byte("test_address")),
 			expectErr:   "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6)) // 1 token in 6 decimals
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6)) // 1 token in 6 decimals
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
@@ -56,13 +56,13 @@ func TestMintAmountToAccount(t *testing.T) {
 		},
 		{
 			name:        "success - 18 decimals amount not modified",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 18,
 			amount:      big.NewInt(1e18), // 1 token in 18 decimals
 			recipient:   sdk.AccAddress([]byte("test_address")),
 			expectErr:   "",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e18))
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e18))
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
@@ -80,13 +80,13 @@ func TestMintAmountToAccount(t *testing.T) {
 		},
 		{
 			name:        "fail - mint coins error",
-			evmDenom:    tokenDenom,
+			evmDenom:    TokenDenom,
 			evmDecimals: 6,
 			amount:      big.NewInt(1e18),
 			recipient:   sdk.AccAddress([]byte("test_address")),
 			expectErr:   "failed to mint coins to account in bank wrapper",
 			mockSetup: func(mbk *testutil.MockBankWrapper) {
-				expectedCoin := sdk.NewCoin(tokenDenom, sdkmath.NewInt(1e6))
+				expectedCoin := sdk.NewCoin(TokenDenom, sdkmath.NewInt(1e6))
 				expectedCoins := sdk.NewCoins(expectedCoin)
 
 				mbk.EXPECT().
