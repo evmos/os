@@ -52,7 +52,9 @@ func (w FeeMarketWrapper) CalculateBaseFee(ctx sdk.Context) *big.Int {
 // GetParams returns the params with associated fees values converted to 18 decimals.
 func (w FeeMarketWrapper) GetParams(ctx sdk.Context) feemarkettypes.Params {
 	params := w.FeeMarketKeeper.GetParams(ctx)
-	params.BaseFee = types.ConvertAmountTo18DecimalsLegacy(params.BaseFee)
+	if !params.BaseFee.IsNil() {
+		params.BaseFee = types.ConvertAmountTo18DecimalsLegacy(params.BaseFee)
+	}
 	params.MinGasPrice = types.ConvertAmountTo18DecimalsLegacy(params.MinGasPrice)
 	return params
 }
