@@ -32,3 +32,4 @@ This changelog was created using the `clu` binary
 - (eip-712) [#13](https://github.com/evmos/os/pull/13) Add EIP-712 package.
 - (ci) [#12](https://github.com/evmos/os/pull/12) Add CI workflows, configurations, Makefile, License, etc.
 - (tests) [#65](https://github.com/evmos/os/pull/65) Add tests for bank wrapper in EVM module with mock.
+- (tests) [#66](https://github.com/evmos/os/pull/66) Add tests for feemarket wrapper in EVM module with mock.
