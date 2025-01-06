@@ -14,6 +14,9 @@ import (
 // MustConvertEvmCoinTo18Decimals converts the coin's Amount from its original
 // representation into a 18 decimals. The function panics if coin denom is
 // not the evm denom or in case of overflow.
+//
+// CONTRACT: The function should only be called when the coin denom is the EVM. This means that
+// should be called only when the code forces the denom to be the expected one.
 func MustConvertEvmCoinTo18Decimals(coin sdk.Coin) sdk.Coin {
 	if coin.Denom != GetEVMCoinDenom() {
 		panic(fmt.Sprintf("expected evm denom %s, received %s", GetEVMCoinDenom(), coin.Denom))

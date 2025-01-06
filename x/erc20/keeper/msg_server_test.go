@@ -15,8 +15,8 @@ import (
 	erc20mocks "github.com/evmos/os/x/erc20/types/mocks"
 	"github.com/evmos/os/x/evm/statedb"
 	evmtypes "github.com/evmos/os/x/evm/types"
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/mock"
+	gomock "go.uber.org/mock/gomock"
 )
 
 func (suite *KeeperTestSuite) TestConvertERC20NativeERC20() {
