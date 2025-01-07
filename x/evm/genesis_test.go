@@ -5,12 +5,12 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/evmos/os/testutil/constants"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/evmos/os/contracts"
 	"github.com/evmos/os/crypto/ethsecp256k1"
+	testconstants "github.com/evmos/os/testutil/constants"
 	testfactory "github.com/evmos/os/testutil/integration/os/factory"
 	testhandler "github.com/evmos/os/testutil/integration/os/grpc"
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
@@ -50,9 +50,6 @@ func TestInitGenesis(t *testing.T) {
 
 	address := common.HexToAddress(privkey.PubKey().Address().String())
 
-	defaultGenesisWithEVMDenom := types.DefaultGenesisState()
-	defaultGenesisWithEVMDenom.Params.EvmDenom = constants.ExampleAttoDenom
-
 	var (
 		vmdb *statedb.StateDB
 		ctx  sdk.Context
@@ -66,15 +63,9 @@ func TestInitGenesis(t *testing.T) {
 		expPanic bool
 	}{
 		{
-			name:     "fail - default",
+			name:     "pass - default",
 			malleate: func(_ *testnetwork.UnitTestNetwork) {},
 			genState: types.DefaultGenesisState(),
-			expPanic: true, // NOTE: we're expecting a panic here because the EVM denom needs to be set
-		},
-		{
-			name:     "pass - default with EVM denom",
-			malleate: func(_ *testnetwork.UnitTestNetwork) {},
-			genState: defaultGenesisWithEVMDenom,
 			expPanic: false,
 		},
 		{
@@ -83,7 +74,7 @@ func TestInitGenesis(t *testing.T) {
 				vmdb.AddBalance(address, big.NewInt(1))
 			},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -99,7 +90,7 @@ func TestInitGenesis(t *testing.T) {
 			name:     "account not found",
 			malleate: func(_ *testnetwork.UnitTestNetwork) {},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -115,7 +106,7 @@ func TestInitGenesis(t *testing.T) {
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -132,7 +123,7 @@ func TestInitGenesis(t *testing.T) {
 				network.App.AccountKeeper.SetAccount(ctx, acc)
 			},
 			genState: &types.GenesisState{
-				Params: types.DefaultParamsWithEVMDenom(constants.ExampleAttoDenom),
+				Params: types.DefaultParams(),
 				Accounts: []types.GenesisAccount{
 					{
 						Address: address.String(),
@@ -245,7 +236,7 @@ func TestExportGenesis(t *testing.T) {
 	require.NoError(t, ts.network.NextBlock(), "failed to advance block")
 
 	genState := evm.ExportGenesis(ts.network.GetContext(), ts.network.App.EVMKeeper)
-	require.Len(t, genState.Accounts, 2, "expected only one smart contract in the exported genesis")
+	require.Len(t, genState.Accounts, 3, "expected 3 smart contracts in the exported genesis") // NOTE: 2 deployed above + 1 for the aevmos denomination ERC-20 pair
 
 	genAddresses := make([]string, 0, len(genState.Accounts))
 	for _, acc := range genState.Accounts {
@@ -253,4 +244,5 @@ func TestExportGenesis(t *testing.T) {
 	}
 	require.Contains(t, genAddresses, contractAddr.Hex(), "expected contract 1 address in exported genesis")
 	require.Contains(t, genAddresses, contractAddr2.Hex(), "expected contract 2 address in exported genesis")
+	require.Contains(t, genAddresses, testconstants.WEVMOSContractMainnet, "expected mainnet aevmos contract address in exported genesis")
 }

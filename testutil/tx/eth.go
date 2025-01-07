@@ -8,8 +8,6 @@ import (
 	"encoding/json"
 	"math/big"
 
-	testconstants "github.com/evmos/os/testutil/constants"
-
 	errorsmod "cosmossdk.io/errors"
 	sdkmath "cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -30,15 +28,16 @@ import (
 // It returns the signed transaction and an error
 func PrepareEthTx(
 	txCfg client.TxConfig,
-	exampleApp *exampleapp.ExampleChain,
 	priv cryptotypes.PrivKey,
 	msgs ...sdk.Msg,
 ) (authsigning.Tx, error) {
 	txBuilder := txCfg.NewTxBuilder()
 
-	signer := ethtypes.LatestSignerForChainID(exampleApp.EVMKeeper.ChainID())
+	signer := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 	txFee := sdk.Coins{}
 	txGasLimit := uint64(0)
+
+	baseDenom := evmtypes.GetEVMCoinDenom()
 
 	// Sign messages and compute gas/fees.
 	for _, m := range msgs {
@@ -57,7 +56,7 @@ func PrepareEthTx(
 		msg.From = ""
 
 		txGasLimit += msg.GetGas()
-		txFee = txFee.Add(sdk.Coin{Denom: testconstants.ExampleAttoDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
+		txFee = txFee.Add(sdk.Coin{Denom: baseDenom, Amount: sdkmath.NewIntFromBigInt(msg.GetFee())})
 	}
 
 	if err := txBuilder.SetMsgs(msgs...); err != nil {
@@ -102,7 +101,13 @@ func CreateEthTx(
 ) (*evmtypes.MsgEthereumTx, error) {
 	toAddr := common.BytesToAddress(dest.Bytes())
 	fromAddr := common.BytesToAddress(from.Bytes())
-	chainID := exampleApp.EVMKeeper.ChainID()
+	chainID := evmtypes.GetEthChainConfig().ChainID
+
+	baseFeeRes, err := exampleApp.EVMKeeper.BaseFee(ctx, &evmtypes.QueryBaseFeeRequest{})
+	if err != nil {
+		return nil, err
+	}
+	baseFee := baseFeeRes.BaseFee.BigInt()
 
 	// When we send multiple Ethereum Tx's in one Cosmos Tx, we need to increment the nonce for each one.
 	nonce := exampleApp.EVMKeeper.GetNonce(ctx, fromAddr) + uint64(nonceIncrement) //#nosec G115 -- will not exceed uint64
@@ -112,7 +117,7 @@ func CreateEthTx(
 		To:        &toAddr,
 		Amount:    amount,
 		GasLimit:  100000,
-		GasFeeCap: exampleApp.FeeMarketKeeper.GetBaseFee(ctx),
+		GasFeeCap: baseFee,
 		GasTipCap: big.NewInt(1),
 		Accesses:  &ethtypes.AccessList{},
 	}
@@ -121,7 +126,7 @@ func CreateEthTx(
 
 	// If we are creating multiple eth Tx's with different senders, we need to sign here rather than later.
 	if privKey != nil {
-		signer := ethtypes.LatestSignerForChainID(exampleApp.EVMKeeper.ChainID())
+		signer := ethtypes.LatestSignerForChainID(evmtypes.GetEthChainConfig().ChainID)
 		err := msgEthereumTx.Sign(signer, NewSigner(privKey))
 		if err != nil {
 			return nil, err

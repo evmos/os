@@ -30,6 +30,7 @@ import (
 const invalidAddress = "0x0000"
 
 func (suite *KeeperTestSuite) TestQueryAccount() {
+	baseDenom := types.GetEVMCoinDenom()
 	testCases := []struct {
 		msg         string
 		getReq      func() *types.QueryAccountRequest
@@ -49,7 +50,7 @@ func (suite *KeeperTestSuite) TestQueryAccount() {
 		{
 			"success",
 			func() *types.QueryAccountRequest {
-				amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, 100)}
+				amt := sdk.Coins{sdk.NewInt64Coin(baseDenom, 100)}
 
 				// Add new unfunded key
 				index := suite.keyring.AddKey()
@@ -187,6 +188,8 @@ func (suite *KeeperTestSuite) TestQueryCosmosAccount() {
 }
 
 func (suite *KeeperTestSuite) TestQueryBalance() {
+	baseDenom := types.GetEVMCoinDenom()
+
 	testCases := []struct {
 		msg           string
 		getReqAndResp func() (*types.QueryBalanceRequest, *types.QueryBalanceResponse)
@@ -209,7 +212,7 @@ func (suite *KeeperTestSuite) TestQueryBalance() {
 				addr := suite.keyring.GetAddr(newIndex)
 
 				balance := int64(100)
-				amt := sdk.Coins{sdk.NewInt64Coin(testconstants.ExampleAttoDenom, balance)}
+				amt := sdk.Coins{sdk.NewInt64Coin(baseDenom, balance)}
 
 				err := suite.network.App.BankKeeper.MintCoins(suite.network.GetContext(), types.ModuleName, amt)
 				suite.Require().NoError(err)
@@ -434,7 +437,7 @@ func (suite *KeeperTestSuite) TestQueryTxLogs() {
 
 func (suite *KeeperTestSuite) TestQueryParams() {
 	ctx := suite.network.GetContext()
-	expParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+	expParams := types.DefaultParams()
 	expParams.ActiveStaticPrecompiles = types.AvailableStaticPrecompiles
 
 	res, err := suite.network.GetEvmClient().Params(ctx, &types.QueryParamsRequest{})
@@ -609,7 +612,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), "aevmos")
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), types.GetEVMCoinDenom())
 				value := balance.Amount.Add(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -628,7 +631,7 @@ func (suite *KeeperTestSuite) TestEstimateGas() {
 			func() types.TransactionArgs {
 				addr := suite.keyring.GetAddr(0)
 				hexBigInt := hexutil.Big(*big.NewInt(1))
-				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), "aevmos")
+				balance := suite.network.App.BankKeeper.GetBalance(suite.network.GetContext(), sdk.AccAddress(addr.Bytes()), types.GetEVMCoinDenom())
 				value := balance.Amount.Sub(sdkmath.NewInt(1))
 				return types.TransactionArgs{
 					To:           &common.Address{},
@@ -1151,25 +1154,12 @@ func (suite *KeeperTestSuite) TestTraceTx() {
 			expectedTrace: "{\"gas\":34780,\"failed\":false,\"returnValue\":\"0000000000000000000000000000000000000000000000000000000000000001\",\"structLogs\":[{\"pc\":0,\"op\":\"PUSH1\",\"gas\":",
 			// expFinalGas:   26744, // gas consumed in traceTx setup (GetProposerAddr + CalculateBaseFee) + gas consumed in malleate func
 		},
-		{
-			msg: "invalid chain id",
-			getRequest: func() types.QueryTraceTxRequest {
-				defaultRequest := getDefaultTraceTxRequest(suite.network)
-				defaultRequest.ChainId = -1
-				return defaultRequest
-			},
-			getPredecessors: func() []*types.MsgEthereumTx {
-				return nil
-			},
-			expPass: false,
-		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Clean up per test
-			defaultEvmParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultEvmParams := types.DefaultParams()
 			err := suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 
@@ -1349,23 +1339,9 @@ func (suite *KeeperTestSuite) TestTraceBlock() {
 			expPass:       true,
 			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = tracer not found\"}]",
 		},
-		{
-			msg: "invalid chain id",
-			getRequest: func() types.QueryTraceBlockRequest {
-				defaultReq := getDefaultTraceBlockRequest(suite.network)
-				defaultReq.ChainId = -1
-				return defaultReq
-			},
-			getAdditionalTxs: func() []*types.MsgEthereumTx {
-				return nil
-			},
-			expPass:       true,
-			traceResponse: "[{\"error\":\"rpc error: code = Internal desc = invalid chain id for signer\"}]",
-		},
 	}
 
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(fmt.Sprintf("Case %s", tc.msg), func() {
 			// Start from fresh block
 			suite.Require().NoError(suite.network.NextBlock())
@@ -1491,7 +1467,7 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				evmDefault := types.DefaultParams()
 				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
 			},
 
@@ -1506,16 +1482,22 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault := feemarkettypes.DefaultParams()
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				chainConfig := types.DefaultChainConfig(suite.network.GetChainID())
 				maxInt := sdkmath.NewInt(math.MaxInt64)
-				evmDefault.ChainConfig.LondonBlock = &maxInt
-				evmDefault.ChainConfig.LondonBlock = &maxInt
-				evmDefault.ChainConfig.ArrowGlacierBlock = &maxInt
-				evmDefault.ChainConfig.GrayGlacierBlock = &maxInt
-				evmDefault.ChainConfig.MergeNetsplitBlock = &maxInt
-				evmDefault.ChainConfig.ShanghaiBlock = &maxInt
-				evmDefault.ChainConfig.CancunBlock = &maxInt
-				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
+				chainConfig.LondonBlock = &maxInt
+				chainConfig.ArrowGlacierBlock = &maxInt
+				chainConfig.GrayGlacierBlock = &maxInt
+				chainConfig.MergeNetsplitBlock = &maxInt
+				chainConfig.ShanghaiBlock = &maxInt
+				chainConfig.CancunBlock = &maxInt
+
+				configurator := types.NewEVMConfigurator()
+				configurator.ResetTestConfig()
+				err := configurator.
+					WithChainConfig(chainConfig).
+					WithEVMCoinInfo(testconstants.ExampleAttoDenom, uint8(types.EighteenDecimals)).
+					Configure()
+				suite.Require().NoError(err)
 			},
 			true,
 		},
@@ -1530,27 +1512,29 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 				feemarketDefault.NoBaseFee = true
 				suite.Require().NoError(suite.network.App.FeeMarketKeeper.SetParams(suite.network.GetContext(), feemarketDefault))
 
-				evmDefault := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+				evmDefault := types.DefaultParams()
 				suite.Require().NoError(suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), evmDefault))
 			},
 			true,
 		},
 	}
+
+	// Save initial configure to restore it between tests
+	denom := types.GetEVMCoinDenom()
+	decimals := types.GetEVMCoinDecimals()
+	chainConfig := types.DefaultChainConfig(suite.network.GetChainID())
+
 	for _, tc := range testCases {
-		tc := tc
 		suite.Run(tc.name, func() {
 			// Set necessary params
 			tc.setParams()
-
 			// Get the expected response
 			expResp := tc.getExpResp()
-
 			// Function under test
 			res, err := suite.network.GetEvmClient().BaseFee(
 				suite.network.GetContext(),
 				&types.QueryBaseFeeRequest{},
 			)
-
 			if tc.expPass {
 				suite.Require().NotNil(res)
 				suite.Require().Equal(expResp, res, tc.name)
@@ -1558,8 +1542,14 @@ func (suite *KeeperTestSuite) TestQueryBaseFee() {
 			} else {
 				suite.Require().Error(err)
 			}
-
 			suite.Require().NoError(suite.network.NextBlock())
+			configurator := types.NewEVMConfigurator()
+			configurator.ResetTestConfig()
+			err = configurator.
+				WithChainConfig(chainConfig).
+				WithEVMCoinInfo(denom, uint8(decimals)).
+				Configure()
+			suite.Require().NoError(err)
 		})
 	}
 }
@@ -1666,7 +1656,7 @@ func (suite *KeeperTestSuite) TestEthCall() {
 			}
 
 			// Reset params
-			defaultEvmParams := types.DefaultParamsWithEVMDenom(testconstants.ExampleAttoDenom)
+			defaultEvmParams := types.DefaultParams()
 			err = suite.network.App.EVMKeeper.SetParams(suite.network.GetContext(), defaultEvmParams)
 			suite.Require().NoError(err)
 		})

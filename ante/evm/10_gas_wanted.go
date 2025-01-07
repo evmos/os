@@ -11,6 +11,7 @@ import (
 	errortypes "github.com/cosmos/cosmos-sdk/types/errors"
 	anteinterfaces "github.com/evmos/os/ante/interfaces"
 	"github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // GasWantedDecorator keeps track of the gasWanted amount on the current block in transient store
@@ -33,9 +34,7 @@ func NewGasWantedDecorator(
 }
 
 func (gwd GasWantedDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	evmParams := gwd.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(gwd.evmKeeper.ChainID())
+	ethCfg := evmtypes.GetEthChainConfig()
 
 	blockHeight := big.NewInt(ctx.BlockHeight())
 	isLondon := ethCfg.IsLondon(blockHeight)

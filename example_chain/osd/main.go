@@ -16,7 +16,6 @@ import (
 
 func main() {
 	setupSDKConfig()
-	chainconfig.RegisterDenoms()
 
 	rootCmd := cmd.NewRootCmd()
 	if err := svrcmd.Execute(rootCmd, "osd", examplechain.DefaultNodeHome); err != nil {

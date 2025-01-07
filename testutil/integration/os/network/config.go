@@ -7,14 +7,17 @@ import (
 	"fmt"
 	"math/big"
 
+	"golang.org/x/exp/maps"
+
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"github.com/evmos/os/testutil/constants"
+	testconstants "github.com/evmos/os/testutil/constants"
 	testtx "github.com/evmos/os/testutil/tx"
 	evmostypes "github.com/evmos/os/types"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 // Config defines the configuration for a chain.
@@ -26,7 +29,7 @@ type Config struct {
 	amountOfValidators int
 	preFundedAccounts  []sdktypes.AccAddress
 	balances           []banktypes.Balance
-	denom              string
+	chainCoins         ChainCoins
 	customGenesisState CustomGenesisState
 	otherCoinDenom     []string
 	operatorsAddrs     []sdktypes.AccAddress
@@ -40,14 +43,14 @@ func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 
 	return Config{
-		chainID:            constants.ExampleChainID,
-		eip155ChainID:      big.NewInt(constants.ExampleEIP155ChainID),
+		chainID:            testconstants.ExampleChainID,
+		eip155ChainID:      big.NewInt(testconstants.ExampleEIP155ChainID),
+		chainCoins:         DefaultChainCoins(),
 		amountOfValidators: 3,
 		// No funded accounts besides the validators by default
 		preFundedAccounts: []sdktypes.AccAddress{account},
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
-		denom:              constants.ExampleAttoDenom,
 		customGenesisState: nil,
 	}
 }
@@ -63,7 +66,10 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 		genAccounts = createGenesisAccounts(accounts)
 	} else {
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
-		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, cfg.denom))
+
+		denomDecimals := cfg.chainCoins.DenomDecimalsMap()
+		denoms := maps.Keys(denomDecimals)
+		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, denoms...), denomDecimals)
 	}
 
 	// append validators to genesis accounts and balances
@@ -85,15 +91,33 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 // requires to be changed.
 type ConfigOption func(*Config)
 
-// WithChainID sets a custom chainID for the network. It panics if the chainID is invalid.
+// WithChainID sets a custom chainID for the network. Changing the chainID
+// change automatically also the EVM coin used. It panics if the chainID is invalid.
 func WithChainID(chainID string) ConfigOption {
-	chainIDNum, err := evmostypes.ParseChainID(chainID)
+	eip155ChainID, err := evmostypes.ParseChainID(chainID)
 	if err != nil {
 		panic(err)
 	}
+
+	evmCoinInfo, found := testconstants.ExampleChainCoinInfo[chainID]
+	if !found {
+		panic(fmt.Sprintf(
+			"chain id %q not found in chain coin info; available: %v",
+			chainID,
+			testconstants.ExampleChainCoinInfo,
+		))
+	}
+
 	return func(cfg *Config) {
 		cfg.chainID = chainID
-		cfg.eip155ChainID = chainIDNum
+		cfg.eip155ChainID = eip155ChainID
+
+		if cfg.chainCoins.IsBaseEqualToEVM() {
+			cfg.chainCoins.baseCoin.Denom = evmCoinInfo.Denom
+			cfg.chainCoins.baseCoin.Decimals = evmCoinInfo.Decimals
+		}
+		cfg.chainCoins.evmCoin.Denom = evmCoinInfo.Denom
+		cfg.chainCoins.evmCoin.Decimals = evmCoinInfo.Decimals
 	}
 }
 
@@ -119,11 +143,19 @@ func WithBalances(balances ...banktypes.Balance) ConfigOption {
 	}
 }
 
-// WithDenom sets the denom for the network.
-func WithDenom(denom string) ConfigOption {
+// WithBaseCoin sets the denom and decimals for the base coin in the network.
+func WithBaseCoin(denom string, decimals uint8) ConfigOption {
 	return func(cfg *Config) {
-		cfg.denom = denom
+		cfg.chainCoins.baseCoin.Denom = denom
+		cfg.chainCoins.baseCoin.Decimals = evmtypes.Decimals(decimals)
 	}
+}
+
+// WithEVMCoin sets the denom and decimals for the evm coin in the network.
+func WithEVMCoin(_ string, _ uint8) ConfigOption {
+	// The evm config can be changed only via chain ID because it should be
+	// handled properly from the configurator.
+	panic("EVM coin can be changed only via ChainID: se WithChainID method")
 }
 
 // WithCustomGenesis sets the custom genesis of the network for specific modules.

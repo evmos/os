@@ -26,7 +26,6 @@ type GenesisState map[string]json.RawMessage
 // and enable ALL precompiles.
 func NewEVMGenesisState() *evmtypes.GenesisState {
 	evmGenState := evmtypes.DefaultGenesisState()
-	evmGenState.Params.EvmDenom = ExampleChainDenom
 	evmGenState.Params.ActiveStaticPrecompiles = evmtypes.AvailableStaticPrecompiles
 
 	return evmGenState

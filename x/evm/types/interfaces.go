@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	"cosmossdk.io/core/address"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -31,6 +32,7 @@ type AccountKeeper interface {
 // BankKeeper defines the expected interface needed to retrieve account balances.
 type BankKeeper interface {
 	authtypes.BankKeeper
+	GetAllBalances(ctx context.Context, addr sdk.AccAddress) sdk.Coins
 	GetBalance(ctx context.Context, addr sdk.AccAddress, denom string) sdk.Coin
 	SendCoinsFromModuleToAccount(ctx context.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
 	MintCoins(ctx context.Context, moduleName string, amt sdk.Coins) error
@@ -44,11 +46,11 @@ type StakingKeeper interface {
 	ValidatorAddressCodec() address.Codec
 }
 
-// FeeMarketKeeper
+// FeeMarketKeeper defines the expected interfaces needed for the feemarket
 type FeeMarketKeeper interface {
-	GetBaseFee(ctx sdk.Context) *big.Int
+	GetBaseFee(ctx sdk.Context) math.LegacyDec
 	GetParams(ctx sdk.Context) feemarkettypes.Params
-	CalculateBaseFee(ctx sdk.Context) *big.Int
+	CalculateBaseFee(ctx sdk.Context) math.LegacyDec
 }
 
 // Erc20Keeper defines the expected interface needed to instantiate ERC20 precompiles.
@@ -64,3 +66,13 @@ type (
 		GetParamSetIfExists(ctx sdk.Context, ps LegacyParams)
 	}
 )
+
+// BankWrapper defines the methods required by the wrapper around
+// the Cosmos SDK x/bank keeper that is used to manage an EVM coin
+// with a configurable value for decimals.
+type BankWrapper interface {
+	BankKeeper
+
+	MintAmountToAccount(ctx context.Context, recipientAddr sdk.AccAddress, amt *big.Int) error
+	BurnAmountFromAccount(ctx context.Context, account sdk.AccAddress, amt *big.Int) error
+}

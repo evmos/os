@@ -1,4 +1,4 @@
-package ibc
+package ibc_test
 
 import (
 	"testing"
@@ -8,7 +8,9 @@ import (
 	transfertypes "github.com/cosmos/ibc-go/v8/modules/apps/transfer/types"
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	ibctesting "github.com/cosmos/ibc-go/v8/testing"
+	evmosibc "github.com/evmos/os/ibc"
 	precompilestestutil "github.com/evmos/os/precompiles/testutil"
+	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/stretchr/testify/require"
 )
 
@@ -90,7 +92,7 @@ func TestGetTransferSenderRecipient(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		sender, recipient, _, _, err := GetTransferSenderRecipient(tc.data)
+		sender, recipient, _, _, err := evmosibc.GetTransferSenderRecipient(tc.data)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
@@ -165,7 +167,7 @@ func TestGetTransferAmount(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		amt, err := GetTransferAmount(tc.packet)
+		amt, err := evmosibc.GetTransferAmount(tc.packet)
 		if tc.expError {
 			require.Error(t, err, tc.name)
 		} else {
@@ -229,12 +231,14 @@ func TestGetReceivedCoin(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		coin := GetReceivedCoin(tc.srcPort, tc.srcChannel, tc.dstPort, tc.dstChannel, tc.rawDenom, tc.rawAmount)
+		coin := evmosibc.GetReceivedCoin(tc.srcPort, tc.srcChannel, tc.dstPort, tc.dstChannel, tc.rawDenom, tc.rawAmount)
 		require.Equal(t, tc.expCoin, coin)
 	}
 }
 
 func TestGetSentCoin(t *testing.T) {
+	baseDenom := testconstants.ExampleAttoDenom
+
 	testCases := []struct {
 		name      string
 		rawDenom  string
@@ -243,9 +247,9 @@ func TestGetSentCoin(t *testing.T) {
 	}{
 		{
 			"get unwrapped aevmos coin",
-			"aevmos",
+			baseDenom,
 			"10",
-			sdk.Coin{Denom: "aevmos", Amount: math.NewInt(10)},
+			sdk.Coin{Denom: baseDenom, Amount: math.NewInt(10)},
 		},
 		{
 			"get ibc wrapped aevmos coin",
@@ -274,7 +278,7 @@ func TestGetSentCoin(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		coin := GetSentCoin(tc.rawDenom, tc.rawAmount)
+		coin := evmosibc.GetSentCoin(tc.rawDenom, tc.rawAmount)
 		require.Equal(t, tc.expCoin, coin)
 	}
 }
@@ -318,7 +322,7 @@ func TestDeriveDecimalsFromDenom(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		dec, err := DeriveDecimalsFromDenom(tc.baseDenom)
+		dec, err := evmosibc.DeriveDecimalsFromDenom(tc.baseDenom)
 		if tc.expFail {
 			require.Error(t, err, tc.expErrMsg)
 			require.Contains(t, err.Error(), tc.expErrMsg)
@@ -359,7 +363,7 @@ func TestIsBaseDenomFromSourceChain(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := IsBaseDenomFromSourceChain(tt.denom)
+			result := evmosibc.IsBaseDenomFromSourceChain(tt.denom)
 			require.Equal(t, tt.expected, result)
 		})
 	}

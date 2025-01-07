@@ -12,6 +12,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	cmn "github.com/evmos/os/precompiles/common"
 	"github.com/evmos/os/x/evm/core/vm"
+	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
 const (
@@ -90,8 +91,11 @@ func (p *Precompile) ClaimRewards(
 			return nil, err
 		}
 
-		evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, totalCoins.AmountOf(evmDenom).BigInt(), cmn.Add))
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(totalCoins.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
+		// check if converted amount is greater than zero
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, convertedAmount, cmn.Add))
+		}
 	}
 
 	if err := p.EmitClaimRewardsEvent(ctx, stateDB, delegatorAddr, totalCoins); err != nil {
@@ -171,7 +175,11 @@ func (p *Precompile) WithdrawDelegatorRewards(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(res.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
+		// check if converted amount is greater than zero
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, convertedAmount, cmn.Add))
+		}
 	}
 
 	if err = p.EmitWithdrawDelegatorRewardsEvent(ctx, stateDB, delegatorHexAddr, msg.ValidatorAddress, res.Amount); err != nil {
@@ -218,7 +226,12 @@ func (p *Precompile) WithdrawValidatorCommission(
 			return nil, err
 		}
 
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, res.Amount[0].Amount.BigInt(), cmn.Add))
+		// TODO: check in all methods here if evm denom is the correct denom to use!
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(res.Amount.AmountOf(evmtypes.GetEVMCoinDenom()).BigInt())
+		// check if converted amount is greater than zero
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(withdrawerHexAddr, convertedAmount, cmn.Add))
+		}
 	}
 
 	if err = p.EmitWithdrawValidatorCommissionEvent(ctx, stateDB, msg.ValidatorAddress, res.Amount); err != nil {
@@ -237,8 +250,13 @@ func (p *Precompile) FundCommunityPool(
 	method *abi.Method,
 	args []interface{},
 ) ([]byte, error) {
-	evmDenom := p.evmKeeper.GetParams(ctx).EvmDenom
-	msg, depositorHexAddr, err := NewMsgFundCommunityPool(evmDenom, args)
+	// TODO: check if this is correct? Community pool should be funded with sdk base denom instead of evm denom right?
+	baseDenom, err := sdk.GetBaseDenom()
+	if err != nil {
+		return nil, err
+	}
+
+	msg, depositorHexAddr, err := NewMsgFundCommunityPool(baseDenom, args)
 	if err != nil {
 		return nil, err
 	}
@@ -260,7 +278,12 @@ func (p *Precompile) FundCommunityPool(
 	// when calling the precompile from a smart contract
 	// This prevents the stateDB from overwriting the changed balance in the bank keeper when committing the EVM state.
 	if contract.CallerAddress != origin {
-		p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, msg.Amount.AmountOf(evmDenom).BigInt(), cmn.Sub))
+		// TODO: check if correct - should the balance change in the state DB be for the evm denom?? do we need scaling here?
+		convertedAmount := evmtypes.ConvertAmountTo18DecimalsBigInt(msg.Amount.AmountOf(baseDenom).BigInt())
+		// check if converted amount is greater than zero
+		if convertedAmount.Cmp(common.Big0) == 1 {
+			p.SetBalanceChangeEntries(cmn.NewBalanceChangeEntry(depositorHexAddr, convertedAmount, cmn.Sub))
+		}
 	}
 
 	if err = p.EmitFundCommunityPoolEvent(ctx, stateDB, depositorHexAddr, msg.Amount); err != nil {

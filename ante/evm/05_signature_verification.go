@@ -32,10 +32,8 @@ func NewEthSigVerificationDecorator(ek anteinterfaces.EVMKeeper) EthSigVerificat
 // Failure in RecheckTx will prevent tx to be included into block, especially when CheckTx succeed, in which case user
 // won't see the error message.
 func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, simulate bool, next sdk.AnteHandler) (newCtx sdk.Context, err error) {
-	chainID := esvd.evmKeeper.ChainID()
 	evmParams := esvd.evmKeeper.GetParams(ctx)
-	chainCfg := evmParams.GetChainConfig()
-	ethCfg := chainCfg.EthereumConfig(chainID)
+	ethCfg := evmtypes.GetEthChainConfig()
 	blockNum := big.NewInt(ctx.BlockHeight())
 	signer := ethtypes.MakeSigner(ethCfg, blockNum)
 	allowUnprotectedTxs := evmParams.GetAllowUnprotectedTxs()
@@ -62,6 +60,8 @@ func (esvd EthSigVerificationDecorator) AnteHandle(ctx sdk.Context, tx sdk.Tx, s
 
 // SignatureVerification checks that the registered chain id is the same as the one on the message, and
 // that the signer address matches the one defined on the message.
+// The function set the field from of the given message equal to the sender
+// computed from the signature of the Ethereum transaction.
 func SignatureVerification(
 	msg *evmtypes.MsgEthereumTx,
 	signer ethtypes.Signer,

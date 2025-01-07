@@ -4,6 +4,7 @@
 package grpc
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"github.com/ethereum/go-ethereum/common"
 	commongrpc "github.com/evmos/os/testutil/integration/common/grpc"
@@ -21,6 +22,8 @@ type Handler interface {
 	GetEvmAccount(address common.Address) (*evmtypes.QueryAccountResponse, error)
 	EstimateGas(args []byte, GasCap uint64) (*evmtypes.EstimateGasResponse, error)
 	GetEvmParams() (*evmtypes.QueryParamsResponse, error)
+	GetEvmBaseFee() (*evmtypes.QueryBaseFeeResponse, error)
+	GetBalanceFromEVM(address sdk.AccAddress) (*evmtypes.QueryBalanceResponse, error)
 
 	// FeeMarket methods
 	GetBaseFee() (*feemarkettypes.QueryBaseFeeResponse, error)

@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	gethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/evmos/os/precompiles/distribution"
@@ -20,44 +21,44 @@ import (
 func (s *PrecompileTestSuite) TestIsTransaction() {
 	testCases := []struct {
 		name   string
-		method string
+		method abi.Method
 		isTx   bool
 	}{
 		{
 			distribution.SetWithdrawAddressMethod,
-			s.precompile.Methods[distribution.SetWithdrawAddressMethod].Name,
+			s.precompile.Methods[distribution.SetWithdrawAddressMethod],
 			true,
 		},
 		{
 			distribution.WithdrawDelegatorRewardsMethod,
-			s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod].Name,
+			s.precompile.Methods[distribution.WithdrawDelegatorRewardsMethod],
 			true,
 		},
 		{
 			distribution.WithdrawValidatorCommissionMethod,
-			s.precompile.Methods[distribution.WithdrawValidatorCommissionMethod].Name,
+			s.precompile.Methods[distribution.WithdrawValidatorCommissionMethod],
 			true,
 		},
 		{
 			distribution.FundCommunityPoolMethod,
-			s.precompile.Methods[distribution.FundCommunityPoolMethod].Name,
+			s.precompile.Methods[distribution.FundCommunityPoolMethod],
 			true,
 		},
 		{
 			distribution.ValidatorDistributionInfoMethod,
-			s.precompile.Methods[distribution.ValidatorDistributionInfoMethod].Name,
+			s.precompile.Methods[distribution.ValidatorDistributionInfoMethod],
 			false,
 		},
 		{
 			"invalid",
-			"invalid",
+			abi.Method{},
 			false,
 		},
 	}
 
 	for _, tc := range testCases {
 		s.Run(tc.name, func() {
-			s.Require().Equal(s.precompile.IsTransaction(tc.method), tc.isTx)
+			s.Require().Equal(s.precompile.IsTransaction(&tc.method), tc.isTx)
 		})
 	}
 }
@@ -209,12 +210,11 @@ func (s *PrecompileTestSuite) TestRun() {
 	}
 
 	for _, tc := range testcases {
-		tc := tc
 		s.Run(tc.name, func() {
 			// setup basic test suite
 			s.SetupTest()
 			ctx = s.network.GetContext()
-			baseFee := s.network.App.FeeMarketKeeper.GetBaseFee(ctx)
+			baseFee := s.network.App.EVMKeeper.GetBaseFee(ctx)
 
 			// malleate testcase
 			caller, input := tc.malleate()
@@ -225,7 +225,7 @@ func (s *PrecompileTestSuite) TestRun() {
 			contractAddr := contract.Address()
 			// Build and sign Ethereum transaction
 			txArgs := evmtypes.EvmTxArgs{
-				ChainID:   s.network.App.EVMKeeper.ChainID(),
+				ChainID:   evmtypes.GetEthChainConfig().ChainID,
 				Nonce:     0,
 				To:        &contractAddr,
 				Amount:    nil,
@@ -243,7 +243,7 @@ func (s *PrecompileTestSuite) TestRun() {
 
 			// Instantiate config
 			proposerAddress := ctx.BlockHeader().ProposerAddress
-			cfg, err := s.network.App.EVMKeeper.EVMConfig(ctx, proposerAddress, s.network.App.EVMKeeper.ChainID())
+			cfg, err := s.network.App.EVMKeeper.EVMConfig(ctx, proposerAddress)
 			s.Require().NoError(err, "failed to instantiate EVM config")
 
 			ethChainID := s.network.GetEIP155ChainID()

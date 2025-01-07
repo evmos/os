@@ -6,7 +6,6 @@ package backend
 import (
 	"fmt"
 	"math/big"
-	"strconv"
 
 	"cosmossdk.io/math"
 	cmtrpcclient "github.com/cometbft/cometbft/rpc/client"
@@ -45,21 +44,19 @@ func (b *Backend) ChainID() (*hexutil.Big, error) {
 
 // ChainConfig returns the latest ethereum chain configuration
 func (b *Backend) ChainConfig() *params.ChainConfig {
-	params, err := b.queryClient.Params(b.ctx, &evmtypes.QueryParamsRequest{})
-	if err != nil {
-		return nil
-	}
-
-	return params.Params.ChainConfig.EthereumConfig(b.chainID)
+	return evmtypes.GetEthChainConfig()
 }
 
 // GlobalMinGasPrice returns MinGasPrice param from FeeMarket
-func (b *Backend) GlobalMinGasPrice() (math.LegacyDec, error) {
-	res, err := b.queryClient.FeeMarket.Params(b.ctx, &feemarkettypes.QueryParamsRequest{})
+func (b *Backend) GlobalMinGasPrice() (*big.Int, error) {
+	res, err := b.queryClient.GlobalMinGasPrice(b.ctx, &evmtypes.QueryGlobalMinGasPriceRequest{})
 	if err != nil {
-		return math.LegacyZeroDec(), err
+		return nil, err
 	}
-	return res.Params.MinGasPrice, nil
+	if res == nil {
+		return nil, fmt.Errorf("GlobalMinGasPrice query returned a nil response")
+	}
+	return res.MinGasPrice.BigInt(), nil
 }
 
 // BaseFee returns the base fee tracked by the Fee Market module.
@@ -75,10 +72,10 @@ func (b *Backend) BaseFee(blockRes *cmtrpctypes.ResultBlockResults) (*big.Int, e
 		// faster to iterate reversely
 		for i := len(blockRes.FinalizeBlockEvents) - 1; i >= 0; i-- {
 			evt := blockRes.FinalizeBlockEvents[i]
-			if evt.Type == feemarkettypes.EventTypeFeeMarket && len(evt.Attributes) > 0 {
-				baseFee, err := strconv.ParseInt(evt.Attributes[0].Value, 10, 64)
-				if err == nil {
-					return big.NewInt(baseFee), nil
+			if evt.Type == evmtypes.EventTypeFeeMarket && len(evt.Attributes) > 0 {
+				baseFee, ok := math.NewIntFromString(evt.Attributes[0].Value)
+				if ok {
+					return baseFee.BigInt(), nil
 				}
 				break
 			}
@@ -208,7 +205,7 @@ func (b *Backend) FeeHistory(
 		}
 
 		// tendermint block result
-		tendermintBlockResult, err := b.TendermintBlockResultByNumber(&tendermintblock.Block.Height)
+		tendermintBlockResult, err := b.rpcClient.BlockResults(b.ctx, &tendermintblock.Block.Height)
 		if tendermintBlockResult == nil {
 			b.logger.Debug("block result not found", "height", tendermintblock.Block.Height, "error", err.Error())
 			return nil, err

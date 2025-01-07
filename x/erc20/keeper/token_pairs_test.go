@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/ethereum/go-ethereum/common"
 	exampleapp "github.com/evmos/os/example_chain"
-	testconstants "github.com/evmos/os/testutil/constants"
 	utiltx "github.com/evmos/os/testutil/tx"
 	"github.com/evmos/os/x/erc20/types"
 )
@@ -59,7 +58,10 @@ func (suite *KeeperTestSuite) TestGetTokenPairs() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPairID() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), testconstants.ExampleAttoDenom, types.OWNER_MODULE)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err, "failed to get base denom")
+
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 
 	testCases := []struct {
 		name  string
@@ -86,7 +88,10 @@ func (suite *KeeperTestSuite) TestGetTokenPairID() {
 }
 
 func (suite *KeeperTestSuite) TestGetTokenPair() {
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), testconstants.ExampleAttoDenom, types.OWNER_MODULE)
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err, "failed to get base denom")
+
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 
 	testCases := []struct {
 		name string
@@ -113,8 +118,11 @@ func (suite *KeeperTestSuite) TestGetTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestDeleteTokenPair() {
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err, "failed to get base denom")
+
 	var ctx sdk.Context
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), testconstants.ExampleAttoDenom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 	id := pair.GetID()
 
 	testCases := []struct {
@@ -152,8 +160,11 @@ func (suite *KeeperTestSuite) TestDeleteTokenPair() {
 }
 
 func (suite *KeeperTestSuite) TestIsTokenPairRegistered() {
+	baseDenom, err := sdk.GetBaseDenom()
+	suite.Require().NoError(err, "failed to get base denom")
+
 	var ctx sdk.Context
-	pair := types.NewTokenPair(utiltx.GenerateAddress(), testconstants.ExampleAttoDenom, types.OWNER_MODULE)
+	pair := types.NewTokenPair(utiltx.GenerateAddress(), baseDenom, types.OWNER_MODULE)
 
 	testCases := []struct {
 		name string

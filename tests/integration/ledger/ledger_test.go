@@ -46,6 +46,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 		cmd             *cobra.Command
 		krHome          string
 		keyRecord       *keyring.Record
+		baseDenom       string
 	)
 
 	ledgerKey := "ledger_key"
@@ -66,6 +67,10 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 
 			mocks.MClose(s.ledger)
 			mocks.MGetAddressPubKeySECP256K1(s.ledger, s.accAddr, s.pubKey)
+
+			var err error
+			baseDenom, err = sdk.GetBaseDenom()
+			s.Require().NoError(err)
 		})
 		Context("with default algo", func() {
 			It("should use eth_secp256k1 by default and pass", func() {
@@ -173,7 +178,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 						s.app.BankKeeper,
 						s.accAddr,
 						sdk.NewCoins(
-							sdk.NewCoin("aevmos", math.NewInt(100000000000000)),
+							sdk.NewCoin(baseDenom, math.NewInt(100000000000000)),
 						),
 					)
 					s.Require().NoError(err)
@@ -198,7 +203,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					cmd.SetArgs([]string{
 						ledgerKey,
 						receiverAccAddr.String(),
-						sdk.NewCoin("aevmos", math.NewInt(1000)).String(),
+						sdk.NewCoin(baseDenom, math.NewInt(1000)).String(),
 						s.FormatFlag(flags.FlagUseLedger),
 						s.FormatFlag(flags.FlagSkipConfirmation),
 					})
@@ -216,7 +221,7 @@ var _ = Describe("Ledger CLI and keyring functionality: ", func() {
 					cmd.SetArgs([]string{
 						ledgerKey,
 						receiverAccAddr.String(),
-						sdk.NewCoin("aevmos", math.NewInt(1000)).String(),
+						sdk.NewCoin(baseDenom, math.NewInt(1000)).String(),
 						s.FormatFlag(flags.FlagUseLedger),
 						s.FormatFlag(flags.FlagSkipConfirmation),
 					})

@@ -1,4 +1,4 @@
-package ibc
+package ibc_test
 
 import (
 	"testing"
@@ -13,6 +13,7 @@ import (
 	channeltypes "github.com/cosmos/ibc-go/v8/modules/core/04-channel/types"
 	porttypes "github.com/cosmos/ibc-go/v8/modules/core/05-port/types"
 	"github.com/cosmos/ibc-go/v8/modules/core/exported"
+	evmosibc "github.com/evmos/os/ibc"
 )
 
 var _ porttypes.IBCModule = &MockIBCModule{}
@@ -183,7 +184,7 @@ func TestModule(t *testing.T) {
 	mockModule.On("OnAcknowledgementPacket").Return(nil)
 	mockModule.On("OnTimeoutPacket").Return(nil)
 
-	module := NewModule(mockModule)
+	module := evmosibc.NewModule(mockModule)
 
 	// mock calls for abstraction
 	_, err := module.OnChanOpenInit(sdk.Context{}, channeltypes.ORDERED, nil, transfertypes.PortID, "channel-0", &capabilitytypes.Capability{}, channeltypes.Counterparty{}, "")

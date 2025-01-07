@@ -141,7 +141,7 @@ func (tf *IntegrationTxFactory) populateEvmTxArgsWithDefault(
 			txArgs.GasTipCap = big.NewInt(1)
 		}
 		if txArgs.GasFeeCap == nil {
-			baseFeeResp, err := tf.grpcHandler.GetBaseFee()
+			baseFeeResp, err := tf.grpcHandler.GetEvmBaseFee()
 			if err != nil {
 				return evmtypes.EvmTxArgs{}, errorsmod.Wrap(err, "failed to get base fee")
 			}
@@ -174,7 +174,7 @@ func (tf *IntegrationTxFactory) encodeTx(tx sdktypes.Tx) ([]byte, error) {
 func (tf *IntegrationTxFactory) buildSignedTx(msg evmtypes.MsgEthereumTx) (signing.Tx, error) {
 	txConfig := tf.ec.TxConfig
 	txBuilder := txConfig.NewTxBuilder()
-	return msg.BuildTx(txBuilder, tf.network.GetDenom())
+	return msg.BuildTx(txBuilder, tf.network.GetBaseDenom())
 }
 
 // checkEthTxResponse checks if the response is valid and returns the MsgEthereumTxResponse

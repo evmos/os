@@ -120,7 +120,7 @@ func DefaultConfig() Config {
 		TimeoutCommit:     3 * time.Second,
 		ChainID:           chainID,
 		NumValidators:     4,
-		BondDenom:         "aevmos",
+		BondDenom:         testconstants.ExampleAttoDenom,
 		MinGasPrices:      fmt.Sprintf("0.000006%s", testconstants.ExampleAttoDenom),
 		AccountTokens:     sdk.TokensFromConsensusPower(1000000000000000000, evmostypes.AttoPowerReduction),
 		StakingTokens:     sdk.TokensFromConsensusPower(500000000000000000, evmostypes.AttoPowerReduction),
@@ -429,7 +429,7 @@ func New(l Logger, baseDir string, cfg Config) (*Network, error) {
 		}
 
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			addr.String(),
+			sdk.ValAddress(addr).String(),
 			valPubKeys[i],
 			sdk.NewCoin(cfg.BondDenom, cfg.BondedTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),

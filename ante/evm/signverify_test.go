@@ -13,10 +13,11 @@ import (
 
 func (suite *AnteTestSuite) TestEthSigVerificationDecorator() {
 	addr, privKey := testutiltx.NewAddrKey()
-	ethSigner := ethtypes.LatestSignerForChainID(suite.GetNetwork().App.EVMKeeper.ChainID())
+	ethCfg := evmtypes.GetEthChainConfig()
+	ethSigner := ethtypes.LatestSignerForChainID(ethCfg.ChainID)
 
 	ethContractCreationTxParams := &evmtypes.EvmTxArgs{
-		ChainID:  suite.GetNetwork().App.EVMKeeper.ChainID(),
+		ChainID:  ethCfg.ChainID,
 		Nonce:    1,
 		Amount:   big.NewInt(10),
 		GasLimit: 1000,

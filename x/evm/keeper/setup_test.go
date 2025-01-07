@@ -9,7 +9,6 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/ethereum/go-ethereum/params"
-	testconstants "github.com/evmos/os/testutil/constants"
 	"github.com/evmos/os/testutil/integration/os/factory"
 	"github.com/evmos/os/testutil/integration/os/grpc"
 	"github.com/evmos/os/testutil/integration/os/keyring"
@@ -62,22 +61,9 @@ func (suite *KeeperTestSuite) SetupTest() {
 	}
 	customGenesis[feemarkettypes.ModuleName] = feemarketGenesis
 
-	if !s.enableLondonHF {
-		evmGenesis := evmtypes.DefaultGenesisState()
-		maxInt := sdkmath.NewInt(math.MaxInt64)
-		evmGenesis.Params.EvmDenom = testconstants.ExampleAttoDenom
-		evmGenesis.Params.ChainConfig.LondonBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ArrowGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.GrayGlacierBlock = &maxInt
-		evmGenesis.Params.ChainConfig.MergeNetsplitBlock = &maxInt
-		evmGenesis.Params.ChainConfig.ShanghaiBlock = &maxInt
-		evmGenesis.Params.ChainConfig.CancunBlock = &maxInt
-		customGenesis[evmtypes.ModuleName] = evmGenesis
-	}
-
 	if s.mintFeeCollector {
 		// mint some coin to fee collector
-		coins := sdk.NewCoins(sdk.NewCoin(testconstants.ExampleAttoDenom, sdkmath.NewInt(int64(params.TxGas)-1)))
+		coins := sdk.NewCoins(sdk.NewCoin(evmtypes.GetEVMCoinDenom(), sdkmath.NewInt(int64(params.TxGas)-1)))
 		balances := []banktypes.Balance{
 			{
 				Address: authtypes.NewModuleAddress(authtypes.FeeCollectorName).String(),
@@ -100,4 +86,27 @@ func (suite *KeeperTestSuite) SetupTest() {
 	s.factory = tf
 	s.handler = gh
 	s.keyring = keys
+
+	chainConfig := evmtypes.DefaultChainConfig(suite.network.GetChainID())
+	if !s.enableLondonHF {
+		maxInt := sdkmath.NewInt(math.MaxInt64)
+		chainConfig.LondonBlock = &maxInt
+		chainConfig.ArrowGlacierBlock = &maxInt
+		chainConfig.GrayGlacierBlock = &maxInt
+		chainConfig.MergeNetsplitBlock = &maxInt
+		chainConfig.ShanghaiBlock = &maxInt
+		chainConfig.CancunBlock = &maxInt
+	}
+	// get the denom and decimals set on chain initialization
+	// because we'll need to set them again when resetting the chain config
+	denom := evmtypes.GetEVMCoinDenom()       //nolint:staticcheck
+	decimals := evmtypes.GetEVMCoinDecimals() //nolint:staticcheck
+
+	configurator := evmtypes.NewEVMConfigurator()
+	configurator.ResetTestConfig()
+	err := configurator.
+		WithChainConfig(chainConfig).
+		WithEVMCoinInfo(denom, uint8(decimals)).
+		Configure()
+	suite.Require().NoError(err)
 }

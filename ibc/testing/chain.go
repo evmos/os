@@ -20,7 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// ChainIDPrefix defines the default chain ID prefix for Evmos test chains
+// ChainIDPrefix defines the default chain ID prefix for evmOS test chains
 var (
 	ChainIDPrefix = constants.ExampleChainID
 	ChainIDSuffix = ""
