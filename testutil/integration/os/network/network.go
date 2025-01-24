@@ -90,37 +90,35 @@ func New(opts ...ConfigOption) *IntegrationNetwork {
 	return network
 }
 
-var (
-	// DefaultBondedAmount is the amount of tokens that each validator will have initially bonded
-	DefaultBondedAmount = sdktypes.TokensFromConsensusPower(1, types.AttoPowerReduction)
-	// PrefundedAccountInitialBalance is the amount of tokens that each
-	// prefunded account has at genesis. It represents a 100k amount expressed
-	// in the 18 decimals representation.
-	PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
-)
+// PrefundedAccountInitialBalance is the amount of tokens that each
+// prefunded account has at genesis. It represents a 100k amount expressed
+// in the 18 decimals representation.
+var PrefundedAccountInitialBalance, _ = sdkmath.NewIntFromString("100_000_000_000_000_000_000_000")
 
 // configureAndInitChain initializes the network with the given configuration.
 // It creates the genesis state and starts the network.
 func (n *IntegrationNetwork) configureAndInitChain() error {
-	// The bonded denom should be updated to reflect the actual base denom
-	// decimals.
+	// --------------------------------------------------------------------------------------------
+	// Apply changes deriving from possible config options
+	// FIX: for sure there exists a better way to achieve that.
+	// --------------------------------------------------------------------------------------------
+
+	// The bonded amount should be updated to reflect the actual base denom
 	baseDecimals := n.cfg.chainCoins.BaseDecimals()
-	// 1e18/1e18 = 1
-	// 1e6/1e18 * 1e12 = 1e6/1e6 = 1
-	InitialBondedAmount := DefaultBondedAmount.Mul(baseDecimals.ConversionFactor())
+	bondedAmount := GetInitialBondedAmount(baseDecimals)
 
 	// Create validator set with the amount of validators specified in the config
 	// with the default power of 1.
 	valSet, valSigners := createValidatorSetAndSigners(n.cfg.amountOfValidators)
-	totalBonded := InitialBondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
+	totalBonded := bondedAmount.Mul(sdkmath.NewInt(int64(n.cfg.amountOfValidators)))
 
 	// Build staking type validators and delegations
-	validators, err := createStakingValidators(valSet.Validators, InitialBondedAmount, n.cfg.operatorsAddrs)
+	validators, err := createStakingValidators(valSet.Validators, bondedAmount, n.cfg.operatorsAddrs)
 	if err != nil {
 		return err
 	}
 
-	// Create genesis accounts and funded balances based on the config
+	// Create genesis accounts and funded balances based on the config.
 	genAccounts, fundedAccountBalances := getGenAccountsAndBalances(n.cfg, validators)
 
 	fundedAccountBalances = addBondedModuleAccountToFundedBalances(
@@ -130,7 +128,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 
 	delegations := createDelegations(validators, genAccounts[0].GetAddress())
 
-	// Create a new EvmosApp with the following params
+	// Create a new testing app with the following params
 	exampleApp := createTestingApp(n.cfg.chainID, n.cfg.customBaseAppOpts...)
 
 	stakingParams := StakingCustomGenesisState{
@@ -140,6 +138,10 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 	}
 	govParams := GovCustomGenesisState{
 		denom: n.cfg.chainCoins.BaseDenom(),
+	}
+
+	fmParams := FeeMarketCustomGenesisState{
+		baseFee: GetInitialBaseFeeAmount(n.cfg.chainCoins.BaseDecimals()),
 	}
 
 	mintParams := MintCustomGenesisState{
@@ -168,6 +170,7 @@ func (n *IntegrationNetwork) configureAndInitChain() error {
 			genAccounts: genAccounts,
 			staking:     stakingParams,
 			bank:        bankParams,
+			feemarket:   fmParams,
 			slashing:    slashingParams,
 			gov:         govParams,
 			mint:        mintParams,
@@ -283,7 +286,7 @@ func (n *IntegrationNetwork) GetEVMDenom() string {
 
 // GetOtherDenoms returns network's other supported denoms
 func (n *IntegrationNetwork) GetOtherDenoms() []string {
-	return n.cfg.otherCoinDenom
+	return n.cfg.otherCoinDenoms
 }
 
 // GetValidators returns the network's validators

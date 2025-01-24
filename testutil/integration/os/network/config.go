@@ -7,8 +7,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"golang.org/x/exp/maps"
-
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -20,20 +19,31 @@ import (
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
 
+// defaultChain represents the default chain ID used in the suite setup.
+var defaultChain = testconstants.ExampleChainID
+
 // Config defines the configuration for a chain.
 // It allows for customization of the network to adjust to
 // testing needs.
 type Config struct {
-	chainID            string
-	eip155ChainID      *big.Int
-	amountOfValidators int
-	preFundedAccounts  []sdktypes.AccAddress
-	balances           []banktypes.Balance
-	chainCoins         ChainCoins
+	chainID       string
+	eip155ChainID *big.Int
+
 	customGenesisState CustomGenesisState
-	otherCoinDenom     []string
-	operatorsAddrs     []sdktypes.AccAddress
-	customBaseAppOpts  []func(*baseapp.BaseApp)
+
+	customBaseAppOpts []func(*baseapp.BaseApp)
+
+	amountOfValidators  int
+	operatorsAddrs      []sdktypes.AccAddress
+	initialBondedAmount math.Int
+
+	chainCoins     ChainCoins
+	initialAmounts InitialAmounts
+	// otherCoinDenoms represents the other possible coin denominations that can be passed during
+	// test suite intialization to provide other coins initial balances.
+	otherCoinDenoms   []string
+	preFundedAccounts []sdktypes.AccAddress
+	balances          []banktypes.Balance
 }
 
 type CustomGenesisState map[string]interface{}
@@ -43,12 +53,16 @@ func DefaultConfig() Config {
 	account, _ := testtx.NewAccAddressAndKey()
 
 	return Config{
-		chainID:            testconstants.ExampleChainID,
-		eip155ChainID:      big.NewInt(testconstants.ExampleEIP155ChainID),
-		chainCoins:         DefaultChainCoins(),
-		amountOfValidators: 3,
-		// No funded accounts besides the validators by default
+		chainID:             testconstants.ExampleChainID,
+		eip155ChainID:       big.NewInt(testconstants.ExampleEIP155ChainID),
+		chainCoins:          DefaultChainCoins(),
+		initialAmounts:      DefaultInitialAmounts(),
+		initialBondedAmount: DefaultInitialBondedAmount(),
+		amountOfValidators:  3,
+
+		// Only one account besides the validators
 		preFundedAccounts: []sdktypes.AccAddress{account},
+
 		// NOTE: Per default, the balances are left empty, and the pre-funded accounts are used.
 		balances:           nil,
 		customGenesisState: nil,
@@ -68,8 +82,13 @@ func getGenAccountsAndBalances(cfg Config, validators []stakingtypes.Validator) 
 		genAccounts = createGenesisAccounts(cfg.preFundedAccounts)
 
 		denomDecimals := cfg.chainCoins.DenomDecimalsMap()
-		denoms := maps.Keys(denomDecimals)
-		balances = createBalances(cfg.preFundedAccounts, append(cfg.otherCoinDenom, denoms...), denomDecimals)
+
+		// All extra denom specified are represented with the base coin decimal.
+		for _, denom := range cfg.otherCoinDenoms {
+			denomDecimals[denom] = cfg.chainCoins.BaseDecimals()
+		}
+
+		balances = createBalances(cfg.preFundedAccounts, denomDecimals)
 	}
 
 	// append validators to genesis accounts and balances
@@ -168,7 +187,7 @@ func WithCustomGenesis(customGenesis CustomGenesisState) ConfigOption {
 // WithOtherDenoms sets other possible coin denominations for the network.
 func WithOtherDenoms(otherDenoms []string) ConfigOption {
 	return func(cfg *Config) {
-		cfg.otherCoinDenom = otherDenoms
+		cfg.otherCoinDenoms = otherDenoms
 	}
 }
 

@@ -50,10 +50,6 @@ func EvmosAppOptions(chainID string) error {
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := ChainsCoinInfo[id]
 	if !found {
-		for key := range ChainsCoinInfo {
-			println("got available chain ids:" + key)
-		}
-
 		return fmt.Errorf("unknown chain id: %s", id)
 	}
 

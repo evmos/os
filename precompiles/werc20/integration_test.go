@@ -4,7 +4,6 @@
 package werc20_test
 
 import (
-	"fmt"
 	"math/big"
 	"testing"
 
@@ -137,9 +136,6 @@ var _ = When("a user interact with the WEVMOS precompiled contract", func() {
 
 		is.wrappedCoinDenom = evmtypes.GetEVMCoinDenom()
 		is.precompileAddrHex = network.GetWEVMOSContractHex(is.network.GetChainID())
-
-		fmt.Println("evm coin denom", evmtypes.GetEVMCoinDenom())
-		fmt.Println("chain id", is.network.GetChainID())
 
 		ctx := integrationNetwork.GetContext()
 

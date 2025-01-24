@@ -19,25 +19,28 @@ import (
 
 func TestWithChainID(t *testing.T) {
 	testCases := []struct {
-		name             string
-		chainID          string
-		denom            string
-		decimals         evmtypes.Decimals
-		expBalanceCosmos math.Int
+		name            string
+		chainID         string
+		denom           string
+		decimals        evmtypes.Decimals
+		expBaseFee      math.LegacyDec
+		expCosmosAmount math.Int
 	}{
 		{
-			name:             "18 decimals",
-			chainID:          testconstants.ExampleChainID,
-			denom:            testconstants.ExampleAttoDenom,
-			decimals:         evmtypes.EighteenDecimals,
-			expBalanceCosmos: network.PrefundedAccountInitialBalance,
+			name:            "18 decimals",
+			chainID:         testconstants.ExampleChainID,
+			denom:           testconstants.ExampleAttoDenom,
+			decimals:        evmtypes.EighteenDecimals,
+			expBaseFee:      math.LegacyNewDec(875_000_000),
+			expCosmosAmount: network.GetInitialAmount(evmtypes.EighteenDecimals),
 		},
 		{
-			name:             "6 decimals",
-			chainID:          testconstants.SixDecimalsChainID,
-			denom:            testconstants.ExampleMicroDenom,
-			decimals:         evmtypes.SixDecimals,
-			expBalanceCosmos: network.PrefundedAccountInitialBalance.QuoRaw(1e12),
+			name:            "6 decimals",
+			chainID:         testconstants.SixDecimalsChainID,
+			denom:           testconstants.ExampleMicroDenom,
+			decimals:        evmtypes.SixDecimals,
+			expBaseFee:      math.LegacyNewDecWithPrec(875, 6),
+			expCosmosAmount: network.GetInitialAmount(evmtypes.SixDecimals),
 		},
 	}
 
@@ -50,6 +53,7 @@ func TestWithChainID(t *testing.T) {
 				network.WithChainID(tc.chainID),
 				network.WithPreFundedAccounts(keyring.GetAllAccAddrs()...),
 			}
+
 			nw := network.New(opts...)
 
 			handler := grpchandler.NewIntegrationHandler(nw) //nolint:staticcheck // Somehow the linter marks this as not being used, even though it's used below to get balances
@@ -59,15 +63,43 @@ func TestWithChainID(t *testing.T) {
 			configurator.ResetTestConfig()
 			require.NoError(t, configurator.WithEVMCoinInfo(tc.denom, uint8(tc.decimals)).Configure())
 
+			// ------------------------------------------------------------------------------------
+			// Checks on initial balances.
+			// ------------------------------------------------------------------------------------
+
+			// Evm balance should always be in 18 decimals regardless of the
+			// chain ID.
+
 			// Evm balance should always be in 18 decimals
 			req, err := handler.GetBalanceFromEVM(keyring.GetAccAddr(0))
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, network.PrefundedAccountInitialBalance.String(), req.Balance, "expected amount to be in 18 decimals")
+			require.Equal(t,
+				network.GetInitialAmount(evmtypes.EighteenDecimals).String(),
+				req.Balance,
+				"expected amount to be in 18 decimals",
+			)
 
-			// Bank balance should always be in the original amount
+			// Bank balance should always be in the original amount.
 			cReq, err := handler.GetBalanceFromBank(keyring.GetAccAddr(0), tc.denom)
 			require.NoError(t, err, "error getting balances")
-			require.Equal(t, tc.expBalanceCosmos.String(), cReq.Balance.Amount.String(), "expected amount to be in original decimals")
+			require.Equal(t,
+				tc.expCosmosAmount.String(),
+				cReq.Balance.Amount.String(),
+				"expected amount to be in original decimals",
+			)
+
+			// ------------------------------------------------------------------------------------
+			// Checks on the base fee.
+			// ------------------------------------------------------------------------------------
+			// Base fee should always be represented with the decimal
+			// representation of the EVM denom coin.
+			bfResp, err := handler.GetBaseFee()
+			require.NoError(t, err, "error getting base fee")
+			require.Equal(t,
+				tc.expBaseFee.String(),
+				bfResp.BaseFee.String(),
+				"expected amount to be in 18 decimals",
+			)
 		})
 	}
 }
