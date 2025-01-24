@@ -2,13 +2,13 @@
 This changelog was created using the `clu` binary
 (https://github.com/MalteHerrmann/changelog-utils).
 -->
-
 # Changelog
 
 ## Unreleased
 
 ### Improvements
 
+- (all) [#69](https://github.com/evmos/os/pull/69) Bump to latest state on Evmos main (0402a01c).
 - (erc20) [#57](https://github.com/evmos/os/pull/57) Reference EIP-7528 (native asset address) in default ERC-20 params.
 - (all) [#60](https://github.com/evmos/os/pull/60) Apply latest changes from Evmos repo (f943af3b to b72a32d76).
 - (cli) [#55](https://github.com/evmos/os/pull/55) Add missing list key types subcommand.
