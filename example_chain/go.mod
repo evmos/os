@@ -23,7 +23,7 @@ require (
 	github.com/cosmos/ibc-go/v8 v8.5.2
 	github.com/ethereum/go-ethereum v1.11.5
 	github.com/evmos/os v0.0.0-20240806115830-ab675cc0c776
-	github.com/onsi/ginkgo/v2 v2.22.1
+	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/cobra v1.8.1
