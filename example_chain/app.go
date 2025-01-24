@@ -574,6 +574,7 @@ func NewExampleApp(
 			app.EVMKeeper,
 			app.GovKeeper,
 			app.SlashingKeeper,
+			app.EvidenceKeeper,
 		),
 	)
 
