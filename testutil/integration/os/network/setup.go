@@ -177,6 +177,7 @@ func createTestingApp(chainID string, customBaseAppOptions ...func(*baseapp.Base
 		nil,
 		loadLatest,
 		appOptions,
+		exampleapp.EvmosAppOptions,
 		baseAppOptions...,
 	)
 }

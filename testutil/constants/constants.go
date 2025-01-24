@@ -26,7 +26,7 @@ const (
 	ExampleBech32Prefix = "evmos"
 
 	// ExampleEIP155ChainID provides an example EIP-155 chain ID for use in tests
-	ExampleEIP155ChainID = 9000
+	ExampleEIP155ChainID = 9001
 
 	// WEVMOSContractMainnet is the WEVMOS contract address for mainnet
 	WEVMOSContractMainnet = "0xD4949664cD82660AaE99bEdc034a0deA8A0bd517"
@@ -36,7 +36,7 @@ const (
 
 var (
 	// ExampleChainIDPrefix provides a chain ID prefix for EIP-155 that can be used in tests
-	ExampleChainIDPrefix = fmt.Sprintf("evmos_%d", ExampleEIP155ChainID)
+	ExampleChainIDPrefix = fmt.Sprintf("os_%d", ExampleEIP155ChainID)
 
 	// ExampleChainID provides a chain ID that can be used in tests
 	ExampleChainID = ExampleChainIDPrefix + "-1"

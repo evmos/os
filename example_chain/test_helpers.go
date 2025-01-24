@@ -54,7 +54,7 @@ func setup(withGenesis bool, invCheckPeriod uint, chainID string) (*ExampleChain
 	appOptions[flags.FlagHome] = DefaultNodeHome
 	appOptions[server.FlagInvCheckPeriod] = invCheckPeriod
 
-	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, baseapp.SetChainID(chainID))
+	app := NewExampleApp(log.NewNopLogger(), db, nil, true, appOptions, EvmosAppOptions, baseapp.SetChainID(chainID))
 	if withGenesis {
 		return app, app.DefaultGenesis()
 	}
@@ -130,6 +130,7 @@ func SetupTestingApp(chainID string) func() (ibctesting.TestingApp, map[string]j
 			log.NewNopLogger(),
 			db, nil, true,
 			simtestutil.NewAppOptionsWithFlagHome(DefaultNodeHome),
+			EvmosAppOptions,
 			baseapp.SetChainID(chainID),
 		)
 		return app, app.DefaultGenesis()

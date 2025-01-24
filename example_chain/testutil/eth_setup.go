@@ -81,6 +81,7 @@ func EthSetupWithDB(isCheckTx bool, chainID string, patchGenesis func(*exampleap
 		nil,
 		true,
 		simtestutil.NewAppOptionsWithFlagHome(exampleapp.DefaultNodeHome),
+		exampleapp.EvmosAppOptions,
 		baseapp.SetChainID(chainID),
 	)
 	if !isCheckTx {
