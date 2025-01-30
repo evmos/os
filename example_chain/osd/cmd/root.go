@@ -65,6 +65,7 @@ func NewRootCmd() *cobra.Command {
 		nil,
 		true,
 		emptyAppOptions{},
+		example_chain.EvmosAppOptions,
 	)
 
 	encodingConfig := sdktestutil.TestEncodingConfig{
@@ -366,6 +367,7 @@ func newApp(
 	return example_chain.NewExampleApp(
 		logger, db, traceStore, true,
 		appOpts,
+		example_chain.EvmosAppOptions,
 		baseappOptions...,
 	)
 }
@@ -400,13 +402,13 @@ func appExport(
 	appOpts = viperAppOpts
 
 	if height != -1 {
-		exampleApp = example_chain.NewExampleApp(logger, db, traceStore, false, appOpts)
+		exampleApp = example_chain.NewExampleApp(logger, db, traceStore, false, appOpts, example_chain.EvmosAppOptions)
 
 		if err := exampleApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		exampleApp = example_chain.NewExampleApp(logger, db, traceStore, true, appOpts)
+		exampleApp = example_chain.NewExampleApp(logger, db, traceStore, true, appOpts, example_chain.EvmosAppOptions)
 	}
 
 	return exampleApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs, modulesToExport)

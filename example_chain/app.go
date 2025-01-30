@@ -231,6 +231,7 @@ func NewExampleApp(
 	traceStore io.Writer,
 	loadLatest bool,
 	appOpts servertypes.AppOptions,
+	evmosAppOptions EvmosOptionsFn,
 	baseAppOptions ...func(*baseapp.BaseApp),
 ) *ExampleChain {
 	encodingConfig := evmosencoding.MakeConfig()
@@ -280,7 +281,7 @@ func NewExampleApp(
 	bApp.SetTxEncoder(txConfig.TxEncoder())
 
 	// initialize the evmOS application configuration
-	if err := InitializeAppConfiguration(bApp.ChainID()); err != nil {
+	if err := evmosAppOptions(bApp.ChainID()); err != nil {
 		panic(err)
 	}
 
@@ -574,6 +575,7 @@ func NewExampleApp(
 			app.EVMKeeper,
 			app.GovKeeper,
 			app.SlashingKeeper,
+			app.EvidenceKeeper,
 		),
 	)
 

@@ -9,6 +9,7 @@ import (
 	testkeyring "github.com/evmos/os/testutil/integration/os/keyring"
 	"github.com/evmos/os/testutil/integration/os/network"
 	"github.com/evmos/os/testutil/integration/os/utils"
+	evmtypes "github.com/evmos/os/x/evm/types"
 	"github.com/stretchr/testify/require"
 )
 
@@ -27,13 +28,13 @@ func TestCheckBalances(t *testing.T) {
 		{
 			name:      "pass - eighteen decimals",
 			decimals:  18,
-			expAmount: network.PrefundedAccountInitialBalance,
+			expAmount: network.GetInitialAmount(evmtypes.EighteenDecimals),
 			expPass:   true,
 		},
 		{
 			name:      "pass - six decimals",
 			decimals:  6,
-			expAmount: network.PrefundedAccountInitialBalance.Quo(math.NewInt(1e12)),
+			expAmount: network.GetInitialAmount(evmtypes.SixDecimals),
 			expPass:   true,
 		},
 		{

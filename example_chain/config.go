@@ -7,12 +7,24 @@
 package example_chain
 
 import (
+	"fmt"
 	"strings"
 
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	evmtypes "github.com/evmos/os/x/evm/types"
 )
+
+// EvmosOptionsFn defines a function type for setting app options specifically for
+// the Evmos app. The function should receive the chainID and return an error if
+// any.
+type EvmosOptionsFn func(string) error
+
+// NoOpEvmosOptions is a no-op function that can be used when the app does not
+// need any specific configuration.
+func NoOpEvmosOptions(_ string) error {
+	return nil
+}
 
 var sealed = false
 
@@ -27,24 +39,17 @@ var ChainsCoinInfo = map[string]evmtypes.EvmCoinInfo{
 	},
 }
 
-// InitializeAppConfiguration allows to setup the global configuration
-// for the evmOS EVM.
-func InitializeAppConfiguration(chainID string) error {
+// EvmosAppOptions allows to setup the global configuration
+// for the Evmos chain.
+func EvmosAppOptions(chainID string) error {
 	if sealed {
-		return nil
-	}
-
-	// When calling any CLI command, it creates a tempApp inside RootCmdHandler with an empty chainID.
-	// In that case we want to return here and not touch the app configuration.
-	if chainID == "" {
 		return nil
 	}
 
 	id := strings.Split(chainID, "-")[0]
 	coinInfo, found := ChainsCoinInfo[id]
 	if !found {
-		// default to 18 decimals coin info
-		coinInfo = ChainsCoinInfo[EighteenDecimalsChainID]
+		return fmt.Errorf("unknown chain id: %s", id)
 	}
 
 	// set the denom info for the chain
@@ -79,6 +84,7 @@ func setBaseDenom(ci evmtypes.EvmCoinInfo) error {
 		return err
 	}
 
-	// sdk.RegisterDenom will automatically overwrite the base denom when the new denom units are lower than the current base denom's units.
+	// sdk.RegisterDenom will automatically overwrite the base denom when the
+	// new setBaseDenom() are lower than the current base denom's units.
 	return sdk.RegisterDenom(ci.Denom, math.LegacyNewDecWithPrec(1, int64(ci.Decimals)))
 }
