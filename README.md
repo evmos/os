@@ -24,8 +24,6 @@ evmOS can easily be integrated into your existing chain
 or added during the development of your upcoming chain launch
 by importing evmOS as a go module library.
 The evmOS team provides you with integration guides and core protocol support depending on your needs and configurations.
-Please check [below](#how-to-become-an-evmos-partner)
-how to become an evmOS partner.
 
 ### Configurations
 
@@ -124,38 +122,3 @@ meaning that any evmOS chain can run any valid smart contract
 from Ethereum but can also implement new features that are
 not (yet) available on the standard Ethereum VM,
 thus moving the standard forward.
-
-## Roadmap
-
-Our near-term roadmap looks like this:
-
-**2024 Q3 - v1**
-
-- Cosmos SDK v0.50 support
-
-**2024 Q4 - v2**
-
-- Proof of Authority
-- ADR-008
-- Support for modular Blockchains - integrate with Rollchain
-
-Of course, we are always open to collaborate with our partners
-in case of mutual interests for other features.
-
-## How to become an evmOS partner?
-
-evmOS operates under a Non-Commercial License,
-ensuring our partnerships are focused on building successful
-business cases that contribute to the long-term success of both evmOS
-and your project.
-Our team, consisting of the creators of Ethermint and
-seasoned experts in Cosmos and EVM,
-is ready to assist with technical onboarding, support,
-and go-to-market strategies.
-
-If you're interested in integrating evmOS into your stack
-and exploring a partnership, please reach out
-to discuss your product and technical requirements.
-We look forward to collaborating with you on this journey.
-
-Contact us at [https://evmos.org/contact-us](https://evmos.org/contact-us/)
