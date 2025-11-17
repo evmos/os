@@ -111,8 +111,8 @@ Based on these powerful defaults, the feature set is easily and highly customiza
 
 Ethereum-equivalence describes any EVM solution,
 that is identical in transaction execution to the Ethereum client.
-It does not more, but also not less than that.  
-Ethereum-compatible means,
+It does no more, but also not less than that.  
+Ethereum-compatible means
 that the EVM can be set up to run every transaction that is valid on Ethereum,
 while the handling of the transactions can diverge in e.g. result or cost.
 
